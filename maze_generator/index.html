@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>迷宮產生器</title>
+    <script src="maze.js"></script>
+    <script src="screen.js"></script>
+    <script src="main.js"></script>
+    <style>
+        div {
+            text-align: center;
+        }
+
+        span {
+            display: block;
+        }
+
+        canvas {
+            display: inline-block;
+        }
+
+        input {
+            max-width: 45px;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <span>
+    <button onclick="generateMaze()">生成迷宮</button>
+    <button onclick="toggleAnswer()" id="answer">顯示解答</button>
+        <label>迷宮大小 (x)
+        <input type="number" name="maze_size_x" id="maze_size_x" value="10">
+        </label>
+        <label>迷宮大小 (y)
+        <input type="number" name="maze_size_y" id="maze_size_y" value="10">
+        </label>
+        <label>格子大小 (x)
+        <input type="number" name="maze_blank_x" id="blank_x" value="40">
+        </label>
+        <label>格子大小 (y)
+        <input type="number" name="maze_blank_y" id="blank_y" value="40">
+        </label>
+        <label>格線粗細
+        <input type="number" name="maze_width" id="width" value="5">
+        </label>
+    </span>
+    <canvas id="maze" height="900" width="900"></canvas>
+</div>
+</body>
+</html>
