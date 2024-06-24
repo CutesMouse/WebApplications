@@ -4,3 +4,4 @@
 ## 目前有的功能
 - [迷宮產生器 Maze generator (應用disjoint-set及BFS演算法)](https://cutesmouse.github.io/WebApplications/maze_generator/index.html)
 - [踩地雷 Mine Sweeper (使用Typescript語法並應用BFS演算法)](https://cutesmouse.github.io/WebApplications/minesweeper/index.html)
+- [2048(仿中央電機DSD Final Project)](https://cutesmouse.github.io/WebApplications/2048/2048.html)
