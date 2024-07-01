@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>爆爆王</title>
+    <script src="grid_format.js"></script>
+    <script src="game.js"></script>
+    <script>
+
+        let game = new Game();
+        let canvas = null;
+        let ctx = null;
+        let img = null;
+        let fpga = null;
+        let ready_cnt = 0;
+
+        let picture_size = 100;
+        let block_size = 100;
+
+        let button_press = [0, 0, 0, 0, 0];
+        let ssd = [1, 1, 2, 3, 4, 5, 6, 7];
+
+        let clk2Hz = MASK, clk4Hz = MASK;
+
+        setInterval(() => clk2Hz = (!clk2Hz ? MASK : 0), 500);
+        setInterval(() => clk4Hz = (!clk4Hz ? MASK : 0), 250);
+
+        window.onload = function () {
+            canvas = document.getElementById('canvas');
+            canvas.width = 8 * block_size;
+            canvas.height = 9 * block_size;
+            canvas.addEventListener('mousedown', mouse_clicking);
+            canvas.addEventListener('mouseup', mouse_releasing);
+            ctx = canvas.getContext('2d');
+            img = new Image();
+            fpga = new Image();
+            img.src = "Bomb.png";
+            fpga.src = "FPGA.png";
+
+            let ready_task = function () {
+                ready_cnt++;
+                if (ready_cnt === 2) setInterval(render, 20);
+            };
+
+            img.onload = fpga.onload = ready_task;
+        };
+        window.addEventListener('resize', resize);
+
+        window.addEventListener('keyup', keyboard_moving);
+
+        function render() {
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // VGA SCREEN
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 6; j++) {
+                    let di = game.render_offset_x;
+                    let dj = game.render_offset_y;
+                    ctx.drawImage(img, picture_size * game.map[i + di][j + dj], 0, picture_size, picture_size, block_size * i, block_size * (j + 1), block_size, block_size)
+                }
+            }
+
+            // LED
+            for (let i = 0; i < 16; i++) {
+                let offset = 100 + 100 * !((game.led >> i) & 1);
+                ctx.drawImage(fpga, offset, 0, picture_size, picture_size, (block_size / 2) * i + block_size * 0.125, block_size * 7, block_size / 4, block_size / 4);
+            }
+            // Switch
+            ctx.drawImage(fpga, 50 * (game.mode === false), 0, picture_size / 2, picture_size, block_size * 1.75, block_size * 7.5, block_size / 2, block_size);
+            ctx.drawImage(fpga, 50 * (game.level === false), 0, picture_size / 2, picture_size, block_size * 2.75, block_size * 7.5, block_size / 2, block_size);
+            // Button
+            ctx.drawImage(fpga, 300 + 100 * (button_press[0] === 1), 0, picture_size, picture_size / 2, block_size * 4.5, block_size * 7.25, block_size, block_size / 2); // S0
+            ctx.drawImage(fpga, 300 + 100 * (button_press[1] === 1), 0, picture_size, picture_size / 2, block_size * 3.5, block_size * 7.75, block_size, block_size / 2); // S1
+            ctx.drawImage(fpga, 300 + 100 * (button_press[2] === 1), 0, picture_size, picture_size / 2, block_size * 4.5, block_size * 7.75, block_size, block_size / 2); // S2
+            ctx.drawImage(fpga, 300 + 100 * (button_press[3] === 1), 0, picture_size, picture_size / 2, block_size * 5.5, block_size * 7.75, block_size, block_size / 2); // S3
+            ctx.drawImage(fpga, 300 + 100 * (button_press[4] === 1), 0, picture_size, picture_size / 2, block_size * 4.5, block_size * 8.25, block_size, block_size / 2); // S4
+            // SSD
+            update_ssd();
+            for (let i = 0; i < 8; i++) {
+                if (ssd[i] > 9 || ssd[i] < 0) continue;
+                ctx.drawImage(fpga, 50 * ssd[i], 100, picture_size / 2, picture_size, (block_size) * i + 0.25 * block_size, 0, block_size / 2, block_size);
+            }
+        }
+
+        function update_ssd() {
+            ssd[0] = -1;
+            ssd[1] = 1 * game.level;
+            ssd[2] = -1;
+            ssd[3] = (game.mode === GUN_MODE ? game.bullet_amount : game.bomb_amount);
+            ssd[4] = Math.floor(game.destroy_stones / 10);
+            ssd[5] = game.destroy_stones % 10;
+            ssd[6] = -1;
+            ssd[7] = 1 * game.win;
+        }
+
+        function keyboard_moving(event) {
+            if (event.key === 'A' || event.key === 'a') game.move_left();
+            else if (event.key === 'W' || event.key === 'w') game.move_up();
+            else if (event.key === 'S' || event.key === 's') game.move_down();
+            else if (event.key === 'D' || event.key === 'd') game.move_right();
+            else if (event.key === 'E' || event.key === 'e') game.interact();
+        }
+
+        function mouse_releasing() {
+            for (let i = 0; i < 5; i++) button_press[i] = 0;
+        }
+
+        function mouse_clicking(e) {
+            let dx = e.offsetX / block_size;
+            let dy = e.offsetY / block_size;
+            if (dx > 4.5 && dx < 5.3 && dy > 7.2 && dy < 7.7) button_interact(0);
+            if (dx > 3.5 && dx < 4.5 && dy > 7.7 && dy < 8.2) button_interact(1);
+            if (dx > 4.5 && dx < 5.5 && dy > 7.7 && dy < 8.2) button_interact(2);
+            if (dx > 5.5 && dx < 6.5 && dy > 7.7 && dy < 8.2) button_interact(3);
+            if (dx > 4.5 && dx < 5.3 && dy > 8.2 && dy < 8.7) button_interact(4);
+            if (dx > 1.7 && dx < 2.3 && dy > 7.5 && dy < 8.5) game.switch_mode();
+            if (dx > 2.7 && dx < 3.3 && dy > 7.5 && dy < 8.5) game.switch_level();
+        }
+
+        function button_interact(index) {
+            button_press[index] = 1;
+
+            switch (index) {
+                case 0: // UP
+                    game.move_up();
+                    break;
+                case 1: // LEFT
+                    game.move_left();
+                    break;
+                case 2: // S2
+                    game.interact();
+                    break;
+                case 3: // RIGHT
+                    game.move_right();
+                    break;
+                case 4: // DOWN
+                    game.move_down();
+                    break;
+            }
+        }
+
+        function resize() {
+            block_size = Math.min((window.innerWidth-5) / 8, (window.innerHeight-5) / 9);
+            canvas.width = 8 * block_size;
+            canvas.height = 9 * block_size;
+        }
+
+    </script>
+    <style>
+        html, body {
+            width:  100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+</body>
+</html>
