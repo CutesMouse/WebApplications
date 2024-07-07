@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UNO</title>
+    <script src="Constants.js"></script>
+    <script src="Hint.js"></script>
+    <script src="Player.js"></script>
+    <script src="UNO.js"></script>
+    <script>
+        let block_scale = 1; // scale related to 1600, 900
+        const card_scale = 0.5;
+        const self_card_scale = 1;
+        const thrown_card_scale = 1.3;
+        const stack_card_scale = 1;
+        const animation_scale = 1;
+
+
+        let game = null;
+        let canvas = null;
+        let ctx = null;
+        let img = null;
+        let desk = null;
+        let button = null;
+        let anime = null;
+
+        let loadCnt = 0;
+
+        window.onload = function () {
+            canvas = document.getElementById('canvas');
+            resize();
+            game = new UNO(canvas);
+            canvas.addEventListener('mousemove', (e) => hover_detect(e.offsetX, e.offsetY));
+            canvas.addEventListener('touchmove', (e) => {
+                let rect = e.target.getBoundingClientRect();
+                hover_detect(e.targetTouches[0].pageX - rect.left, e.targetTouches[0].pageY - rect.top);
+                e.preventDefault();
+            });
+            ctx = canvas.getContext('2d');
+            img = new Image();
+            img.src = "UNO_CARD.png";
+            desk = new Image();
+            desk.src = "Desk.png";
+            button = new Image();
+            button.src = "Button.png";
+            anime = new Image();
+            anime.src = "animation.png";
+
+            let load = function () {
+                if (++loadCnt === 4) setInterval(render, 16);
+            }
+
+            img.onload = desk.onload = button.onload = anime.onload = load;
+        };
+
+        window.onmouseup = () => {
+            if (game.is_over) return;
+            if (hovering !== null) {
+                game.players[2].throw(hovering);
+                cancel_hover();
+            }
+            if (game.card_stack_hint !== null) {
+                game.card_stack_hint.press();
+            }
+            for (let i = 0; i < 4; i++) {
+                if (game.hovering_wild_color_bar[i]) game.players[2].throw_wild_card(i);
+            }
+        }
+
+        let animating_objects = [];
+
+        function render() {
+            ctx.drawImage(desk, 0, 0, 1600, 900, 0, 0, 1600 * block_scale, 900 * block_scale);
+
+            render_hint();
+
+            // STACKING CARD
+            for (let i = 0; i < game.cards.length; i++) {
+                render_card(block_scale * (STACKING_POSITION_X - i / 6), block_scale * (STACKING_POSITION_Y - i / 6),
+                    0, game.cards[0], stack_card_scale * block_scale);
+            }
+
+            // PLAYER 1 (UP)
+            render_horizontal(game.players[0].cards, 180, game.players[0].card_offset_scale, HORI_OFFSET, card_scale, HOVER_OFFSET);
+
+            // PLAYER 2 (LEFT)
+            render_vertical(game.players[1].cards, 90, game.players[1].card_offset_scale, VERT_OFFSET, card_scale, HOVER_OFFSET);
+
+            // PLAYER 4 (RIGHT)
+            render_vertical(game.players[3].cards, -90, game.players[3].card_offset_scale, 1600 - VERT_OFFSET - PICTURE_HEIGHT * card_scale, card_scale, HOVER_OFFSET);
+
+            // PLAYER 3 (SELF, DOWN)
+            render_horizontal(game.players[2].cards, 0, game.players[2].card_offset_scale, 900 - HORI_OFFSET - PICTURE_HEIGHT * self_card_scale, self_card_scale, HOVER_OFFSET);
+
+            // THROWING CARDS
+            for (let obj of game.thrown_cards) {
+                render_card(obj.x, obj.y, obj.rotate, obj.card, obj.scale);
+            }
+
+            // WILD COLOR BAR
+            wild_color_bar();
+
+            // ANIMATING OBJS
+            for (let ani of animating_objects) {
+                if (ani.centered) {
+                    render_centered_object(ani.img, ani.x, ani.y, ani.offset_x, ani.offset_y, ani.width, ani.height, ani.rotate, ani.scale, ani.opacity);
+                } else render_object(ani.img, ani.x, ani.y, ani.offset_x, ani.offset_y, ani.width, ani.height, ani.rotate, ani.scale, ani.opacity);
+            }
+
+            // GAME OVER
+            if (game.is_over) game_over();
+        }
+
+        function render_horizontal(cards, rotate, scale_offsetX, offsetY, card_scale, hover_offset) {
+            let _dx = (canvas.width / 2)
+                - (PICTURE_WIDTH * card_scale * block_scale * (1 + (cards.length - 1) * scale_offsetX) * 0.5)
+                + (rotate === 180) * PICTURE_WIDTH * card_scale * block_scale;
+            let _dy = offsetY * block_scale + (rotate === 180) * card_scale * PICTURE_HEIGHT * block_scale;
+
+            for (let i = 0; i < cards.length; i++) {
+                let offsetY = cards[i].hover_offset * hover_offset * block_scale;
+                render_card(_dx + (card_scale * PICTURE_WIDTH * i * scale_offsetX * block_scale),
+                    _dy - offsetY,
+                    rotate,
+                    cards[i],
+                    card_scale * block_scale);
+            }
+        }
+
+        function render_vertical(cards, rotate, scale_offsetX, offsetY, card_scale, hover_offset) {
+            let _dx = offsetY * block_scale + (rotate === 90) * card_scale * PICTURE_HEIGHT * block_scale;
+            let _dy = (canvas.height / 2)
+                - (PICTURE_WIDTH * card_scale * block_scale * (1 + (cards.length - 1) * scale_offsetX) * 0.5)
+                + (rotate !== 90) * PICTURE_WIDTH * card_scale * block_scale;
+
+            for (let i = 0; i < cards.length; i++) {
+                let offsetY = cards[i].hover_offset * hover_offset;
+                render_card(_dx + (rotate === 90 ? offsetY : -offsetY),
+                    _dy + (card_scale * PICTURE_WIDTH * i * scale_offsetX * block_scale),
+                    rotate,
+                    cards[i],
+                    card_scale * block_scale);
+            }
+        }
+
+        function render_object(image, x, y, offsetx, offsety, width, height, rotate, scale, opacity = 1) {
+            let rad = Math.PI * 2 * rotate / 360;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(rad);
+            ctx.globalAlpha = opacity;
+            ctx.drawImage(image, offsetx, offsety, width, height,
+                0, 0, scale * width, scale * height);
+            ctx.restore();
+        }
+
+        // x, y are the center of the rendered object
+        function render_centered_object(image, x, y, offsetx, offsety, width, height, rotate, scale, opacity = 1) {
+            let rad = Math.PI * 2 * rotate / 360;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(rad);
+            ctx.globalAlpha = opacity;
+            ctx.drawImage(image, offsetx, offsety, width, height,
+                -width * scale / 2, -height * scale / 2, scale * width, scale * height);
+            ctx.restore();
+        }
+
+        function render_card(x, y, rotate, card, scale) {
+            let offset = card.picture_address();
+            render_object(img, x, y, offset[0], offset[1], PICTURE_WIDTH, PICTURE_HEIGHT, rotate, scale);
+        }
+
+        function render_hint() {
+            let hint = game.card_stack_hint;
+            if (hint === null) return;
+            ctx.globalAlpha = game.card_stack_opacity;
+            ctx.drawImage(button, hint.picture_offset_x, hint.picture_offset_y,
+                hint.picture_width, hint.picture_height,
+                block_scale * (STACKING_POSITION_X + PICTURE_WIDTH / 2 - hint.picture_width / 2 - game.cards.length / 6),
+                block_scale * (STACKING_POSITION_Y - 70 + 10 * game.card_stack_offset_y),
+                block_scale * hint.picture_width, block_scale * hint.picture_height);
+            ctx.globalAlpha = 1;
+
+        }
+
+        let hovering = null;
+
+        function hover_detect(ofx, ofy) {
+            if (game.is_over) return;
+            let x = ofx / block_scale;
+            let y = ofy / block_scale;
+            let offset_scale = game.players[2].card_offset_scale;
+
+            // 確認疊牌的Hover
+            if (y > STACKING_POSITION_Y && y < STACKING_POSITION_Y + PICTURE_HEIGHT &&
+                x > STACKING_POSITION_X - game.cards.length / 6 && x < STACKING_POSITION_X + PICTURE_WIDTH) {
+                if (!game.hovering_card_stack) {
+                    game.hover_card_stack();
+                }
+            } else {
+                game.dehover_card_stack();
+            }
+
+            // 確認COLOR BAR的Hover
+            if (game.show_wild_color_bar) {
+                for (let i = 0; i < 4; i++) {
+                    let pos = wild_color_bar_position(i, game.wild_color_bar_scale[i]);
+                    let d = pos.scale * COLOR_BAR_SIZE / block_scale;
+                    let bar_x_left = pos.x / block_scale;
+                    let bar_y_top = pos.y / block_scale;
+                    if (x > bar_x_left && x < bar_x_left + d && y > bar_y_top && d < bar_y_top + d) {
+                        if (!game.hovering_wild_color_bar[i]) game.hover_wild_color_bar(i);
+                    } else if (game.hovering_wild_color_bar[i]) game.dehover_wild_color_bar(i);
+                }
+            }
+
+            // 確認出牌的Hover
+            if (y < 900 - HORI_OFFSET - PICTURE_HEIGHT * self_card_scale - HOVER_OFFSET || y > 900 - HORI_OFFSET) {
+                cancel_hover();
+                return;
+            }
+            let cards = game.players[2].cards;
+            let _dx = (1600 / 2) - (PICTURE_WIDTH * self_card_scale * (1 + (cards.length - 1) * offset_scale) * 0.5);
+            let dx = Math.floor((x - _dx) / (self_card_scale * PICTURE_WIDTH * offset_scale));
+            let boarder = PICTURE_WIDTH * self_card_scale * (1 + (cards.length - 1) * offset_scale);
+            if (dx < 0 || (x - _dx) > boarder) {
+                cancel_hover();
+                return;
+            }
+
+            let new_hover = game.players[2].cards[game.players[2].cards.length - 1];
+            if (dx < game.players[2].cards.length) new_hover = game.players[2].cards[dx];
+
+            // 在Hover的牌上方
+            if (y < 900 - HORI_OFFSET - PICTURE_HEIGHT * self_card_scale) {
+                if (hovering === null) return;
+                if (new_hover === hovering) return;
+                let ofs = self_card_scale * PICTURE_WIDTH;
+                let left = _dx + (dx - 1) * ofs * offset_scale;
+                if (x > left && x < left + ofs) return;
+                cancel_hover();
+                return;
+            }
+
+            if (new_hover !== hovering) {
+                cancel_hover();
+                new_hover.hover();
+                hovering = new_hover;
+            }
+
+        }
+
+        function cancel_hover() {
+            if (hovering !== null) hovering.dehover();
+            hovering = null;
+        }
+
+        function wild_color_bar() {
+            if (!game.show_wild_color_bar) return;
+            for (let i = 0; i < 4; i++) {
+                let scale = game.wild_color_bar_scale[i];
+                let pos = wild_color_bar_position(i, scale);
+                render_object(button, pos.x, pos.y, pos.offset_x, pos.offset_y, COLOR_BAR_SIZE, COLOR_BAR_SIZE, 0, pos.scale);
+            }
+        }
+
+        function transformation_animation(render_data, post_task) {
+            let from_rotate = render_data.from_rotate;
+            let from_x = render_data.from_x;
+            let from_y = render_data.from_y;
+            let from_scale = render_data.from_scale;
+            let from_opacity = render_data.hasOwnProperty("from_opacity") ? render_data.from_opacity : 1;
+
+            let to_x = render_data.to_x;
+            let to_y = render_data.to_y;
+            let to_rotate = render_data.to_rotate;
+            let to_scale = render_data.to_scale;
+            let to_opacity = render_data.hasOwnProperty("to_opacity") ? render_data.to_opacity : 1;
+
+            let duration = render_data.duration;
+
+            let img = render_data.img;
+            let offset_x = render_data.offset_x;
+            let offset_y = render_data.offset_y;
+            let width = render_data.width;
+            let height = render_data.height;
+
+            let centered = render_data.hasOwnProperty("centered") ? render_data.centered : false;
+
+            let t = 0;
+            let obj = {
+                x: from_x,
+                y: from_y,
+                rotate: from_rotate,
+                opacity: from_opacity,
+                scale: from_scale,
+                offset_x: offset_x,
+                offset_y: offset_y,
+                width: width,
+                height: height,
+                img: img,
+                centered: centered
+            }
+            animating_objects.push(obj);
+            let task = setInterval(() => {
+                if ((t + timeout) === duration) {
+                    post_task(obj);
+                    let index = animating_objects.indexOf(obj);
+                    animating_objects.splice(index, 1);
+                    clearInterval(task);
+                }
+                t = t + timeout;
+                obj.x = from_x + (to_x - from_x) * Math.sin(t / duration * Math.PI / 2);
+                obj.y = from_y + (to_y - from_y) * Math.sin(t / duration * Math.PI / 2);
+                obj.rotate = from_rotate + (to_rotate - from_rotate) * Math.sin(t / duration * Math.PI / 2);
+                obj.scale = from_scale + (to_scale - from_scale) * Math.sin(t / duration * Math.PI / 2);
+                obj.opacity = from_opacity + (to_opacity - from_opacity) * Math.sin(t / duration * Math.PI / 2);
+            }, timeout);
+        }
+
+        function throwing_animation(player, card, index) {
+
+            let player_index = game.players.indexOf(player);
+            let from_rotate = CARD_ROTATE_PLAYER[player_index];
+            let from_x = 0;
+            let from_y = CARD_OFFSET_Y()[player_index];
+            let from_scale = (player_index === 2 ? self_card_scale : card_scale) * block_scale;
+
+            let std = Math.min(canvas.width, canvas.height) * 0.03;
+            let to_x = gaussianRandom(canvas.width / 2, std);
+            let to_y = gaussianRandom(canvas.height / 2, std);
+            let to_rotate = gaussianRandom(from_rotate, 10);
+            let to_scale = thrown_card_scale * block_scale;
+
+            switch (player_index) {
+                case 0: // PLAYER 1
+                case 2: // PLAYER 3
+                    from_x = (canvas.width / 2)
+                        - (PICTURE_WIDTH * from_scale * block_scale * (1 + (player.cards.length - 1) * player.card_offset_scale) * 0.5)
+                        + (from_rotate === 180) * PICTURE_WIDTH * from_scale * block_scale
+                        + (from_scale * PICTURE_WIDTH * index * player.card_offset_scale * block_scale);
+                    from_y = from_y * block_scale + (from_rotate === 180) * from_scale * PICTURE_HEIGHT * block_scale
+                        - card.hover_offset * HOVER_OFFSET * block_scale;
+                    to_x = to_x + (from_rotate === 0 ? -PICTURE_WIDTH / 2 : PICTURE_WIDTH / 2);
+                    to_y = to_y + (from_rotate === 0 ? -PICTURE_HEIGHT / 2 : PICTURE_HEIGHT / 2);
+                    break;
+                case 1:
+                case 3:
+                    from_x = from_y * block_scale + (from_rotate === 90) * card_scale * PICTURE_HEIGHT * block_scale;
+                    from_y = (canvas.height / 2)
+                        - (PICTURE_WIDTH * card_scale * block_scale * (1 + (player.cards.length - 1) * player.card_offset_scale) * 0.5)
+                        + (from_rotate !== 90) * PICTURE_WIDTH * card_scale * block_scale
+                        + (from_scale * PICTURE_WIDTH * index * player.card_offset_scale * block_scale);
+                    to_x = to_x + (from_rotate === 90 ? PICTURE_WIDTH / 2 : -PICTURE_WIDTH / 2);
+                    to_y = to_y + (from_rotate === 90 ? -PICTURE_HEIGHT / 2 : PICTURE_HEIGHT / 2);
+                    break;
+            }
+
+            let offset = card.picture_address();
+
+            let render_data = {
+                from_x: from_x,
+                from_y: from_y,
+                from_rotate: from_rotate,
+                from_scale: from_scale,
+                to_x: to_x,
+                to_y: to_y,
+                to_scale: to_scale,
+                to_rotate: to_rotate,
+                duration: THROW_TRANSIENT_TIME,
+                img: img,
+                offset_x: offset[0],
+                offset_y: offset[1],
+                width: PICTURE_WIDTH,
+                height: PICTURE_HEIGHT
+            };
+
+            transformation_animation(render_data, (post) => {
+                game.thrown_cards.push({
+                    x: post.x,
+                    y: post.y,
+                    rotate: post.rotate,
+                    scale: post.scale,
+                    card: card
+                });
+                game.awaiting = false;
+            });
+        }
+
+        function picking_animation(player, card, index, task = null) {
+            let player_index = game.players.indexOf(player);
+            let from_rotate = 0;
+            let from_x = STACKING_POSITION_X * block_scale;
+            let from_y = STACKING_POSITION_Y * block_scale;
+            let from_scale = stack_card_scale * block_scale;
+
+            let to_x = 0;
+            let to_y = CARD_OFFSET_Y()[player_index];
+            let to_rotate = CARD_ROTATE_PLAYER[player_index];
+            let to_scale = (player_index === 2 ? self_card_scale : card_scale) * block_scale;
+
+            switch (player_index) {
+                case 0: // PLAYER 1
+                case 2: // PLAYER 3
+                    to_x = (canvas.width / 2)
+                        - (PICTURE_WIDTH * to_scale * block_scale * (1 + (player.cards.length - 1) * player.card_offset_scale) * 0.5)
+                        + (to_rotate === 180) * PICTURE_WIDTH * to_scale * block_scale
+                        + (to_scale * PICTURE_WIDTH * index * player.card_offset_scale * block_scale);
+                    to_y = to_y * block_scale + (to_rotate === 180) * to_scale * PICTURE_HEIGHT * block_scale
+                        - card.hover_offset * HOVER_OFFSET * block_scale;
+                    break;
+                case 1:
+                case 3:
+                    to_x = to_y * block_scale + (to_rotate === 90) * card_scale * PICTURE_HEIGHT * block_scale;
+                    to_y = (canvas.height / 2)
+                        - (PICTURE_WIDTH * card_scale * block_scale * (1 + (player.cards.length - 1) * player.card_offset_scale) * 0.5)
+                        + (to_rotate !== 90) * PICTURE_WIDTH * card_scale * block_scale
+                        + (to_scale * PICTURE_WIDTH * index * player.card_offset_scale * block_scale);
+                    break;
+            }
+
+            let offset = card.picture_address();
+
+            let render_data = {
+                from_x: from_x,
+                from_y: from_y,
+                from_rotate: from_rotate,
+                from_scale: from_scale,
+                to_x: to_x,
+                to_y: to_y,
+                to_scale: to_scale,
+                to_rotate: to_rotate,
+                duration: THROW_TRANSIENT_TIME,
+                img: img,
+                offset_x: offset[0],
+                offset_y: offset[1],
+                width: PICTURE_WIDTH,
+                height: PICTURE_HEIGHT
+            };
+
+            transformation_animation(render_data, (post) => {
+                player.assign_card(card);
+                game.awaiting = false;
+                if (task !== null) task();
+            });
+        }
+
+        function play_skip_animation(player_index) {
+            let base_x = ANIMATION_PLACE_X()[player_index];
+            let base_y = ANIMATION_PLACE_Y()[player_index];
+            let offset_x = REVERSE_ANIMATION_WIDTH;
+            let offset_y = 0;
+            let width = SKIP_ANIMATION_WIDTH;
+            let height = SKIP_ANIMATION_HEIGHT;
+
+            let render_data = {
+                centered: true,
+                from_x: base_x * block_scale,
+                from_y: base_y * block_scale,
+                from_rotate: 0,
+                from_scale: 2 * animation_scale,
+                from_opacity: 0,
+                to_x: base_x * block_scale,
+                to_y: base_y * block_scale,
+                to_scale: animation_scale,
+                to_rotate: 0,
+                to_opacity: 0.5,
+                duration: CARD_TRANSIENT_TIME,
+                img: anime,
+                offset_x: offset_x,
+                offset_y: offset_y,
+                width: width,
+                height: height
+            };
+
+            let second_step = (post) => {
+                render_data.from_opacity = 0.5;
+                render_data.from_scale = animation_scale;
+                render_data.to_opacity = 0;
+                render_data.to_scale = 0;
+                transformation_animation(render_data, () => {
+                });
+            }
+
+            transformation_animation(render_data, second_step);
+        }
+
+        function play_reverse_animation(direction) {
+            let base_x = 800;
+            let base_y = 450;
+            let offset_x = 0;
+            let offset_y = 0;
+            let width = REVERSE_ANIMATION_WIDTH;
+            let height = REVERSE_ANIMATION_HEIGHT;
+
+            let rotate = (direction === 1 ? -180 : 180);
+
+            let render_data = {
+                centered: true,
+                from_x: base_x * block_scale,
+                from_y: base_y * block_scale,
+                from_rotate: 0,
+                from_scale: 2 * animation_scale,
+                from_opacity: 0,
+                to_x: base_x * block_scale,
+                to_y: base_y * block_scale,
+                to_scale: animation_scale,
+                to_rotate: rotate,
+                to_opacity: 0.5,
+                duration: CARD_TRANSIENT_TIME,
+                img: anime,
+                offset_x: offset_x,
+                offset_y: offset_y,
+                width: width,
+                height: height
+            };
+
+            let second_step = (post) => {
+                render_data.from_opacity = 0.5;
+                render_data.from_scale = animation_scale;
+                render_data.from_rotate = rotate;
+                render_data.to_opacity = 0;
+                render_data.to_scale = 0;
+                render_data.to_rotate = 2 * rotate;
+                transformation_animation(render_data, () => {
+                });
+            }
+
+            transformation_animation(render_data, second_step);
+        }
+
+        function play_drawing_animation(player_index, combo) {
+            let items = [-1];
+            let str = combo.toString();
+            for (let i = 0; i < str.length; i++) items.push(parseInt(str[i]));
+            let offset_x = [];
+            let offset_y = [];
+            for (let i = 0; i < items.length; i++) {
+                if (items[i] === -1) {
+                    offset_x.push(REVERSE_ANIMATION_WIDTH + SKIP_ANIMATION_WIDTH);
+                    offset_y.push(0);
+                } else {
+                    offset_x.push(NUMBER_ANIMATION_SIZE * items[i]);
+                    offset_y.push(REVERSE_ANIMATION_HEIGHT);
+                }
+            }
+            let dx = NUMBER_ANIMATION_SIZE;
+            let x = player_index !== -1 ? ANIMATION_PLACE_X()[player_index] : 800;
+            let y = player_index !== -1 ? ANIMATION_PLACE_Y()[player_index] : 450;
+            let base_x = x - (dx * items.length / 2) + dx / 2;
+            let base_y = y;
+            for (let i = 0; i < items.length; i++) {
+                let render_data = {
+                    centered: true,
+                    from_x: (base_x + i * dx) * block_scale,
+                    from_y: base_y * block_scale,
+                    from_rotate: 0,
+                    from_scale: 2 * animation_scale,
+                    from_opacity: 0,
+                    to_x: (base_x + i * dx) * block_scale,
+                    to_y: base_y * block_scale,
+                    to_scale: animation_scale,
+                    to_rotate: 0,
+                    to_opacity: 0.7,
+                    duration: DRAW_TRANSIENT_TIME,
+                    img: anime,
+                    offset_x: offset_x[i],
+                    offset_y: offset_y[i],
+                    width: NUMBER_ANIMATION_SIZE,
+                    height: NUMBER_ANIMATION_SIZE
+                };
+
+                let second_step = (post) => {
+                    render_data.from_opacity = 0.7;
+                    render_data.from_scale = animation_scale;
+                    render_data.to_opacity = 0;
+                    render_data.to_scale = 0;
+                    transformation_animation(render_data, () => {
+                    });
+                }
+
+                transformation_animation(render_data, second_step);
+            }
+        }
+
+        function render_centered_text(x, y, string) {
+            let measure = ctx.measureText(string);
+            let width = measure.width;
+            ctx.fillText(string, x - width / 2, y);
+        }
+
+        let over_cnt = 0;
+
+        function game_over() {
+            ctx.fillStyle = "black";
+            ctx.globalAlpha = 0.5 * Math.sin(Math.min(over_cnt / OVER_PERIOD, 1) * Math.PI / 2);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = Math.sin(Math.min(over_cnt / OVER_PERIOD, 1) * Math.PI / 2);
+            ctx.fillStyle = "white";
+            let font_big = OVER_FONT_BIG * block_scale * (0.7 + 0.1 * Math.abs(Math.sin(over_cnt++ / OVER_PERIOD * Math.PI)));
+            ctx.font = font_big + "px 微軟正黑體";
+            let text = (game.winner === 2 ? "You are better than Computers!" : "You've lost to a Computer!")
+            render_centered_text(canvas.width / 2, canvas.height / 2, text);
+            ctx.globalAlpha = 1;
+        }
+
+        function resize() {
+            block_scale = Math.min((window.innerWidth-5) / 1600, (window.innerHeight-5) / 900);
+            canvas.width = 1600 * block_scale;
+            canvas.height = 900 * block_scale;
+        }
+
+    </script>
+
+    <style>
+        html, body {
+            width:  100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+</body>
+</html>
