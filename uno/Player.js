@@ -122,6 +122,16 @@ class ManualPlayer extends Player {
         super.throw(card);
     }
 
+    pick_new_card(bypass = false) {
+        if (!bypass && this.selecting_wild) {
+            this.selecting_wild = false;
+            this.wild_card.selected = false;
+            this.wild_card = null;
+            game.close_wild_color_bar();
+        }
+        super.pick_new_card(bypass);
+    }
+
     throw_wild_card(color) {
         if (this.wild_card === null) return; // unreachable
         super.throw_wild_card(this.wild_card, color);
