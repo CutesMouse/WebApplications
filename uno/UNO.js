@@ -189,7 +189,7 @@ class UNO {
 
     generate_cards() {
         // 數字牌 + SKIP + REVERSE + DRAW_TWO
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 13; i++) {
             for (let j = 0; j < 4; j++) {
                 this.cards.push(new Card(i, j));
                 this.cards.push(new Card(i, j));
