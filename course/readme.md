@@ -3,6 +3,9 @@
 1. 請將整份Code下載利用，可點選 [首頁](https://github.com/CutesMouse/WebApplications/tree/master) 中的Code、Download Zip來下載，或 [點此](https://github.com/CutesMouse/WebApplications/archive/refs/heads/master.zip)。
 2. 編輯 [CourseInfo.js](https://github.com/CutesMouse/WebApplications/tree/master/course/CourseInfo.js) 文件，依照[此格式](https://github.com/CutesMouse/WebApplications/new/master#%E8%AA%B2%E7%A8%8B%E5%85%A7%E5%AE%B9%E8%BC%B8%E5%85%A5%E6%A0%BC%E5%BC%8F)輸入
 3. 若要更改課表格式，請於 [RenderObject.js](https://github.com/CutesMouse/WebApplications/tree/master/course/RenderObject.js) 中更改，詳細資訊請參考註解
+4. 打開 [index.html](https://github.com/CutesMouse/WebApplications/blob/master/index.html) 即可看到生成好的課表
+
+[**成果預覽**](https://cutesmouse.github.io/WebApplications/course/index.html)
 
 ## 課程內容輸入格式
 請在 [CourseInfo.js](https://github.com/CutesMouse/WebApplications/tree/master/course/CourseInfo.js) 依照此格式輸入
