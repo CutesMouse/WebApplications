@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>課表產生器</title>
+    <script src="RenderObject.js"></script>
+    <script src="RenderUtils.js"></script>
+    <script src="CourseRender.js"></script>
+    <script src="CourseInfo.js"></script>
+    <script>
+
+        // Define a FontFace
+        const render_info = new RenderObject();
+        let font = render_info.font_source;
+        if (font !== null) {
+            document.fonts.add(font);
+            font.load();
+
+            document.fonts.ready.then(function () {
+                let canvas = document.getElementById('canvas');
+                render(canvas, render_info);
+            });
+        } else {
+            window.onload = () => {
+                let canvas = document.getElementById('canvas');
+                render(canvas, render_info);
+            }
+        }
+
+        function download_img() {
+            let canvas = document.getElementById('canvas');
+            download_file(canvas.toDataURL('image/png'), 'course.png');
+        }
+
+        // canvas.toDataURL('image/png');
+        function download_file(url, name) {
+            let link = document.createElement('a');
+            link.href = url;
+            link.download = name;
+            link.click()
+        }
+
+    </script>
+    <style>
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+請編輯「<a href="CourseInfo.js">CourseInfo.js</a>」以更改課程內容
+<button onclick="download_img()">下載</button>
+<canvas id="canvas"></canvas>
+</body>
+</html>
