@@ -7,3 +7,4 @@
 - [2048(仿中央電機DSD Final Project)](https://cutesmouse.github.io/WebApplications/2048/2048.html)
 - [爆爆王走迷宮(仿中央電機DSD Final Project)](https://cutesmouse.github.io/WebApplications/bomb/)
 - [UNO](https://cutesmouse.github.io/WebApplications/uno/)
+- [課表產生器](https://cutesmouse.github.io/WebApplications/course/)
