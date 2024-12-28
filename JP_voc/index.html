@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>單字學習 (40天搞定新日檢N3單字)</title>
+    <style>
+        body {
+            display: block;
+            font-family: "微軟正黑體", serif;
+        }
+
+        #questions div:nth-child(2n) {
+            background-color: #f3f3f3;
+        }
+
+        #questions div {
+            padding: 10px 30px;
+            font-size: 20px;
+        }
+
+        .voc, .voc_chinese, .translate {
+            margin: 10px;
+            border-radius: 30px;
+            padding: 10px 15px;
+        }
+
+        .translate {
+            color: #236800;
+            background-color: #f5ffe5;
+        }
+
+        .voc_chinese {
+            color: #705d00;
+            background-color: #fff7e5;
+        }
+
+        .voc {
+            color: #9e0000;
+            background-color: #ffdbdb;
+        }
+
+        .answer {
+            padding: 5px;
+            margin: 10px;
+            font-size: 20px;
+        }
+
+        .control {
+            display: block;
+            text-align: center;
+        }
+
+
+    </style>
+    <script>
+        function convert_json(source) {
+            let ary = source.split("\n");
+            let result = [];
+            for (const line of ary) {
+                let content = line.split("/");
+                result.push({
+                    "sentense": content[0],
+                    "voc": content[1],
+                    "voc_chinese": content[2],
+                    "translate": content[3]
+                });
+            }
+            return result;
+        }
+
+        function start_generate() {
+            let div = document.getElementById('questions');
+            let level = parseInt(document.getElementById('level').value);
+            generate_questions(level, level, div);
+        }
+
+        function generate_questions(level, number, div) {
+            let source = get_questions(level);
+            if (source === "") return;
+
+            div.innerHTML = "";
+
+            let problem_list = randomize(convert_json(source));
+            let last_answer = null;
+            for (const problem of problem_list) {
+                let box = document.createElement("div");
+                let part1 = document.createElement('span');
+                let part2 = document.createElement('span');
+                let answer = document.createElement('input');
+                answer.type = "text";
+                answer.attempt = 0;
+                answer.classList.add('answer');
+                answer.onkeyup = function (event) {
+                    if (event.key !== "Enter") return;
+                    submit(box, part1, answer, part2, problem);
+                }
+                part1.innerHTML = problem.sentense.split("{")[0];
+                part2.innerHTML = problem.sentense.split("}")[1];
+                box.appendChild(part1);
+                box.appendChild(answer);
+                box.appendChild(part2);
+                div.appendChild(box);
+                if (last_answer != null) {
+                    last_answer.to_next = function () {
+                        answer.focus();
+                    }
+                }
+                last_answer = answer;
+            }
+        }
+
+        function shuffle(items) {
+            var cached = items.slice(0), temp, i = cached.length, rand;
+            while (--i) {
+                rand = Math.floor(i * Math.random());
+                temp = cached[rand];
+                cached[rand] = cached[i];
+                cached[i] = temp;
+            }
+            return cached;
+        }
+
+        function randomize(problems) {
+            let new_picked = [];
+            for (let i = 0; i < problems.length; i += 2) {
+                new_picked.push(problems[i + (Math.random() > 0.5)])
+            }
+            return shuffle(new_picked);
+        }
+
+        function add_hint(box, answer, problem) {
+            let hint = document.createElement('span');
+            if (answer.attempt === 0) {
+                hint.classList.add("translate");
+                hint.innerHTML = problem.translate;
+                box.appendChild(hint);
+                answer.attempt = 1;
+            } else if (answer.attempt === 1) {
+                hint.classList.add("voc_chinese");
+                hint.innerHTML = problem.voc_chinese;
+                box.appendChild(hint);
+                answer.attempt = 2;
+            } else if (answer.attempt === 2) {
+                hint.classList.add("voc");
+                hint.innerHTML = problem.voc;
+                box.appendChild(hint);
+                answer.attempt = 3;
+            }
+        }
+
+        function submit(box, part1, answer, part2, problem) {
+            let s = problem.sentense.split('{')[1].split('}')[0];
+            if (answer.value === s) {
+                let correct = document.createElement('span');
+                correct.innerHTML = part1.innerHTML + s + part2.innerHTML;
+                answer.attempt = 0;
+                box.innerHTML = "";
+                box.appendChild(correct);
+                for (let i = 0; i < 3; i++) add_hint(box, answer, problem);
+                if (answer.to_next != null) answer.to_next();
+            } else {
+                add_hint(box, answer, problem);
+            }
+        }
+
+        function get_questions(level) {
+            switch (level) {
+                case 1:
+                    return "ほうれん草はとても{栄養}がある/栄養(えいよう)/營養/菠菜非常有營養\n" +
+                        "ことものために{栄養}のある料理を作りたい/栄養(えいよう)/營養/為了孩子，想做有營養的料理\n" +
+                        "夜はほとんど{外食}です/外食(がいしょく)/外食/晚上幾乎都是外食\n" +
+                        "{外食}はお金がかかるから、自分で作る/外食(がいしょく)/外食/外食很花錢，所以都自己做\n" +
+                        "娘はこの{花柄}のスカートが好きです/花柄(はながら)/花紋圖案/女兒喜歡這個花色的裙子\n" +
+                        "彼女は{花柄}の服しか着ません/花柄(はながら)/花紋圖案/她只穿花紋圖案的衣服\n" +
+                        "{注文}は各自でしてください/注文(ちゅうもん)/訂單、點菜、要求/請各自點菜\n" +
+                        "{注文}に関するお問い合わせは、電話でお願いします/注文(ちゅうもん)/訂單、點菜、要求/有關訂單的詢問，麻煩請用電話\n" +
+                        "空港行きは次の駅で{乗り換え}です/乗り換え(のりかえ)/轉乘/往機場是在下一站換車\n" +
+                        "バスト電車の{乗り換え}は難しいです/乗り換え(のりかえ)/轉乘/公車與電車的轉乘很難\n" +
+                        "祖母は{昔}のことをよく覚えている/昔(むかし)/過去、以前/祖母以前的事情記得很清楚\n" +
+                        "{昔}、この辺はすべて田んぼだった/昔(むかし)/過去、以前/以前，這附近全部都是田地\n" +
+                        "あの人は{金持ち}なのに、とてもケチだ/金持ち(かねもち)/有錢人/那個人明明是個有錢人，卻非常小氣\n" +
+                        "爆買いするのは、{金持ち}とは限らない/金持ち(かねもち)/有錢人/爆買的人，不見得是有錢人\n" +
+                        "当店は毎週水曜日が{定休日}です/定休日(ていきゅうび)/公休日/本店每個星期三是公休日\n" +
+                        "本日は{定休日}のため、別の日にご来店ください/定休日(ていきゅうび)/公休日/因為今天是公休日，所以麻煩您改天再來\n" +
+                        "{昼休み}は十二時から一時までです/昼休み(ひるやすみ)/午休/午休是從12點到1點\n" +
+                        "{昼休み}を利用して、銀行に行く予定だ/昼休み(ひるやすみ)/午休/打算利用午休去旅行\n" +
+                        "バイトの募集にたくさんの{申し込み}があった/申し込み(もうしこみ)/申請、報名/招募打工收到很多申請了\n" +
+                        "{申し込み}は百人で締め切ります/申し込み(もうしこみ)/申請、報名/報名100個人就截止\n" +
+                        "子供の{笑顔}はたまりません/笑顔(えがお)/笑容/孩子的笑容教人受不了\n" +
+                        "彼女の美しい{笑顔}に騙されました/笑顔(えがお)/笑容/被她美麗的笑容給騙了\n" +
+                        "三百円の{お釣り}です/お釣り(おつり)/找錢/找您的300日圓\n" +
+                        "一万円で{お釣り}をください/お釣り(おつり)/找錢/用1萬日圓，請找錢給我\n" +
+                        "{相手}の人はどんな人ですか/相手(あいて)/對方、對手、夥伴/對方是什麼樣的人呢?\n" +
+                        "今度の試合の{相手}は鈴木さんです/相手(あいて)/對方、對手、夥伴/這次比賽的對手是鈴木先生\n" +
+                        "{一人っ子}は寂しいと思う/一人っ子(ひとりっこ)/獨生子女/我覺得獨生子女很寂寞\n" +
+                        "娘は{一人っ子}なので、少しわがままだ/一人っ子(ひとりっこ)/獨生子女/由於女兒是獨生女，所以有一點任性\n" +
+                        "阿部さんは先生に叱られて、{涙}を流した/涙(なみだ)/眼淚/阿部同學被老師罵，流下了眼淚\n" +
+                        "玉ねぎを切ったら、{涙}が出た/涙(なみだ)/眼淚/一切洋蔥，眼淚就流出來了\n" +
+                        "{出会い}をもっと大切にしてください/出会い(であい)/相遇、邂逅/請更珍惜相遇\n" +
+                        "旅行中に、すてきな{出会い}がありました/出会い(であい)/相遇、邂逅/旅行中，有很棒的邂逅\n" +
+                        "掃除の{係り}は誰ですか/係り(かかり)/負責的人/負責打掃的人是誰?\n" +
+                        "その件については、{係り}の者が説明します/係り(かかり)/負責的人/有關那件事，由負責的人來說明\n" +
+                        "来日の{目的}は何ですか/目的(もくてき)/目的、目標/來日本的目的是什麼呢?\n" +
+                        "{目的}のためには手段を選ばない/目的(もくてき)/目的、目標/為達目的，不擇手段\n" +
+                        "運賃の{値上げ}に反対です/値上げ(ねあげ)/提高價格、加薪/反對運費的調漲\n" +
+                        "給料の{値上げ}を要求する/値上げ(ねあげ)/提高價格、加薪/要求薪資的調漲\n" +
+                        "機械の{具合}を調べます/具合(ぐあい)/(事物或心理健康的)狀態/檢查機械的狀態\n" +
+                        "祖父は体の{具合}がよくないそうです/具合(ぐあい)/(事物或心理健康的)狀態/聽說祖父的身體狀況不好\n" +
+                        "明日は中学校の{入学式}です/入学式(にゅうがくしき)/開學典禮/明天是國中的開學典禮\n" +
+                        "娘の{入学式}に参加できません/入学式(にゅうがくしき)/開學典禮/無法參加女兒的開學典禮\n" +
+                        "わたしは{虫}が苦手だ/虫(むし)/蟲/我怕蟲\n" +
+                        "農薬のために{虫}の数が減った/虫(むし)/蟲/由於農藥，蟲的數量減少了\n" +
+                        "外国で{交通事故}に逢った/交通事故(こうつうじこ)/交通事故、車禍/在外國遇到交通事故了\n" +
+                        "弟は{交通事故}で骨折して、入院した/交通事故(こうつうじこ)/交通事故、車禍/弟弟因車禍而骨折，住院了\n" +
+                        "母は韓国ドラマに{夢中}です/夢中(むちゅう)/沉迷、著迷、熱衷/母親沉迷於韓劇\n" +
+                        "{夢中}になれるものが見つからない/夢中(むちゅう)/沉迷、著迷、熱衷/找不到能夠熱衷的事情";
+                case 2:
+                    return "{嘘}はだめです/嘘(うそ)/說謊/不可以說謊\n" +
+                        "彼は{嘘}をついていると思う/嘘(うそ)/說謊/我覺得他在說謊\n" +
+                        "{間違い}を直してください/間違い(まちがい)/錯誤/請訂正錯誤\n" +
+                        "彼はまた{間違い}を犯した/間違い(まちがい)/錯誤/他又犯錯了\n" +
+                        "{数}が足りない/数(かず)/數量/數量不夠\n" +
+                        "{数}が合う/数(かず)/數量/數量吻合\n" +
+                        "熱湯で{火傷}をしてしまった/火傷(やけど)/燙傷/不小心因為滾水燙傷了\n" +
+                        "姉はひどい{火傷}で入院した/火傷(やけど)/燙傷/姊姊因嚴重燙傷住院了\n" +
+                        "丸い{形}が好きです/形(かたち)/形狀/樣子/喜歡圓的形狀\n" +
+                        "あの花瓶の{形}はすばらしいです/形(かたち)/形狀/樣子/那個花瓶的形狀很棒\n" +
+                        "旅行の{荷物}を準備する/荷物(にもつ)/行李/準備旅行的行李\n" +
+                        "{荷物}が重すぎて持てません/荷物(にもつ)/行李/行李太重/拿不動\n" +
+                        "本日の切符は{売り切れ}です/売り切れ(うりきれ)/完售/今天的票已完售\n" +
+                        "在庫は全部{売り切れ}だ/売り切れ(うりきれ)/完售/庫存全部售完\n" +
+                        "今日は{あくび}がよく出る/あくび/打哈欠/今天一直打哈欠\n" +
+                        "眠くて、{あくび}が止まらない/あくび/打哈欠/因為很睏，所以哈欠打個不停\n" +
+                        "おもしろい{番組}を紹介してください/番組(ばんぐみ)/節目/請介紹有趣的節目\n" +
+                        "最近のテレビ{番組}はつまらない/番組(ばんぐみ)/節目/最近的電視節目很無聊\n" +
+                        "アパートの{家賃}はいくらですか/家賃(やちん)/房租/公寓的租金是多少錢\n" +
+                        "今月の{家賃}を早く払ってください/家賃(やちん)/房租/請趕快付這個月的房租\n" +
+                        "大阪の{従兄弟}が亡くなりました/従兄弟(いとこ)/堂、表兄弟姊妹/大阪的表哥去世了\n" +
+                        "母の{従兄弟}は有名な歌手です/従兄弟(いとこ)/堂、表兄弟姊妹/母親的堂妹是有名的歌手\n" +
+                        "息子は{団体}で行動するのが苦手です/団体(だんたい)/團體/女兒不擅長團體活動\n" +
+                        "{団体}で参加する場合は半額です/団体(だんたい)/團體/團體參加的話是半價\n" +
+                        "息子は{中古}のバイクを買った/中古(ちゅうこ)/二手/兒子買了二手摩托車\n" +
+                        "{中古}車が安く買える店を教えて/中古(ちゅうこ)/二手/告訴我可以便宜買中古車的店\n" +
+                        "わたしは今の{政府}を支持しない/政府(せいふ)/政府/我不支持現在的政府\n" +
+                        "この国の{政府}は嘘ばかりつく/政府(せいふ)/政府/這個國家的政府老是說謊\n" +
+                        "水の{無駄遣い}は厳禁だ/無駄遣い(むだづかい)/浪費、亂花(錢)/嚴禁浪費水\n" +
+                        "お金の{無駄遣い}をやめなさい/無駄遣い(むだづかい)/浪費、亂花(錢)/停止亂花錢\n" +
+                        "{呼吸}を止めてください/呼吸(こきゅう)/呼吸/請停止呼吸\n" +
+                        "あの人とは{呼吸}が合わない/呼吸(こきゅう)/呼吸/與那個人步調不合(合不來)\n" +
+                        "両親から{小包}が届いた/小包(こづつみ)/包裹、小包/父母親寄來的包裹送達了\n" +
+                        "明日、{小包}を出す予定です/小包(こづつみ)/包裹、小包/打算明天寄出包裹\n" +
+                        "{割り勘}でいいですか/割り勘(わりかん)/平均分攤、各付各的/可以各付各的嗎\n" +
+                        "今日は{割り勘}にしましょう/割り勘(わりかん)/平均分攤、各付各的/今天就平均分攤吧\n" +
+                        "{母親}が病気なので、会社を休んだ/母親(ははおや)/母親/由於母親生病，所以跟公司請假了\n" +
+                        "うちの{母親}は弟に甘い/母親(ははおや)/母親/我媽媽很寵弟弟\n" +
+                        "電車の{通過}に気を付けて/通過(つうか)/通過、經過/小心電車經過\n" +
+                        "司法試験の{通過}は簡単ではない/通過(つうか)/通過、經過/司法考試的通過不容易\n" +
+                        "{神様}にお祈りする/神様(かみさま)/神/向上帝祈求\n" +
+                        "{神様}の存在を信じますか/神様(かみさま)/神/你相信神的存在嗎\n" +
+                        "病院に同僚の{見舞い}に行った/見舞い(みまい)/探病、問候的禮品或信件/去醫院探望同事了\n" +
+                        "先生に暑中{見舞い}を出すつもりです/見舞い(みまい)/探病、問候的禮品或信件/打算寄給老師暑期問候信函\n" +
+                        "わたしの故郷にやっと{鉄道}が通った/鉄道(てつどう)/鐵道/我的家鄉鐵路終於開通了\n" +
+                        "父は{鉄道}で旅行するのが好きだ/鉄道(てつどう)/鐵道/父親喜歡搭火車旅行\n" +
+                        "娘は{引き出し}の中に何でも入れる/引き出し(ひきだし)/抽屜/女兒什麼都放到抽屜裡\n" +
+                        "{引き出し}を整理しなさい/引き出し(ひきだし)/抽屜/去整理抽屜";
+                default:
+                    return "";
+            }
+        }
+    </script>
+</head>
+<body>
+<div class="control">
+    <select id="level">
+        <option value="0">選擇單字等級</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+    </select>
+    <input type="button" value="生成題目" onclick="start_generate()">
+</div>
+<div id="questions">
+</div>
+</body>
+</html>
