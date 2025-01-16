@@ -36,7 +36,7 @@
         }
 
         .voc_chinese {
-            color: #705d00;
+            color: #685800;
             background-color: #fff7e5;
         }
 
@@ -102,8 +102,11 @@
             generate_questions(from, to, (mixed ? 20 : 24), div);
         }
 
+        let problems = [];
+
         function generate_questions(from_level, to_level, number, div) {
             let problem_list = [];
+            problems = [];
             for (let i = from_level; i <= to_level; i++) {
                 let source = get_questions(i);
                 if (source === "") continue;
@@ -128,6 +131,7 @@
                     if (event.key !== "Enter") return;
                     submit(box, part1, answer, part2, problem);
                 }
+                problems.push({"box": box, "part1": part1, "answer": answer, "part2": part2, "problem": problem});
                 part1.innerHTML = problem.sentense.split("{")[0];
                 part2.innerHTML = problem.sentense.split("}")[1];
                 box.appendChild(part1);
@@ -141,6 +145,10 @@
                 }
                 last_answer = answer;
             }
+        }
+
+        function show_all_answers() {
+            problems.forEach(p => show_answer(p.box, p.part1, p.answer, p.part2, p.problem));
         }
 
         function shuffle(items) {
@@ -192,25 +200,29 @@
             return false;
         }
 
+        function show_answer(box, part1, answer, part2, problem) {
+            let correct = document.createElement('span');
+            let r1 = document.createElement('span');
+            let ra = document.createElement('span');
+            let r2 = document.createElement('span');
+            r1.classList.add('response');
+            r2.classList.add('response');
+            ra.classList.add('response_answer');
+            correct.appendChild(r1);
+            correct.appendChild(ra);
+            correct.appendChild(r2);
+            r1.innerHTML = part1.innerHTML;
+            ra.innerHTML = problem.blank;
+            r2.innerHTML = part2.innerHTML;
+            answer.attempt = 0;
+            box.innerHTML = "";
+            box.appendChild(correct);
+            for (let i = 0; i < 3; i++) add_hint(box, answer, problem);
+        }
+
         function submit(box, part1, answer, part2, problem) {
             if (isCorrect(answer.value, problem)) {
-                let correct = document.createElement('span');
-                let r1 = document.createElement('span');
-                let ra = document.createElement('span');
-                let r2 = document.createElement('span');
-                r1.classList.add('response');
-                r2.classList.add('response');
-                ra.classList.add('response_answer');
-                correct.appendChild(r1);
-                correct.appendChild(ra);
-                correct.appendChild(r2);
-                r1.innerHTML = part1.innerHTML;
-                ra.innerHTML = problem.blank;
-                r2.innerHTML = part2.innerHTML;
-                answer.attempt = 0;
-                box.innerHTML = "";
-                box.appendChild(correct);
-                for (let i = 0; i < 3; i++) add_hint(box, answer, problem);
+                show_answer(box, part1, answer, part2, problem);
                 if (answer.to_next != null) answer.to_next();
             } else {
                 add_hint(box, answer, problem);
@@ -277,6 +289,7 @@
 
     </select>
     <input type="button" value="生成題目" onclick="start_generate()">
+    <input type="button" value="顯示解答" onclick="show_all_answers()">
 </div>
 <div id="questions">
 </div>
