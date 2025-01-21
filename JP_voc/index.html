@@ -60,6 +60,10 @@
             color: red;
         }
 
+        .copyright {
+            text-align: center;
+        }
+
 
     </style>
     <script src="voc.js"></script>
@@ -148,11 +152,12 @@
         }
 
         function show_all_answers() {
+            if (problems.length === 0) start_generate();
             problems.forEach(p => show_answer(p.box, p.part1, p.answer, p.part2, p.problem));
         }
 
         function shuffle(items) {
-            var cached = items.slice(0), temp, i = cached.length, rand;
+            let cached = items.slice(0), temp, i = cached.length, rand;
             while (--i) {
                 rand = Math.floor(i * Math.random());
                 temp = cached[rand];
@@ -291,6 +296,7 @@
     <input type="button" value="生成題目" onclick="start_generate()">
     <input type="button" value="顯示解答" onclick="show_all_answers()">
 </div>
+<div class="copyright">所有單字、例句皆出自「40天搞定新日檢N3單字 (瑞蘭國際出版社)」</div>
 <div id="questions">
 </div>
 </body>
