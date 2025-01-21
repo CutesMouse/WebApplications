@@ -600,7 +600,7 @@ function get_questions(level) {
                 "わたしは{謙虚}な女性が好き/謙虚(けんきょ)/謙虛/我喜歡謙虛的女性\n" +
                 "{謙虚}な態度を身につけてほしい/謙虚(けんきょ)/謙虛/希望養成謙虛的態度\n" +
                 "彼は{いい加減}で、みんな困っている/いい加減(いいかげん)/適當、馬馬虎虎、敷衍/他很隨便，所以大家都很困擾\n" +
-                "いい{加減}な教え方だから、ぜんぜん分からないいい/加減(いいかげん)/適當、馬馬虎虎、敷衍/因為是隨隨便便的教法，所以完全不懂\n" +
+                "{いい加減}な教え方だから、ぜんぜん分からないいい/いい加減(いいかげん)/適當、馬馬虎虎、敷衍/因為是隨隨便便的教法，所以完全不懂\n" +
                 "時間を{無駄}にしないでください/無駄(むだ)/徒勞、白費、浪費/請不要浪費時間\n" +
                 "{無駄}な努力はしたくない/無駄(むだ)/徒勞、白費、浪費/不想做無謂的努力\n" +
                 "一般に、{けち}な人間は嫌われる/けち/吝嗇、小氣/一般來說，吝嗇的人讓人討厭\n" +
@@ -1179,4 +1179,31 @@ function get_questions(level) {
         default:
             return "";
     }
+}
+
+function convert_json(source) {
+    let ary = source.split("\n");
+    let result = [];
+    for (const line of ary) {
+        let content = line.split("/");
+        result.push({
+            "sentence": content[0],
+            "voc": content[1],
+            "voc_chinese": content[2],
+            "translate": content[3],
+            "blank": content[0].split('{')[1].split('}')[0]
+        });
+    }
+    return result;
+}
+
+function to_vocs(jsons) {
+    let voc = [];
+    let chinese = [];
+    for (const json of jsons) {
+        if (voc.includes(json.voc)) continue;
+        voc.push(json.voc);
+        chinese.push(json.voc_chinese);
+    }
+    return {"voc": voc, "chinese": chinese};
 }
