@@ -1,10 +1,13 @@
-const font_size_main = 40;
-const font_size_sub = 20;
-const line_space = 5;
-const space_per_voc = font_size_main + font_size_sub + 10;
+const scale = 0.5;
+const font_size_main = 40 / scale;
+const font_size_sub = 20 / scale;
+const font_size_sub_long = 15 / scale;
+const long_ratio = 4;
+const line_space = 5 / scale;
+const space_per_voc = font_size_main + font_size_sub + 10 / scale;
 
-const margin_x = 20;
-const margin_y = 10;
+const margin_x = 20 / scale;
+const margin_y = 10 / scale;
 
 function generateVocCards(problem_list, div) {
     div.innerHTML = "";
@@ -28,6 +31,8 @@ function getVocCanvas(voc) {
     let canvas = document.createElement("canvas");
     canvas.height = space_per_voc;
     canvas.width = drawVocabulary(voc, canvas.getContext('2d')) + 2 * margin_x;
+    canvas.style.height = canvas.height * scale + "px";
+    canvas.style.width = canvas.width * scale + "px";
     drawVocabulary(voc, canvas.getContext('2d'));
     return canvas;
 }
@@ -50,8 +55,9 @@ function drawTextDetailed(source, ctx, base_x, base_y) {
         } else { // This is simply katagana
             main_text = object;
         }
+        let ratio = sub_text.length / main_text.length;
         let main_width = fillText(main_text, ctx, base_x + dx, base_y + font_size_sub + line_space, font_size_main);
-        let sub_width = fillTextCenter(sub_text, ctx, base_x + dx + main_width / 2, base_y, font_size_sub);
+        let sub_width = fillTextCenter(sub_text, ctx, base_x + dx + main_width / 2, base_y, ratio >= long_ratio ? font_size_sub_long : font_size_sub);
         let width = Math.max(main_width, main_width / 2 + sub_width / 2);
         dx += width + line_space;
     }
@@ -74,26 +80,18 @@ function fillTextCenter(text, ctx, base_x, base_y, size) {
 
 // convert plain text to array with reading split
 function convertToSource(text) {
-    console.log(text)
     if (text.indexOf('(') === -1) return [text]; // 不包含"("，表示沒有漢字
     let result = [];
     let kanji = text.substring(0, text.indexOf('('));
     let reading = text.substring(text.indexOf('(') + 1, text.indexOf(')'));
     let reading_ptr = reading.length - 1;
     for (let kanji_ptr = kanji.length - 1; kanji_ptr >= 0; kanji_ptr--) {
-        // 前後兩個字都是漢字 就並列前面的讀音
-        /*if (kanji_ptr !== kanji.length - 1 && !isKana(kanji[kanji_ptr + 1]) && !isKana(kanji[kanji_ptr])) {
-            result[result.length - 1][0] = kanji[kanji_ptr] + result[result.length - 1][0];
-            reading_ptr--;
-            continue;
-        }*/
         // 前後兩個字都是假名 就並列前面的假名
-        /*if (kanji_ptr !== kanji.length - 1 && isKana(kanji[kanji_ptr + 1]) && isKana(kanji[kanji_ptr])) {
-            console.log(result);
+        if (kanji_ptr !== kanji.length - 1 && isKana(kanji[kanji_ptr + 1]) && isKana(kanji[kanji_ptr])) {
             result[result.length - 1] = kanji[kanji_ptr] + result[result.length - 1];
             reading_ptr--;
             continue;
-        }*/
+        }
         // 如果這個字是假名 直接列入結果
         if (reading[reading_ptr] === kanji[kanji_ptr]) {
             result.push(kanji[kanji_ptr]);
@@ -113,7 +111,6 @@ function convertToSource(text) {
             break;
         }
         while (reading_ptr >= 0 && (kanji[kanji_base] !== reading[reading_ptr])) reading_ptr--;
-        console.log(kanji_base, kanji_ptr, reading_ptr, reading_base)
         result.push([kanji.substring(kanji_base + 1, kanji_ptr + 1), reading.substring(reading_ptr + 1, reading_base + 1)]);
         kanji_ptr = kanji_base + 1;
     }
