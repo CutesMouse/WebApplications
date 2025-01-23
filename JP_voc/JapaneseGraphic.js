@@ -49,7 +49,7 @@ function drawTextDetailed(source, ctx, base_x, base_y) {
     for (let object of source) {
         let main_text = "";
         let sub_text = "";
-        if (object instanceof Array) { // This composed of Kanji and Reading
+        if (object instanceof Array) { // This composed of Kanji and Katagana
             main_text = object[0];
             sub_text = object[1];
         } else { // This is simply katagana
