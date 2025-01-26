@@ -4,10 +4,10 @@ const font_size_sub = 20 / scale;
 const font_size_sub_long = 15 / scale;
 const long_ratio = 4;
 const line_space = 5 / scale;
-const space_per_voc = font_size_main + font_size_sub + 10 / scale;
 
 const margin_x = 20 / scale;
-const margin_y = 10 / scale;
+const margin_y = 5 / scale;
+const space_per_voc = font_size_main + font_size_sub + margin_y;
 
 function generateVocCards(problem_list, div) {
     div.innerHTML = "";
@@ -40,7 +40,7 @@ function getVocCanvas(voc) {
 // voc is composed of sentence, voc, voc_chinese, translate, blank
 function drawVocabulary(voc, ctx) {
     let source = convertToSource(voc);
-    return drawTextDetailed(source, ctx, margin_x, margin_y);
+    return drawTextDetailed(source, ctx, margin_x, margin_y / 2);
 }
 
 // return total width
