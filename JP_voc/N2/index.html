@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>單字學習 (絕對合格全攻略！新制日檢N2必背必出單字)</title>
+    <style>
+        body {
+            display: block;
+            font-family: "微軟正黑體", serif;
+        }
+
+        #questions div:nth-child(2n) {
+            background-color: #f8f8f8;
+        }
+
+        span {
+            padding: 5px 0;
+            margin: 5px 0;
+        }
+
+        #questions div {
+            display: flex;
+            align-items: center;
+            padding: 20px 30px;
+            font-size: 20px;
+        }
+
+        .voc, .voc_chinese, .translate {
+            padding: 5px 10px;
+            margin: 0 10px;
+            border: solid #8e8e8e 1px;
+            color: #3e3e3e;
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+        }
+
+        .translate {
+            background-color: #e8e8e8;
+        }
+
+        .voc_chinese {
+            background-color: #67e4ff;
+        }
+
+        .voc {
+            background-color: #ffd900;
+        }
+
+        .answer {
+            padding: 5px;
+            margin: 0 10px;
+            font-size: 20px;
+        }
+
+        .control {
+            display: block;
+            text-align: center;
+        }
+
+        .response_answer {
+            color: red;
+        }
+
+        .copyright {
+            text-align: center;
+        }
+
+        canvas {
+            display: inline-block;
+        }
+
+
+    </style>
+    <script src="voc.js"></script>
+    <script src="JapaneseGraphic.js"></script>
+    <script src="Question.js"></script>
+    <script>
+        // AUTO LOAD
+        document.addEventListener('DOMContentLoaded', () => {
+            for (let option of document.getElementById('level').children) {
+                let value = option.value;
+                let level = 0;
+                if (value[0] === 'M') { // 綜合
+                    level = parseInt(value.substring(1).split('-')[0]);
+                } else level = parseInt(option.value);
+                if (get_questions(level) !== "") option.disabled = false;
+                else option.disabled = true;
+            }
+        });
+
+        let problems = [];
+
+        function get_problem_list() {
+            let val = document.getElementById('level').value;
+            let mixed = val[0] === 'M';
+            let from_level = parseInt(mixed ? val.substring(1).split('-')[0] : val);
+            let to_level = parseInt(mixed ? val.substring(1).split('-')[1] : val);
+            let problem_list = [];
+            problems = [];
+            for (let i = from_level; i <= to_level; i++) {
+                let source = get_questions(i);
+                if (source === "") continue;
+                problem_list = problem_list.concat(convert_json(source));
+            }
+            return problem_list;
+        }
+
+        function start_generate() {
+            let div = document.getElementById('questions');
+            let mixed = document.getElementById('level').value[0] === 'M';
+            generate_questions(get_problem_list(), (mixed ? 20 : 0), div);
+        }
+
+        function show_all_answers() {
+            if (problems.length === 0) start_generate();
+            problems.forEach(p => show_answer(p.box, p.part1, p.answer, p.part2, p.problem, p.sentence));
+        }
+
+        function show_voc_card() {
+            let div = document.getElementById('questions');
+            generateVocCards(get_problem_list(), div);
+        }
+    </script>
+</head>
+<body>
+<div class="control">
+    <select id="level">
+        <option value="M1-40">綜合 (全章節/20題)</option>
+        <option value="0">- 各日進度 -</option>
+        <option value="1">Day.1 (40題)</option>
+        <option value="2">Day.2 (40題)</option>
+        <option value="3">Day.3 (40題)</option>
+        <option value="4">Day.4 (40題)</option>
+        <option value="5">Day.5 (40題)</option>
+        <option value="6">Day.6 (40題)</option>
+        <option value="7">Day.7 (40題)</option>
+        <option value="8">Day.8 (40題)</option>
+        <option value="9">Day.9 (40題)</option>
+        <option value="10">Day.10 (40題)</option>
+        <option value="11">Day.11 (40題)</option>
+        <option value="12">Day.12 (40題)</option>
+        <option value="13">Day.13 (40題)</option>
+        <option value="14">Day.14 (40題)</option>
+        <option value="15">Day.15 (40題)</option>
+        <option value="16">Day.16 (40題)</option>
+        <option value="17">Day.17 (40題)</option>
+        <option value="18">Day.18 (40題)</option>
+        <option value="19">Day.19 (40題)</option>
+        <option value="20">Day.20 (40題)</option>
+        <option value="21">Day.21 (40題)</option>
+        <option value="22">Day.22 (40題)</option>
+        <option value="23">Day.23 (40題)</option>
+        <option value="24">Day.24 (40題)</option>
+        <option value="25">Day.25 (40題)</option>
+        <option value="26">Day.26 (40題)</option>
+        <option value="27">Day.27 (40題)</option>
+        <option value="28">Day.28 (40題)</option>
+        <option value="29">Day.29 (40題)</option>
+        <option value="30">Day.30 (40題)</option>
+        <option value="31">Day.31 (40題)</option>
+        <option value="32">Day.32 (40題)</option>
+        <option value="33">Day.33 (40題)</option>
+        <option value="34">Day.34 (40題)</option>
+        <option value="35">Day.35 (40題)</option>
+        <option value="36">Day.36 (40題)</option>
+        <option value="37">Day.37 (40題)</option>
+        <option value="38">Day.38 (40題)</option>
+        <option value="39">Day.39 (40題)</option>
+        <option value="40">Day.40 (40題)</option>
+        <option value="41">Day.41 (40題)</option>
+        <option value="42">Day.42 (40題)</option>
+        <option value="43">Day.43 (40題)</option>
+        <option value="44">Day.44 (40題)</option>
+        <option value="45">Day.45 (40題)</option>
+        <option value="46">Day.46 (40題)</option>
+        <option value="47">Day.47 (40題)</option>
+        <option value="48">Day.48 (40題)</option>
+        <option value="49">Day.49 (40題)</option>
+        <option value="50">Day.50 (40題)</option>
+        <option value="51">Day.51 (40題)</option>
+        <option value="52">Day.52 (40題)</option>
+        <option value="53">Day.53 (40題)</option>
+        <option value="54">Day.54 (40題)</option>
+        <option value="55">Day.55 (40題)</option>
+        <option value="56">Day.56 (40題)</option>
+        <option value="57">Day.57 (40題)</option>
+        <option value="58">Day.58 (40題)</option>
+        <option value="59">Day.59 (40題)</option>
+        <option value="60">Day.60 (40題)</option>
+        <option value="61">Day.61 (40題)</option>
+        <option value="62">Day.62 (40題)</option>
+        <option value="63">Day.63 (40題)</option>
+        <option value="64">Day.64 (40題)</option>
+        <option value="65">Day.65 (40題)</option>
+        <option value="66">Day.66 (40題)</option>
+        <option value="67">Day.67 (40題)</option>
+        <option value="68">Day.68 (40題)</option>
+        <option value="69">Day.69 (40題)</option>
+        <option value="70">Day.70 (40題)</option>
+
+    </select>
+    <input type="button" value="生成題目" onclick="start_generate()">
+    <input type="button" value="顯示解答" onclick="show_all_answers()">
+    <input type="button" value="單字卡" onclick="show_voc_card()">
+    <label><input type="checkbox" id="shuffle" checked>隨機排序</label>
+</div>
+<div class="copyright">所有單字出自「絕對合格全攻略！新制日檢N2必背必出單字 (山田社)」，例句使用ChatGPT產生</div>
+<div id="questions">
+</div>
+</body>
+</html>
