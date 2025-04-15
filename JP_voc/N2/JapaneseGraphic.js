@@ -1,6 +1,6 @@
 const scale = 0.5;
-const font_size_main = 40 / scale;
-const font_size_sub = 20 / scale;
+const font_size_main = 60 / scale;
+const font_size_sub = 30 / scale;
 const font_size_sub_long = 15 / scale;
 const long_ratio = 4;
 const line_space = 5 / scale;
@@ -14,11 +14,14 @@ function generateVocCards(problem_list, div) {
 
     for (let i = 0; i < problem_list.length; i++) {
         let voc = getVocCanvas(problem_list[i].voc);
+        let voc_box = document.createElement('span');
         let chi = document.createElement('span');
         let box = document.createElement("div");
         chi.innerHTML = problem_list[i].chinese;
         chi.classList.add('voc_chinese');
-        box.appendChild(voc);
+        voc_box.classList.add('voc_box');
+        voc_box.appendChild(voc);
+        box.appendChild(voc_box);
         box.appendChild(chi);
         div.appendChild(box);
     }

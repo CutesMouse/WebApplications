@@ -3,73 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>單字學習 (絕對合格全攻略！新制日檢N2必背必出單字)</title>
-    <style>
-        body {
-            display: block;
-            font-family: "微軟正黑體", serif;
-        }
-
-        #questions div:nth-child(2n) {
-            background-color: #f8f8f8;
-        }
-
-        span {
-            padding: 5px 0;
-            margin: 5px 0;
-        }
-
-        #questions div {
-            display: flex;
-            align-items: center;
-            padding: 20px 30px;
-            font-size: 20px;
-        }
-
-        .voc, .voc_chinese, .translate {
-            padding: 5px 10px;
-            margin: 0 10px;
-            border: solid #8e8e8e 1px;
-            color: #3e3e3e;
-            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-        }
-
-        .translate {
-            background-color: #e8e8e8;
-        }
-
-        .voc_chinese {
-            background-color: #67e4ff;
-        }
-
-        .voc {
-            background-color: #ffd900;
-        }
-
-        .answer {
-            padding: 5px;
-            margin: 0 10px;
-            font-size: 20px;
-        }
-
-        .control {
-            display: block;
-            text-align: center;
-        }
-
-        .response_answer {
-            color: red;
-        }
-
-        .copyright {
-            text-align: center;
-        }
-
-        canvas {
-            display: inline-block;
-        }
-
-
-    </style>
+    <link rel="stylesheet" type="text/css" href="index.css">
     <script src="voc.js"></script>
     <script src="JapaneseGraphic.js"></script>
     <script src="Question.js"></script>
@@ -107,6 +41,7 @@
         function start_generate() {
             let div = document.getElementById('questions');
             let mixed = document.getElementById('level').value[0] === 'M';
+            document.body.classList.remove('voc_card');
             generate_questions(get_problem_list(), (mixed ? 20 : 0), div);
         }
 
@@ -117,6 +52,7 @@
 
         function show_voc_card() {
             let div = document.getElementById('questions');
+            document.body.classList.add('voc_card');
             generateVocCards(get_problem_list(), div);
         }
     </script>
