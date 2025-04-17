@@ -1,7 +1,7 @@
 const scale = 0.5;
 const font_size_main = 60 / scale;
 const font_size_sub = 30 / scale;
-const font_size_sub_long = 15 / scale;
+const font_size_sub_long = 20 / scale;
 const long_ratio = 4;
 const line_space = 5 / scale;
 
