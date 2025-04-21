@@ -1,19 +1,22 @@
 const scale = 0.5;
 const font_size_main = 60 / scale;
 const font_size_sub = 30 / scale;
-const font_size_sub_long = 20 / scale;
-const long_ratio = 4;
+const font_color = "#000000";
+const accent_width_main = 4 / scale;
+const accent_width_sub = 3 / scale;
+const accent_color = "#b8b8b8";
+
 const line_space = 5 / scale;
 
 const margin_x = 20 / scale;
 const margin_y = 5 / scale;
-const space_per_voc = font_size_main + font_size_sub + margin_y;
+const space_per_voc = font_size_main + font_size_sub + margin_y + accent_width_sub;
 
 function generateVocCards(problem_list, div) {
     div.innerHTML = "";
 
     for (let i = 0; i < problem_list.length; i++) {
-        let voc = getVocCanvas(problem_list[i].voc);
+        let voc = getVocCanvas(problem_list[i]);
         let voc_box = document.createElement('span');
         let chi = document.createElement('span');
         let box = document.createElement("div");
@@ -27,63 +30,104 @@ function generateVocCards(problem_list, div) {
     }
 }
 
-function getVocCanvas(voc) {
+function getVocCanvas(voc_obj) {
     let canvas = document.createElement("canvas");
     canvas.height = space_per_voc;
-    canvas.width = drawVocabulary(voc, canvas.getContext('2d')) + 2 * margin_x;
+    canvas.width = drawVocabulary(voc_obj, canvas.getContext('2d')) + 2 * margin_x;
     canvas.style.height = canvas.height * scale + "px";
     canvas.style.width = canvas.width * scale + "px";
-    drawVocabulary(voc, canvas.getContext('2d'));
+    drawVocabulary(voc_obj, canvas.getContext('2d'));
     return canvas;
 }
 
 // voc is composed of sentence, voc, voc_chinese, translate, blank
-function drawVocabulary(voc, ctx) {
-    let source = convertToSource(voc);
-    return drawTextDetailed(source, ctx, margin_x, margin_y / 2);
+function drawVocabulary(voc_obj, ctx) {
+    let source = convertToSource(voc_obj);
+    let accent = getAccentArray(voc_obj.reading !== undefined ? voc_obj.reading.length : voc_obj.voc.length, voc_obj.accent);
+    return drawTextDetailed(source, accent, ctx, margin_x, margin_y / 2 + accent_width_sub);
 }
 
 // return total width
-function drawTextDetailed(source, ctx, base_x, base_y) {
+function drawTextDetailed(source, accent, ctx, base_x, base_y) {
     let dx = 0;
+    let index = 0;
     for (let object of source) {
         let main_text = "";
         let sub_text = "";
+        let kanas = 0;
         if (object instanceof Array) { // This composed of Kanji and Katagana
             main_text = object[0];
             sub_text = object[1];
+            kanas = sub_text.length;
         } else { // This is simply katagana
             main_text = object;
+            kanas = main_text.length;
         }
-        let ratio = sub_text.length / main_text.length;
-        let main_width = fillText(main_text, ctx, base_x + dx, base_y + font_size_sub + line_space, font_size_main);
-        let sub_width = fillTextCenter(sub_text, ctx, base_x + dx + main_width / 2, base_y, ratio >= long_ratio ? font_size_sub_long : font_size_sub);
-        let width = Math.max(main_width, main_width / 2 + sub_width / 2);
+        let main_width = measureTextWidth(main_text, ctx, font_size_main);
+        let sub_width = measureTextWidth(sub_text, ctx, font_size_sub);
+        let width = Math.max(main_width, sub_width);
+
+        fillTextCenterWithAccent(main_text, (accent === undefined || object instanceof Array) ? undefined : accent.slice(index),
+            ctx, base_x + dx + width / 2, base_y + font_size_sub + line_space, font_size_main, accent_width_main);
+        fillTextCenterWithAccent(sub_text, (accent !== undefined ? accent.slice(index) : undefined),
+            ctx, base_x + dx + width / 2, base_y, font_size_sub, accent_width_sub);
         dx += width + line_space;
+        index += kanas;
     }
-    return dx;
+    return dx - line_space;
 }
 
-// return text width
-function fillText(text, ctx, base_x, base_y, size) {
-    ctx.font = size + "px serif"
-    ctx.fillText(text, base_x, base_y + size * 0.75);
+function measureTextWidth(text, ctx, size) {
+    ctx.font = size + "px serif";
     return ctx.measureText(text).width;
 }
 
-// return text width
-function fillTextCenter(text, ctx, base_x, base_y, size) {
+// 在指定位置填入置中文字
+function fillTextCenterWithAccent(text, accent, ctx, base_x, base_y, size, line_width) {
+    if (text === undefined || text.length === 0) return;
     ctx.font = size + "px serif"
-    ctx.fillText(text, base_x - ctx.measureText(text).width / 2, base_y + size * 0.75);
-    return ctx.measureText(text).width;
+    ctx.fillStyle = font_color;
+    let width = ctx.measureText(text).width;
+    let start_x = base_x - width / 2;
+    let start_y = base_y + size * 0.9;
+    let dx = width / text.length;
+
+    ctx.fillText(text, start_x, base_y + size * 0.75);
+    if (accent === undefined) return;
+    for (let i = 0; i < text.length; i++) {
+        fillHorizontalLine(ctx, start_x + i * dx, start_y - accent[i] * dx, dx, line_width);
+        if (accent[i] !== accent[i + 1]) {
+            fillVerticalLine(ctx, start_x + (i + 1) * dx, start_y - dx - line_width / 2, dx + line_width, line_width);
+        }
+    }
+}
+
+// 在指定位置畫上水平線
+function fillHorizontalLine(ctx, base_x, base_y, length, width) {
+    ctx.beginPath();
+    ctx.strokeStyle = accent_color;
+    ctx.moveTo(base_x, base_y);
+    ctx.lineTo(base_x + length, base_y);
+    ctx.lineWidth = width;
+    ctx.stroke();
+}
+
+// 在指定位置畫上垂直線
+function fillVerticalLine(ctx, base_x, base_y, length, width) {
+    ctx.beginPath();
+    ctx.fillStyle = accent_color;
+    ctx.moveTo(base_x, base_y);
+    ctx.lineTo(base_x, base_y + length);
+    ctx.lineWidth = width;
+    ctx.stroke();
 }
 
 // convert plain text to array with reading split
-function convertToSource(text) {
-    if (text.indexOf('(') === -1) return [text]; // 不包含"("，表示沒有漢字
+function convertToSource(voc_object) {
+    if (voc_object.kanji === undefined) return [voc_object.voc]; // 不包含"("，表示沒有漢字
     let result = [];
-    let kanji = text.substring(0, text.indexOf('('));
-    let reading = text.substring(text.indexOf('(') + 1, text.indexOf(')'));
+    let reading = voc_object.reading;
+    let kanji = voc_object.kanji;
     let reading_ptr = reading.length - 1;
     for (let kanji_ptr = kanji.length - 1; kanji_ptr >= 0; kanji_ptr--) {
         // 前後兩個字都是假名 就並列前面的假名
@@ -116,6 +160,33 @@ function convertToSource(text) {
     }
 
     return result.reverse();
+}
+
+// 生成重音序列 ex. 0011
+// 結果長度應為單字長+1
+function getAccentArray(voc_length, accent) {
+    let result = [];
+    if (accent === -1) { // 未登記重音
+        return undefined;
+    } else if (accent === 0) { // 平板音
+        result.push(0);
+        for (let i = 0; i < voc_length; i++) result.push(1);
+        return result;
+    } else if (accent === 1) { // 頭高音
+        result.push(1);
+        for (let i = 0; i < voc_length; i++) result.push(0);
+        return result;
+    }  else if (accent === voc_length) { // 尾高音
+        result.push(0);
+        for (let i = 1; i < voc_length; i++) result.push(1);
+        result.push(0);
+        return result;
+    }else { // 中高音
+        result.push(0);
+        for (let i = 1; i < accent; i++) result.push(1);
+        for (let i = 0; i <= (voc_length - accent); i++) result.push(0);
+        return result;
+    }
 }
 
 const hira = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん" +
