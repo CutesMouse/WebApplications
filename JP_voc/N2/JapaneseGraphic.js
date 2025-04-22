@@ -43,7 +43,8 @@ function getVocCanvas(voc_obj) {
 // voc is composed of sentence, voc, voc_chinese, translate, blank
 function drawVocabulary(voc_obj, ctx) {
     let source = convertToSource(voc_obj);
-    let accent = getAccentArray(voc_obj.reading !== undefined ? voc_obj.reading.length : voc_obj.voc.length, voc_obj.accent);
+    let accent = getAccentArray(voc_obj.reading !== undefined ? voc_obj.reading.length : voc_obj.voc.length,
+        voc_obj.accent, voc_obj.reading !== undefined ? voc_obj.reading : voc_obj.voc);
     return drawTextDetailed(source, accent, ctx, margin_x, margin_y / 2 + accent_width_sub);
 }
 
@@ -164,35 +165,38 @@ function convertToSource(voc_object) {
 
 // 生成重音序列 ex. 0011
 // 結果長度應為單字長+1
-function getAccentArray(voc_length, accent) {
+function getAccentArray(voc_length, accent, voc) {
     let result = [];
+    let isYoon = voc.length > 1 && yoon.includes(voc[1]);
+    if (isYoon) { // 開頭為拗音
+        voc_length = voc_length - 1; // 去掉開頭
+    }
     if (accent === -1) { // 未登記重音
         return undefined;
     } else if (accent === 0) { // 平板音
         result.push(0);
         for (let i = 0; i < voc_length; i++) result.push(1);
-        return result;
     } else if (accent === 1) { // 頭高音
         result.push(1);
         for (let i = 0; i < voc_length; i++) result.push(0);
-        return result;
-    }  else if (accent === voc_length) { // 尾高音
+    } else if (accent === voc_length) { // 尾高音
         result.push(0);
         for (let i = 1; i < voc_length; i++) result.push(1);
         result.push(0);
-        return result;
-    }else { // 中高音
+    } else { // 中高音
         result.push(0);
         for (let i = 1; i < accent; i++) result.push(1);
         for (let i = 0; i <= (voc_length - accent); i++) result.push(0);
-        return result;
     }
+    if (isYoon) result.unshift(result[0]);
+    return result;
 }
 
 const hira = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん" +
     "っゃゅょがぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽ";
 const kata = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン" +
     "ッャュョガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポ";
+const yoon = "ゃゅょャュョ";
 
 function isKana(char) {
     return hira.includes(char) || kata.includes(char);
