@@ -38,7 +38,7 @@ function updateFavoriteOptions() {
             let ident = parseInt(value.substring(1));
             if (ident > entries) selection_box.removeChild(option);
             else last_option = option;
-            if (entries === 0) option.disabled = true;
+            option.disabled = entries === 0;
             if (ident !== 0) {
                 option.innerHTML = "Favorite." + ident + " (" + Math.min(favorite.length - CHUNK * (ident - 1), CHUNK) + "題)"
             }
