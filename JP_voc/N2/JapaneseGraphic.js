@@ -24,6 +24,7 @@ function generateVocCards(problem_list, div) {
         chi.classList.add('voc_chinese');
         voc_box.classList.add('voc_box');
         voc_box.appendChild(voc);
+        box.appendChild(getFavoriteDisplay(problem_list[i].level, problem_list[i].index));
         box.appendChild(voc_box);
         box.appendChild(chi);
         div.appendChild(box);

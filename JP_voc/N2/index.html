@@ -4,63 +4,19 @@
     <meta charset="UTF-8">
     <title>單字學習 (絕對合格全攻略！新制日檢N2必背必出單字)</title>
     <link rel="stylesheet" type="text/css" href="index.css">
-    <script src="voc.js"></script>
+    <script src="Control.js"></script>
+    <script src="Voc_List.js"></script>
+    <script src="Voc.js"></script>
+    <script src="Favorite.js"></script>
     <script src="JapaneseGraphic.js"></script>
     <script src="Question.js"></script>
-    <script>
-        // AUTO LOAD
-        document.addEventListener('DOMContentLoaded', () => {
-            for (let option of document.getElementById('level').children) {
-                let value = option.value;
-                let level = 0;
-                if (value[0] === 'M') { // 綜合
-                    level = parseInt(value.substring(1).split('-')[0]);
-                } else level = parseInt(option.value);
-                if (get_questions(level) !== "") option.disabled = false;
-                else option.disabled = true;
-            }
-        });
-
-        let problems = [];
-
-        function get_problem_list() {
-            let val = document.getElementById('level').value;
-            let mixed = val[0] === 'M';
-            let from_level = parseInt(mixed ? val.substring(1).split('-')[0] : val);
-            let to_level = parseInt(mixed ? val.substring(1).split('-')[1] : val);
-            let problem_list = [];
-            problems = [];
-            for (let i = from_level; i <= to_level; i++) {
-                let source = get_questions(i);
-                if (source === "") continue;
-                problem_list = problem_list.concat(convert_json(source));
-            }
-            return problem_list;
-        }
-
-        function start_generate() {
-            let div = document.getElementById('questions');
-            let mixed = document.getElementById('level').value[0] === 'M';
-            document.body.classList.remove('voc_card');
-            generate_questions(get_problem_list(), (mixed ? 20 : 0), div);
-        }
-
-        function show_all_answers() {
-            if (problems.length === 0) start_generate();
-            problems.forEach(p => show_answer(p.box, p.part1, p.answer, p.part2, p.problem, p.sentence));
-        }
-
-        function show_voc_card() {
-            let div = document.getElementById('questions');
-            document.body.classList.add('voc_card');
-            generateVocCards(get_problem_list(), div);
-        }
-    </script>
 </head>
 <body>
 <div class="control">
     <select id="level">
         <option value="M1-40">綜合 (全章節/20題)</option>
+        <option value="0">- 星號標示 -</option>
+        <option value="F0">所有星號標示的單字</option>
         <option value="0">- 各日進度 -</option>
         <option value="1">Day.1 (40題)</option>
         <option value="2">Day.2 (40題)</option>
@@ -137,10 +93,12 @@
     <input type="button" value="生成題目" onclick="start_generate()">
     <input type="button" value="顯示解答" onclick="show_all_answers()">
     <input type="button" value="單字卡" onclick="show_voc_card()">
-    <label><input type="checkbox" id="shuffle" checked>隨機排序</label>
+    <input type="button" value="設定" onclick="setting()">
+
 </div>
 <div class="copyright">所有單字出自「絕對合格全攻略！新制日檢N2必背必出單字 (山田社)」，例句使用ChatGPT產生</div>
 <div id="questions">
+
 </div>
 </body>
 </html>

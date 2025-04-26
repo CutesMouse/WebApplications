@@ -1,7 +1,6 @@
 function generate_questions(problem_list, number, div) {
 
-    let isShuffle = document.getElementById('shuffle').checked;
-    if (isShuffle) problem_list = shuffle(problem_list);
+    if (isShuffle()) problem_list = shuffle(problem_list);
 
     if (number === 0) number = problem_list.length;
     div.innerHTML = "";
