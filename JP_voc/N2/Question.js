@@ -4,6 +4,7 @@ function generate_questions(problem_list, number, div) {
 
     if (number === 0) number = problem_list.length;
     div.innerHTML = "";
+    if (problem_list.length === 0) return;
 
     let last_answer = null;
     for (let i = 0; i < number; i++) {
@@ -23,6 +24,7 @@ function generate_questions(problem_list, number, div) {
         problems.push({"box": box, "part1": part1, "answer": answer, "part2": part2, "problem": problem, "sentence": sentence});
         part1.innerHTML = sentence.sentence.split("{")[0];
         part2.innerHTML = sentence.sentence.split("}")[1];
+        if (isStarDisplay()) box.appendChild(getFavoriteDisplay(problem_list[i].level, problem_list[i].index));
         box.appendChild(part1);
         box.appendChild(answer);
         box.appendChild(part2);
@@ -82,6 +84,7 @@ function show_answer(box, part1, answer, part2, problem, sentence) {
     r2.innerHTML = part2.innerHTML;
     answer.attempt = 0;
     box.innerHTML = "";
+    if (isStarDisplay()) box.appendChild(getFavoriteDisplay(problem.level, problem.index));
     box.appendChild(correct);
     for (let i = 0; i < 3; i++) add_hint(box, answer, problem, sentence);
 }

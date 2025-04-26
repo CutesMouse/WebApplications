@@ -36,6 +36,7 @@ function convert_json(level, source, favorite_only = false) {
 }
 
 function shuffle(items) {
+    if (items.length === 0) return items;
     let cached = items.slice(0), temp, i = cached.length, rand;
     while (--i) {
         rand = Math.floor(i * Math.random());

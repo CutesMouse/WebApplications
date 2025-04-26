@@ -73,6 +73,7 @@ function get_problem_list() {
     } else { // 喜好項目
         let chunk = parseInt(val.substring(1))
         problem_list = get_favorite_list();
+        if (problem_list.length === 0) return problem_list;
         if (chunk !== 0) {
             problem_list.splice(0, CHUNK * (chunk - 1));
             if (problem_list.length > CHUNK) {
@@ -112,14 +113,20 @@ function show_voc_card() {
 
 function setting() {
     document.getElementById('questions').innerHTML = "<div><input type=\"checkbox\" id=\"shuffle\" checked>隨機排序</div>\n" +
+        "<div><input type=\"checkbox\" id=\"accent_display\" checked>在單字卡中顯示重音</div>\n" +
+        "<div><input type=\"checkbox\" id=\"star_display\" checked>顯示星號控制項目</div>\n" +
         "    <div>導出/導出星號標示<span class=\"hint\">可以藉由將別的裝置的文本複製、貼到右邊輸入框後按導入按鈕，即可實現跨裝置同步</span>\n" +
         "        <input type=\"button\" value=\"導入\" onclick=\"importDatabase()\" class=\"button\">\n" +
         "        <textarea id=\"database\"></textarea></div>\n" +
         "    <div>重置星號標示<span class=\"hint\">如發生設定問題，可點擊此按鈕重置</span>\n" +
         "        <input type=\"button\" value=\"重置\" onclick=\"resetDatabase()\" class=\"button\"></div>";
-    document.getElementById('database').value = JSON.stringify(database);
+    document.getElementById('database').value = exportDatabase();
     document.getElementById('shuffle').checked = isShuffle();
-    document.getElementById('shuffle').addEventListener('click', () => setShuffle(!isShuffle()))
+    document.getElementById('shuffle').addEventListener('click', () => setShuffle(!isShuffle()));
+    document.getElementById('accent_display').checked = isAccentDisplay();
+    document.getElementById('accent_display').addEventListener('click', () => setAccentDisplay(!isAccentDisplay()));
+    document.getElementById('star_display').checked = isStarDisplay();
+    document.getElementById('star_display').addEventListener('click', () => setStarDisplay(!isStarDisplay()));
 }
 
 function isShuffle() {
@@ -130,4 +137,24 @@ function isShuffle() {
 
 function setShuffle(value) {
     localStorage.setItem("shuffle", value === true ? "true" : "false");
+}
+
+function isStarDisplay() {
+    let star = localStorage.getItem("star_display");
+    if (!star) return true;
+    return star === "true";
+}
+
+function setStarDisplay(value) {
+    localStorage.setItem("star_display", value === true ? "true" : "false");
+}
+
+function isAccentDisplay() {
+    let accent = localStorage.getItem("accent_display");
+    if (!accent) return true;
+    return accent === "true";
+}
+
+function setAccentDisplay(value) {
+    localStorage.setItem("accent_display", value === true ? "true" : "false");
 }

@@ -7,26 +7,28 @@ function isFavorite(level, index) {
 }
 
 function loadDatabase() {
-    database = JSON.parse(localStorage.getItem("favorite"));
+    database = JSON.parse(localStorage.getItem("favorite").replaceAll('*', 'null'));
     if (database === undefined || database === null) {
         database = [];
     }
 }
 
 function exportDatabase() {
-    loadDatabase();
-    return JSON.stringify(database);
+    if (database === undefined || database === null) loadDatabase();
+    return JSON.stringify(database).replaceAll('null', '*');
 }
 
 function save() {
-    if (database !== undefined) localStorage.setItem("favorite", JSON.stringify(database));
+    if (database !== undefined) localStorage.setItem("favorite", exportDatabase());
 }
 
 // value is a boolean number
 function setFavorite(level, index, value) {
     if (database === undefined) loadDatabase();
     if (database[level] === undefined || database[level] === null) database[level] = [];
-    if (value === true && !database[level].includes(index)) database[level].push(index);
+    if (value === true && !database[level].includes(index)) {
+        database[level].push(index);
+    }
     else {
         let i = database[level].indexOf(index);
         if (i !== -1) database[level].splice(i, 1);

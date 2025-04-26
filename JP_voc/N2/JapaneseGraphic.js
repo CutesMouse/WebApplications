@@ -24,7 +24,7 @@ function generateVocCards(problem_list, div) {
         chi.classList.add('voc_chinese');
         voc_box.classList.add('voc_box');
         voc_box.appendChild(voc);
-        box.appendChild(getFavoriteDisplay(problem_list[i].level, problem_list[i].index));
+        if (isStarDisplay()) box.appendChild(getFavoriteDisplay(problem_list[i].level, problem_list[i].index));
         box.appendChild(voc_box);
         box.appendChild(chi);
         div.appendChild(box);
@@ -95,7 +95,7 @@ function fillTextCenterWithAccent(text, accent, ctx, base_x, base_y, size, line_
     let dx = width / text.length;
 
     ctx.fillText(text, start_x, base_y + size * 0.75);
-    if (accent === undefined) return;
+    if (accent === undefined || !isAccentDisplay()) return;
     for (let i = 0; i < text.length; i++) {
         fillHorizontalLine(ctx, start_x + i * dx, start_y - accent[i] * dx, dx, line_width);
         if (accent[i] !== accent[i + 1]) {
