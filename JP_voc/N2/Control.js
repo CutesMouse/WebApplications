@@ -1,7 +1,6 @@
 // AUTO LOAD
 document.addEventListener('DOMContentLoaded', () => loadOptions(false));
 const TOTAL_LEVEL = 70;
-const CHUNK = 40;
 
 let problems = [];
 
@@ -28,19 +27,21 @@ function updateFavoriteOptions() {
     let selection_box = document.getElementById('level');
     let options = selection_box.children;
     let favorite = get_favorite_list();
-    let entries = Math.ceil(favorite.length / CHUNK);
+    let chunk = getChunk();
+    let entries = Math.ceil(favorite.length / chunk);
     let last_option = undefined;
     // 先把所有超過Favorite範圍的刪除
     for (let i = 0; i < options.length; i++) {
         let option = options[i];
         let value = option.value;
+        console.log(i, value);
         if (value[0] === 'F') {
             let ident = parseInt(value.substring(1));
             if (ident > entries) selection_box.removeChild(option);
             else last_option = option;
             option.disabled = entries === 0;
             if (ident !== 0) {
-                option.innerHTML = "Favorite." + ident + " (" + Math.min(favorite.length - CHUNK * (ident - 1), CHUNK) + "題)"
+                option.innerHTML = "Star." + ident + " (" + Math.min(favorite.length - chunk * (ident - 1), chunk) + "題)"
             }
         }
     }
@@ -49,7 +50,7 @@ function updateFavoriteOptions() {
     for (let i = parseInt(last_option.value.substring(1)) + 1; i <= entries; i++) {
         let option = document.createElement('option');
         option.setAttribute("value", 'F' + i);
-        option.innerHTML = "Favorite." + i + " (" + Math.min(favorite.length - CHUNK * (i - 1), CHUNK) + "題)"
+        option.innerHTML = "Star." + i + " (" + Math.min(favorite.length - chunk * (i - 1), chunk) + "題)"
         selection_box.insertBefore(option, last_option.nextSibling);
         last_option = option;
     }
@@ -61,6 +62,7 @@ function get_problem_list() {
     let mixed = val[0] === 'M';
     let favorite = val[0] === 'F';
     let problem_list = [];
+    let CHUNK = getChunk();
     if (!favorite) { // 非喜好項目
         let from_level = parseInt(mixed ? val.substring(1).split('-')[0] : val);
         let to_level = parseInt(mixed ? val.substring(1).split('-')[1] : val);
@@ -119,7 +121,8 @@ function setting() {
         "        <input type=\"button\" value=\"導入\" onclick=\"importDatabase()\" class=\"button\">\n" +
         "        <textarea id=\"database\"></textarea></div>\n" +
         "    <div>重置星號標示<span class=\"hint\">如發生設定問題，可點擊此按鈕重置</span>\n" +
-        "        <input type=\"button\" value=\"重置\" onclick=\"resetDatabase()\" class=\"button\"></div>";
+        "        <input type=\"button\" value=\"重置\" onclick=\"resetDatabase()\" class=\"button\"></div>\n" +
+    "<div>喜好項目顯示單位<span class=\"hint\">分割單元時、要以多少個單字為單位(設定完請重新整理)</span><input type=\"number\" id=\"chunk\"></div>"
     document.getElementById('database').value = exportDatabase();
     document.getElementById('shuffle').checked = isShuffle();
     document.getElementById('shuffle').addEventListener('click', () => setShuffle(!isShuffle()));
@@ -127,6 +130,8 @@ function setting() {
     document.getElementById('accent_display').addEventListener('click', () => setAccentDisplay(!isAccentDisplay()));
     document.getElementById('star_display').checked = isStarDisplay();
     document.getElementById('star_display').addEventListener('click', () => setStarDisplay(!isStarDisplay()));
+    document.getElementById('chunk').value = getChunk();
+    document.getElementById('chunk').addEventListener('input', e => setChunk(parseInt(e.target.value)));
 }
 
 function isShuffle() {
@@ -157,4 +162,18 @@ function isAccentDisplay() {
 
 function setAccentDisplay(value) {
     localStorage.setItem("accent_display", value === true ? "true" : "false");
+}
+
+function getChunk() {
+    let chunk = localStorage.getItem("chunk");
+    if (!chunk) return 40;
+    return parseInt(chunk);
+}
+
+function setChunk(value) {
+    if (value <= 0) {
+        alert('不合理的數字');
+        return;
+    }
+    localStorage.setItem("chunk", value);
 }

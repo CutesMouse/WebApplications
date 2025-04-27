@@ -24,7 +24,6 @@ function generate_questions(problem_list, number, div) {
         problems.push({"box": box, "part1": part1, "answer": answer, "part2": part2, "problem": problem, "sentence": sentence});
         part1.innerHTML = sentence.sentence.split("{")[0];
         part2.innerHTML = sentence.sentence.split("}")[1];
-        if (isStarDisplay()) box.appendChild(getFavoriteDisplay(problem_list[i].level, problem_list[i].index));
         box.appendChild(part1);
         box.appendChild(answer);
         box.appendChild(part2);

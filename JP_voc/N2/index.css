@@ -21,7 +21,7 @@ body {
         font-size: 45px;
     }
 
-    .answer {
+    .answer, #chunk {
         padding: 5px;
         margin: 10px 5px;
         font-size: 28px;
@@ -59,7 +59,7 @@ body {
         font-size: 20px;
     }
 
-    .answer {
+    .answer, #chunk {
         padding: 5px;
         margin: 0 10px;
         font-size: 20px;
