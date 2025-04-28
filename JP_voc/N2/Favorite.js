@@ -1,4 +1,5 @@
 let database = undefined;
+const TRANSITION_TIME = 0.1; //s
 
 function isFavorite(level, index) {
     if (database === undefined) loadDatabase();
@@ -53,14 +54,19 @@ function getFavoriteDisplay(level, index) {
 }
 
 function updateFavoriteDisplay(star, level, index) {
-    if (isFavorite(level, index)) {
-        star.innerHTML = "⭐";
-        star.classList.remove("not_toggled");
-    } else {
-        star.innerHTML = "🔷";
-        star.classList.add("not_toggled");
-    }
-    updateFavoriteOptions();
+    star.classList.add('shrink');
+    setTimeout(() => {
+        star.classList.remove('shrink');
+        if (isFavorite(level, index)) {
+            star.innerHTML = "⭐";
+            star.classList.remove("not_toggled");
+        } else {
+            star.innerHTML = "🔷";
+            star.classList.add("not_toggled");
+        }
+        updateFavoriteOptions();
+    }, TRANSITION_TIME * 1000);
+
 }
 
 function toggleFavorite(star, level, index) {
