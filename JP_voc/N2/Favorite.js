@@ -7,9 +7,12 @@ function isFavorite(level, index) {
 }
 
 function loadDatabase() {
-    database = JSON.parse(localStorage.getItem("favorite").replaceAll('*', 'null'));
-    if (database === undefined || database === null) {
+    let item = localStorage.getItem("favorite");
+
+    if (item === undefined || item === null) {
         database = [];
+    } else {
+        database = JSON.parse(item.replaceAll('*', 'null'));
     }
 }
 

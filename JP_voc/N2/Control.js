@@ -34,7 +34,6 @@ function updateFavoriteOptions() {
     for (let i = 0; i < options.length; i++) {
         let option = options[i];
         let value = option.value;
-        console.log(i, value);
         if (value[0] === 'F') {
             let ident = parseInt(value.substring(1));
             if (ident > entries) selection_box.removeChild(option);
@@ -45,7 +44,6 @@ function updateFavoriteOptions() {
             }
         }
     }
-    //console.log(last_option, entries);
     // 再把新的節點加上去
     for (let i = parseInt(last_option.value.substring(1)) + 1; i <= entries; i++) {
         let option = document.createElement('option');
