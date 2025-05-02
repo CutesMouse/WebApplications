@@ -146,21 +146,16 @@ function convertToSource(voc_object) {
         }
         // 如果是漢字 一路往前推到前面的字等於讀音的字
         let reading_base = reading_ptr;
-        /*if (kanji_ptr === 0) {
-            result.push([kanji[kanji_ptr], reading.substring(0, reading_base + 1)]);
-            continue;
-        }*/
         let kanji_base = kanji_ptr - 1;
         while (kanji_base >= 0 && !isKana(kanji[kanji_base])) kanji_base--;
         if (kanji_base === -1) {
             result.push([kanji.substring(0, kanji_ptr + 1), reading.substring(0, reading_ptr + 1)]);
             break;
         }
-        while (reading_ptr >= 0 && (kanji[kanji_base] !== reading[reading_ptr])) reading_ptr--;
+        while (reading_ptr >= 0 && (kanji[kanji_base] !== reading[reading_ptr]) || reading_ptr === reading_base) reading_ptr--;
         result.push([kanji.substring(kanji_base + 1, kanji_ptr + 1), reading.substring(reading_ptr + 1, reading_base + 1)]);
         kanji_ptr = kanji_base + 1;
     }
-
     return result.reverse();
 }
 
