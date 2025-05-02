@@ -8,4 +8,4 @@
 - [爆爆王走迷宮(仿中央電機DSD Final Project)](https://cutesmouse.github.io/WebApplications/bomb/)
 - [UNO](https://cutesmouse.github.io/WebApplications/uno/)
 - [課表產生器](https://cutesmouse.github.io/WebApplications/course/)
-- [日檢N3單字測驗機](https://cutesmouse.github.io/WebApplications/JP_voc/)
+- [日檢單字測驗機](https://cutesmouse.github.io/WebApplications/JP_voc/)
