@@ -1,7 +1,10 @@
 function generate_questions(problem_list, number, div) {
-    problem_list = randomize(problem_list);
 
+    if (isShuffle()) problem_list = shuffle(problem_list);
+
+    if (number === 0) number = problem_list.length;
     div.innerHTML = "";
+    if (problem_list.length === 0) return;
 
     let last_answer = null;
     for (let i = 0; i < number; i++) {
@@ -10,16 +13,17 @@ function generate_questions(problem_list, number, div) {
         let part1 = document.createElement('span');
         let part2 = document.createElement('span');
         let answer = document.createElement('input');
+        let sentence = random_sentence(problem);
         answer.type = "text";
         answer.attempt = 0;
         answer.classList.add('answer');
         answer.onkeyup = function (event) {
             if (event.key !== "Enter") return;
-            submit(box, part1, answer, part2, problem);
+            submit(box, part1, answer, part2, problem, sentence);
         }
-        problems.push({"box": box, "part1": part1, "answer": answer, "part2": part2, "problem": problem});
-        part1.innerHTML = problem.sentence.split("{")[0];
-        part2.innerHTML = problem.sentence.split("}")[1];
+        problems.push({"box": box, "part1": part1, "answer": answer, "part2": part2, "problem": problem, "sentence": sentence});
+        part1.innerHTML = sentence.sentence.split("{")[0];
+        part2.innerHTML = sentence.sentence.split("}")[1];
         box.appendChild(part1);
         box.appendChild(answer);
         box.appendChild(part2);
@@ -33,16 +37,16 @@ function generate_questions(problem_list, number, div) {
     }
 }
 
-function add_hint(box, answer, problem) {
+function add_hint(box, answer, problem, sentence) {
     let hint = document.createElement('span');
     if (answer.attempt === 0) {
         hint.classList.add("translate");
-        hint.innerHTML = problem.translate;
+        hint.innerHTML = sentence.translation;
         box.appendChild(hint);
         answer.attempt = 1;
     } else if (answer.attempt === 1) {
         hint.classList.add("voc_chinese");
-        hint.innerHTML = problem.voc_chinese;
+        hint.innerHTML = problem.chinese;
         box.appendChild(hint);
         answer.attempt = 2;
     } else if (answer.attempt === 2) {
@@ -53,8 +57,8 @@ function add_hint(box, answer, problem) {
     }
 }
 
-function isCorrect(answer_value, problem) {
-    if (answer_value === problem.blank) return true;
+function isCorrect(answer_value, problem, sentence) {
+    if (answer_value === sentence.blank) return true;
     if (problem.voc.indexOf('(') !== -1) {
         let kata = problem.voc.split('(')[1].split(')')[0];
         let kanji = problem.voc.split('(')[0];
@@ -63,7 +67,7 @@ function isCorrect(answer_value, problem) {
     return false;
 }
 
-function show_answer(box, part1, answer, part2, problem) {
+function show_answer(box, part1, answer, part2, problem, sentence) {
     let correct = document.createElement('span');
     let r1 = document.createElement('span');
     let ra = document.createElement('span');
@@ -75,38 +79,20 @@ function show_answer(box, part1, answer, part2, problem) {
     correct.appendChild(ra);
     correct.appendChild(r2);
     r1.innerHTML = part1.innerHTML;
-    ra.innerHTML = problem.blank;
+    ra.innerHTML = sentence.blank;
     r2.innerHTML = part2.innerHTML;
     answer.attempt = 0;
     box.innerHTML = "";
+    if (isStarDisplay()) box.appendChild(getFavoriteDisplay(problem.level, problem.index));
     box.appendChild(correct);
-    for (let i = 0; i < 3; i++) add_hint(box, answer, problem);
+    for (let i = 0; i < 3; i++) add_hint(box, answer, problem, sentence);
 }
 
-function submit(box, part1, answer, part2, problem) {
-    if (isCorrect(answer.value, problem)) {
-        show_answer(box, part1, answer, part2, problem);
+function submit(box, part1, answer, part2, problem, sentence) {
+    if (isCorrect(answer.value, problem, sentence)) {
+        show_answer(box, part1, answer, part2, problem, sentence);
         if (answer.to_next != null) answer.to_next();
     } else {
-        add_hint(box, answer, problem);
+        add_hint(box, answer, problem, sentence);
     }
-}
-
-function shuffle(items) {
-    let cached = items.slice(0), temp, i = cached.length, rand;
-    while (--i) {
-        rand = Math.floor(i * Math.random());
-        temp = cached[rand];
-        cached[rand] = cached[i];
-        cached[i] = temp;
-    }
-    return cached;
-}
-
-function randomize(problems) {
-    let new_picked = [];
-    for (let i = 0; i < problems.length; i += 2) {
-        new_picked.push(problems[i + (Math.random() > 0.5)])
-    }
-    return shuffle(new_picked);
 }
