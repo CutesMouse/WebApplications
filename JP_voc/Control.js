@@ -40,7 +40,9 @@ function updateFavoriteOptions() {
             else last_option = option;
             option.disabled = entries === 0;
             if (ident !== 0) {
-                option.innerHTML = "Star." + ident + " (" + Math.min(favorite.length - chunk * (ident - 1), chunk) + "題)"
+                option.innerHTML = "Star." + ident + " (" + Math.min(favorite.length - chunk * (ident - 1), chunk) + "題)";
+            } else {
+                option.innerHTML = "星號標示單字" + " (" + Math.min(favorite.length, 20) + "題)";
             }
         }
     }
@@ -95,7 +97,8 @@ function get_favorite_list() {
 
 function start_generate() {
     let div = document.getElementById('questions');
-    let mixed = document.getElementById('level').value[0] === 'M';
+    let selected = document.getElementById('level');
+    let mixed = selected.value[0] === 'M' || selected.value === 'F0';
     document.body.classList.remove('voc_card');
     generate_questions(get_problem_list(), (mixed ? 20 : 0), div);
 }
