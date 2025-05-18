@@ -1,6 +1,5 @@
 // AUTO LOAD
 document.addEventListener('DOMContentLoaded', () => loadOptions(false));
-const TOTAL_LEVEL = 70;
 
 let problems = [];
 
@@ -10,6 +9,7 @@ function loadOptions(favorite_only = false) {
 
     updateFavoriteOptions();
     if (favorite_only) return;
+    let finished = 0;
 
     for (let i = 0; i < options.length; i++) {
         let option = options[i];
@@ -20,7 +20,11 @@ function loadOptions(favorite_only = false) {
             level = parseInt(value.substring(1).split('-')[0]);
         } else level = parseInt(option.value);
         option.disabled = get_questions(level) === "";
+        if (value[0] !== 'M' && !option.disabled) finished++;
     }
+
+    let finish_ratio = Math.round(100 * finished / TOTAL_LEVEL);
+    document.getElementById('progress').innerHTML = "完成進度: " + finish_ratio + "%";
 }
 
 function updateFavoriteOptions() {
