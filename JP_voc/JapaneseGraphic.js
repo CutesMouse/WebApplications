@@ -17,12 +17,9 @@ function generateVocCards(problem_list, div) {
 
     for (let i = 0; i < problem_list.length; i++) {
         let voc = getVocCanvas(problem_list[i]);
-        let voc_box = document.createElement('span');
-        let chi = document.createElement('span');
-        let box = document.createElement("div");
-        chi.innerHTML = problem_list[i].chinese;
-        chi.classList.add('voc_chinese');
-        voc_box.classList.add('voc_box');
+        let voc_box = createElement('span', 'voc_box');
+        let chi = createElement('span', 'voc_chinese', problem_list[i].chinese);
+        let box = createElement("div", "vocabulary_div");
         voc_box.appendChild(voc);
         if (isStarDisplay()) box.appendChild(getFavoriteDisplay(problem_list[i].level, problem_list[i].index));
         box.appendChild(voc_box);
@@ -32,7 +29,7 @@ function generateVocCards(problem_list, div) {
 }
 
 function getVocCanvas(voc_obj) {
-    let canvas = document.createElement("canvas");
+    let canvas = createElement("canvas");
     canvas.height = space_per_voc;
     canvas.width = drawVocabulary(voc_obj, canvas.getContext('2d')) + 2 * margin_x;
     canvas.style.height = canvas.height * scale + "px";

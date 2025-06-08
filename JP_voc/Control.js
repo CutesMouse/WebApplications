@@ -1,6 +1,37 @@
 // AUTO LOAD
 document.addEventListener('DOMContentLoaded', () => loadOptions(false));
 
+// prevent zoom
+document.addEventListener('gesturestart', function (e) {
+    e.preventDefault();
+});
+document.addEventListener('gesturechange', function (e) {
+    e.preventDefault();
+});
+document.addEventListener('gestureend', function (e) {
+    e.preventDefault();
+});
+
+let vh = window.innerHeight * 0.01;
+
+// css fix
+function setRealViewportHeight() {
+    vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+window.addEventListener('resize', setRealViewportHeight);
+setRealViewportHeight();
+
+// 禁止快速雙擊觸發放大
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function (event) {
+    const now = new Date().getTime();
+    if (now - lastTouchEnd <= 300) {
+        event.preventDefault(); // 防止雙擊放大
+    }
+    lastTouchEnd = now;
+}, false);
+
 let problems = [];
 
 function loadOptions(favorite_only = false) {
@@ -103,32 +134,55 @@ function start_generate() {
     let div = document.getElementById('questions');
     let selected = document.getElementById('level');
     let mixed = selected.value[0] === 'M' || selected.value === 'F0';
-    document.body.classList.remove('voc_card');
     generate_questions(get_problem_list(), (mixed ? 20 : 0), div);
 }
 
 function show_all_answers() {
     if (problems.length === 0) start_generate();
-    problems.forEach(p => show_answer(p.box, p.part1, p.answer, p.part2, p.problem, p.sentence));
+    problems.forEach(p => show_answer(p.body, p.question_line, p.part1, p.answer, p.part2, p.problem, p.sentence));
 }
 
 function show_voc_card() {
     let div = document.getElementById('questions');
-    document.body.classList.add('voc_card');
     generateVocCards(get_problem_list(), div);
 }
 
+function fast_voc_test() {
+    let div = document.getElementById('questions');
+    generateFastCheck(get_problem_list(), div);
+}
+
 function setting() {
-    document.getElementById('questions').innerHTML = "<div><input type=\"checkbox\" id=\"shuffle\" checked>隨機排序</div>\n" +
-        "<div><input type=\"checkbox\" id=\"accent_display\" checked>在單字卡中顯示重音</div>\n" +
-        "<div><input type=\"checkbox\" id=\"star_display\" checked>顯示星號控制項目</div>\n" +
-        "    <div>導出/導出星號標示<span class=\"hint\">可以藉由將別的裝置的文本複製、貼到右邊輸入框後按導入按鈕，即可實現跨裝置同步</span>\n" +
+    document.getElementById('questions').innerHTML = "<div class=\"setting_div\"><input type=\"checkbox\" id=\"shuffle\" checked=\"\">隨機排序</div>\n" +
+        "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"accent_display\" checked=\"\">在單字卡中顯示重音</div>\n" +
+        "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"star_display\" checked=\"\">顯示星號控制項目</div>\n" +
+        "    <div class=\"export-row setting_div\">\n" +
+        "        <span class=\"label\">導出/導出星號標示</span>\n" +
         "        <input type=\"button\" value=\"導入\" onclick=\"importDatabase()\" class=\"button\">\n" +
-        "        <textarea id=\"database\"></textarea></div>\n" +
-        "    <div>重置星號標示<span class=\"hint\">如發生設定問題，可點擊此按鈕重置</span>\n" +
-        "        <input type=\"button\" value=\"重置\" onclick=\"resetDatabase()\" class=\"button\"></div>\n" +
-    "<div>喜好項目顯示單位<span class=\"hint\">分割單元時、要以多少個單字為單位(設定完請重新整理)</span><input type=\"number\" id=\"chunk\"></div>"
+        "        <span class=\"hint\">可以藉由將別的裝置的文本複製、貼到下方輸入框後按導入按鈕，即可實現跨裝置同步</span>\n" +
+        "        <textarea id=\"database\"></textarea>\n" +
+        "    </div>\n" +
+        "    <div class=\"export-row setting_div\">\n" +
+        "        <span class=\"label\">重置星號標示</span>\n" +
+        "        <input type=\"button\" value=\"重置\" onclick=\"resetDatabase()\" class=\"button\">\n" +
+        "        <span class=\"hint\">如發生設定問題，可點擊此按鈕重置</span>\n" +
+        "    </div>\n" +
+        "    <div class=\"setting_div\">喜好項目顯示單位<span class=\"hint\">分割單元時、要以多少個單字為單位(設定完請重新整理)</span><input type=\"number\"\n" +
+        "                                                                                                           id=\"chunk\">\n" +
+        "    </div>\n" +
+        "    <div class=\"export-row setting_div\">\n" +
+        "        <span class=\"label\">導出/導出權重表</span>\n" +
+        "        <input type=\"button\" value=\"導入\" onclick=\"importWeight()\" class=\"button\">\n" +
+        "        <span class=\"hint\">權重表是用以在單字檢驗項目中，為使用者篩選出較不擅長的單字</span>\n" +
+        "        <textarea id=\"weights\"></textarea>\n" +
+        "    </div>\n" +
+        "    <div class=\"export-row setting_div\">\n" +
+        "        <span class=\"label\">重置權重表</span>\n" +
+        "        <input type=\"button\" value=\"重置\" onclick=\"resetWeight()\" class=\"button\">\n" +
+        "        <span class=\"hint\">如發生設定問題，可點擊此按鈕重置</span>\n" +
+        "    </div>";
     document.getElementById('database').value = exportDatabase();
+    document.getElementById('weights').value = exportWeight();
     document.getElementById('shuffle').checked = isShuffle();
     document.getElementById('shuffle').addEventListener('click', () => setShuffle(!isShuffle()));
     document.getElementById('accent_display').checked = isAccentDisplay();

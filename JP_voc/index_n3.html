@@ -8,6 +8,7 @@
     <script src="Voc_List_n3.js"></script>
     <script src="Voc.js"></script>
     <script src="Favorite.js"></script>
+    <script src="VocCard.js"></script>
     <script src="JapaneseGraphic.js"></script>
     <script src="Question.js"></script>
     <script>
@@ -18,72 +19,74 @@
 </head>
 <body>
 <div class="control">
-    <span id="progress">完成進度: 0%</span>
-    <select id="level">
-        <option value="M1-40">綜合 (全章節/20題)</option>
-        <option value="M1-9">綜合 (名詞/20題)</option>
-        <option value="M10-12">綜合 (い形容詞/20題)</option>
-        <option value="M13-15">綜合 (な形容詞/20題)</option>
-        <option value="M16-33">綜合 (動詞/20題)</option>
-        <option value="M34-37">綜合 (副詞/20題)</option>
-        <option value="M38-40">綜合 (外來語/20題)</option>
-        <option value="0">- 星號標示 -</option>
-        <option value="F0">所有星號標示的單字</option>
-        <option value="0">- 名詞 -</option>
-        <option value="1">1 (名詞/24題)</option>
-        <option value="2">2 (名詞/24題)</option>
-        <option value="3">3 (名詞/24題)</option>
-        <option value="4">4 (名詞/24題)</option>
-        <option value="5">5 (名詞/24題)</option>
-        <option value="6">6 (名詞/24題)</option>
-        <option value="7">7 (名詞/24題)</option>
-        <option value="8">8 (名詞/24題)</option>
-        <option value="9">9 (名詞/24題)</option>
-        <option value="0">- い形容詞 -</option>
-        <option value="10">10 (い形容詞/24題)</option>
-        <option value="11">11 (い形容詞/24題)</option>
-        <option value="12">12 (い形容詞/24題)</option>
-        <option value="0">- な形容詞 -</option>
-        <option value="13">13 (な形容詞/24題)</option>
-        <option value="14">14 (な形容詞/24題)</option>
-        <option value="15">15 (な形容詞/24題)</option>
-        <option value="0">- 動詞 -</option>
-        <option value="16">16 (動詞/24題)</option>
-        <option value="17">17 (動詞/24題)</option>
-        <option value="18">18 (動詞/24題)</option>
-        <option value="19">19 (動詞/24題)</option>
-        <option value="20">20 (動詞/24題)</option>
-        <option value="21">21 (動詞/24題)</option>
-        <option value="22">22 (動詞/24題)</option>
-        <option value="23">23 (動詞/24題)</option>
-        <option value="24">24 (動詞/24題)</option>
-        <option value="25">25 (動詞/24題)</option>
-        <option value="26">26 (動詞/24題)</option>
-        <option value="27">27 (動詞/24題)</option>
-        <option value="28">28 (動詞/24題)</option>
-        <option value="29">29 (動詞/24題)</option>
-        <option value="30">30 (動詞/24題)</option>
-        <option value="31">31 (動詞/24題)</option>
-        <option value="32">32 (動詞/24題)</option>
-        <option value="33">33 (動詞/24題)</option>
-        <option value="0">- 副詞 -</option>
-        <option value="34">34 (副詞/24題)</option>
-        <option value="35">35 (副詞/24題)</option>
-        <option value="36">36 (副詞/24題)</option>
-        <option value="37">37 (副詞/24題)</option>
-        <option value="0">- 外來語 -</option>
-        <option value="38">38 (外來語/24題)</option>
-        <option value="39">39 (外來語/24題)</option>
-        <option value="40">40 (外來語/24題)</option>
+    <div class="control-row">
+        <select id="level">
+            <option value="M1-40">綜合 (全章節/20題)</option>
+            <option value="M1-9">綜合 (名詞/20題)</option>
+            <option value="M10-12">綜合 (い形容詞/20題)</option>
+            <option value="M13-15">綜合 (な形容詞/20題)</option>
+            <option value="M16-33">綜合 (動詞/20題)</option>
+            <option value="M34-37">綜合 (副詞/20題)</option>
+            <option value="M38-40">綜合 (外來語/20題)</option>
+            <option value="0">- 星號標示 -</option>
+            <option value="F0">所有星號標示的單字</option>
+            <option value="0">- 名詞 -</option>
+            <option value="1">1 (名詞/24題)</option>
+            <option value="2">2 (名詞/24題)</option>
+            <option value="3">3 (名詞/24題)</option>
+            <option value="4">4 (名詞/24題)</option>
+            <option value="5">5 (名詞/24題)</option>
+            <option value="6">6 (名詞/24題)</option>
+            <option value="7">7 (名詞/24題)</option>
+            <option value="8">8 (名詞/24題)</option>
+            <option value="9">9 (名詞/24題)</option>
+            <option value="0">- い形容詞 -</option>
+            <option value="10">10 (い形容詞/24題)</option>
+            <option value="11">11 (い形容詞/24題)</option>
+            <option value="12">12 (い形容詞/24題)</option>
+            <option value="0">- な形容詞 -</option>
+            <option value="13">13 (な形容詞/24題)</option>
+            <option value="14">14 (な形容詞/24題)</option>
+            <option value="15">15 (な形容詞/24題)</option>
+            <option value="0">- 動詞 -</option>
+            <option value="16">16 (動詞/24題)</option>
+            <option value="17">17 (動詞/24題)</option>
+            <option value="18">18 (動詞/24題)</option>
+            <option value="19">19 (動詞/24題)</option>
+            <option value="20">20 (動詞/24題)</option>
+            <option value="21">21 (動詞/24題)</option>
+            <option value="22">22 (動詞/24題)</option>
+            <option value="23">23 (動詞/24題)</option>
+            <option value="24">24 (動詞/24題)</option>
+            <option value="25">25 (動詞/24題)</option>
+            <option value="26">26 (動詞/24題)</option>
+            <option value="27">27 (動詞/24題)</option>
+            <option value="28">28 (動詞/24題)</option>
+            <option value="29">29 (動詞/24題)</option>
+            <option value="30">30 (動詞/24題)</option>
+            <option value="31">31 (動詞/24題)</option>
+            <option value="32">32 (動詞/24題)</option>
+            <option value="33">33 (動詞/24題)</option>
+            <option value="0">- 副詞 -</option>
+            <option value="34">34 (副詞/24題)</option>
+            <option value="35">35 (副詞/24題)</option>
+            <option value="36">36 (副詞/24題)</option>
+            <option value="37">37 (副詞/24題)</option>
+            <option value="0">- 外來語 -</option>
+            <option value="38">38 (外來語/24題)</option>
+            <option value="39">39 (外來語/24題)</option>
+            <option value="40">40 (外來語/24題)</option>
 
-    </select>
-    <input type="button" value="生成題目" onclick="start_generate()">
-    <input type="button" value="顯示解答" onclick="show_all_answers()">
-    <input type="button" value="單字卡" onclick="show_voc_card()">
-    <input type="button" value="設定" onclick="setting()">
+        </select>
+        <input type="button" value="生成題目" onclick="start_generate()">
+        <input type="button" value="顯示解答" onclick="show_all_answers()">
+        <input type="button" value="單字卡" onclick="show_voc_card()">
+        <input type="button" value="快速檢驗" onclick="fast_voc_test()">
+        <input type="button" value="設定" onclick="setting()">
+    </div>
 </div>
-<div class="copyright">所有單字、例句皆出自「40天搞定新日檢N3單字 (瑞蘭國際出版社)」</div>
 <div id="questions">
 </div>
+<div class="copyright">所有單字、例句皆出自「40天搞定新日檢N3單字 (瑞蘭國際出版社)」<br>由CutesMouse設計/<span id="progress"></span></div>
 </body>
 </html>

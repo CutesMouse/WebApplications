@@ -40,8 +40,7 @@ function setFavorite(level, index, value) {
 }
 
 function getFavoriteDisplay(level, index) {
-    let star = document.createElement("span");
-    star.classList.add("star");
+    let star = createElement("span", "star");
     if (isFavorite(level, index)) {
         star.innerHTML = "⭐";
     } else {
@@ -91,4 +90,5 @@ function resetDatabase() {
     loadDatabase();
     updateFavoriteOptions();
     alert("重置資料成功!")
+    setting();
 }
