@@ -3,6 +3,7 @@ let weights = undefined;
 function getWeight(level, index) {
     if (weights === undefined) loadWeight();
     if (weights[level] === undefined || weights[level] === null) return 0;
+    if (weights[level][index] === undefined) return 0;
     return weights[level][index];
 }
 
@@ -89,6 +90,7 @@ function getWeightedRandomCard() {
 
     for (const value of this.problem_list) {
         const weight = getWeight(value.level, value.index) + 1;
+        console.log(weight)
         if (weight > 0) {
             candidates.push({value, weight});
             totalWeight += weight;
