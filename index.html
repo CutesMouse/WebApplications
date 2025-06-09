@@ -2,22 +2,60 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>歡迎來到Mouse的網頁開發室</title>
+    <title>日文單字學習網站</title>
     <style>
-        a {
-            display: block;
+        html {
+            overflow: -moz-hidden-unscrollable;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        body {
+            -ms-overflow-style: none;
+            height: 100%;
+            width: calc(100vw + 18px);
+            overflow: auto;
+        }
+
+        .flex {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .selection {
+            flex: 1;
+            text-align: center;
+            font-size: 100px;
+            font-family: Consolas, "微軟正黑體", serif;
+            height: 100%;
+            align-content: center;
+        }
+
+        .n2 {
+            color: white;
+            background-color: #67e4ff;
+        }
+
+        .n3 {
+            color: white;
+            background-color: #d800ff;
         }
     </style>
 </head>
 <body>
-<div>
-    <a href="maze_generator/index.html">迷宮產生器 (使用disjoint-set + BFS演算法)</a>
-    <a href="minesweeper/index.html">踩地雷 (使用typescript+BFS演算法)</a>
-    <a href="2048/2048.html">2048 (仿中央電機Final Project)</a>
-    <a href="bomb/index.html">爆爆王走迷宮 (仿中央電機Final Project)</a>
-    <a href="uno/index.html">UNO</a>
-    <a href="course/">課表產生器</a>
-    <a href="JP_voc/">日檢單字測驗機</a>
+<div class="flex">
+    <div class="selection n2" id="n2">N2</div>
+    <div class="selection n3" id="n3">N3</div>
 </div>
+<script>
+    document.getElementById('n2').addEventListener('click', () => window.open('index_n2.html', '_self'));
+    document.getElementById('n3').addEventListener('click', () => window.open('index_n3.html', '_self'));
+</script>
 </body>
 </html>
