@@ -1,0 +1,44 @@
+const CACHE_NAME = 'mouse-n3voc-20250609';
+
+const urlsToCache = [
+    './',
+    './index_n3.html',
+    './index_n3.css',
+    './Control.js',
+    './Favorite.js',
+    './JapaneseGraphic.js',
+    './Question.js',
+    './Voc.js',
+    './Voc_List_n3.js',
+    './VocCard.js',
+    './icons/n3-icon-512.png',
+    './icons/n3-icon-192.png'
+];
+
+self.addEventListener('install', event => {
+    self.skipWaiting();
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+    );
+});
+
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys().then(cacheNames => Promise.all(
+            cacheNames.map(name => {
+                if (name !== CACHE_NAME) {
+                    return caches.delete(name);
+                }
+            })
+        ))
+    );
+    self.clients.claim();
+});
+
+self.addEventListener('fetch', event => {
+    event.respondWith(
+        caches.match(event.request).then(response =>
+            response || fetch(event.request)
+        )
+    );
+});
