@@ -90,14 +90,17 @@ function getWeightedRandomCard() {
 
     for (const value of this.problem_list) {
         const weight = getWeight(value.level, value.index) + 1;
-        console.log(weight)
-        if (weight > 0) {
+        if (weight > 0 && value !== this.current_problem) {
             candidates.push({value, weight});
             totalWeight += weight;
         }
     }
 
-    if (totalWeight === 0) return undefined;
+    if (totalWeight === 0) {
+        if (this.current_problem !== undefined &&
+            getWeight(this.current_problem.level, this.current_problem.index) !== -1) return this.current_problem;
+        return undefined;
+    }
 
     let rand = Math.random() * totalWeight;
 
@@ -123,6 +126,7 @@ function renderCard(problem) {
         <div class="card-meaning">${problem.chinese}</div>
         <div class="card-word-wrapper">
           <div class="card-word" id="card_word">
+            <br><div class="part-of-speech">${problem.speech}</div>
             <div class="card-overlay" id="card_overlay" onclick="this.classList.toggle('card-hidden')">點擊顯示</div>
           </div>
         </div>
@@ -133,7 +137,7 @@ function renderCard(problem) {
       `;
     container.appendChild(card);
     if (isStarDisplay()) card.insertBefore(getFavoriteDisplay(problem.level, problem.index), card.firstElementChild);
-    document.getElementById("card_word").insertBefore(getVocCanvas(problem), document.getElementById("card_overlay"));
+    document.getElementById("card_word").insertBefore(getVocCanvas(problem), document.getElementById("card_word").firstElementChild);
 }
 
 function renderEndScreen() {
@@ -161,7 +165,7 @@ function cardAction(type) {
         setWeight(this.current_problem.level, this.current_problem.index, -1);
         flipCard('right');
     } else {
-        setWeight(this.current_problem.level, this.current_problem.index, getWeight(this.current_problem.level, this.current_problem.index) + 1);
+        setWeight(this.current_problem.level, this.current_problem.index, 1);
         flipCard('left');
     }
 }

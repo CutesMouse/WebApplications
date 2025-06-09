@@ -63,7 +63,7 @@ function add_hint(body, answer, problem, sentence) {
         answer.attempt = 1;
     } else if (answer.attempt === 1) {
         hint.classList.add("voc_chinese");
-        hint.innerHTML = problem.chinese;
+        hint.innerHTML = problem.chinese + "/" + problem.speech;
         body.appendChild(hint);
         answer.attempt = 2;
     } else if (answer.attempt === 2) {

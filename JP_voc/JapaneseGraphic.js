@@ -18,12 +18,16 @@ function generateVocCards(problem_list, div) {
     for (let i = 0; i < problem_list.length; i++) {
         let voc = getVocCanvas(problem_list[i]);
         let voc_box = createElement('span', 'voc_box');
+        let text_info = createElement('div', 'text_info');
         let chi = createElement('span', 'voc_chinese', problem_list[i].chinese);
+        let tag = createElement("div", "part-of-speech", problem_list[i].speech);
         let box = createElement("div", "vocabulary_div");
+        text_info.appendChild(tag);
+        text_info.appendChild(chi);
         voc_box.appendChild(voc);
         if (isStarDisplay()) box.appendChild(getFavoriteDisplay(problem_list[i].level, problem_list[i].index));
         box.appendChild(voc_box);
-        box.appendChild(chi);
+        box.appendChild(text_info);
         div.appendChild(box);
     }
 }

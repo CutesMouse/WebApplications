@@ -6,19 +6,18 @@ function convert_json(level, source, favorite_only = false) {
         let content = ary[index].split("/");
         let voc = content[0];
         let accent = ACCENT_ENABLE ? parseInt(content[1]) : -1;
-        let voc_chinese = content[ACCENT_ENABLE ? 2 : 1];
+        let voc_chinese = content[ACCENT_ENABLE ? 3 : 2];
         let sentences = [];
+        let speech = content[ACCENT_ENABLE ? 2 : 1];
         let kanji = undefined;
         let reading = undefined;
         if (voc.indexOf('(') !== -1) {
             kanji = voc.substring(0, voc.indexOf('('));
             reading = voc.substring(voc.indexOf('(') + 1, voc.indexOf(')'));
         }
-        for (let i = (2 + ACCENT_ENABLE); (i + 1) < content.length; i += 2) {
+        for (let i = (3 + ACCENT_ENABLE); (i + 1) < content.length; i += 2) {
             sentences.push({
-                "sentence": content[i],
-                "translation": content[i + 1],
-                "blank": content[i].split('{')[1].split('}')[0]
+                "sentence": content[i], "translation": content[i + 1], "blank": content[i].split('{')[1].split('}')[0]
             });
         }
         result.push({
@@ -27,6 +26,7 @@ function convert_json(level, source, favorite_only = false) {
             "sentences": sentences,
             "voc": voc,
             "chinese": voc_chinese,
+            "speech": speech_transform(speech),
             "kanji": kanji,
             "reading": reading,
             "accent": accent
@@ -54,4 +54,89 @@ function getRandomInt(max) {
 function random_sentence(problem) {
     let sentences = problem.sentences;
     return sentences[getRandomInt(sentences.length)];
+}
+
+function speech_transform(original) {
+    const space = "・";
+    let result = "";
+    for (let i = 0; i < original.length; i++) {
+        let char = original[i];
+        let next_char = original[i + 1];
+        switch (char) {
+            case "自":
+                if (next_char !== "他") result = result + space + "自動詞"; else {
+                    result = result + space + "自他動詞";
+                    i++;
+                }
+                break;
+            case "他":
+                result = result + space + "他動詞";
+                break;
+            case "な":
+                result = result + space + "な形容詞";
+                i++;
+                break;
+            case "い":
+                result = result + space + "い形容詞";
+                i++;
+                break;
+            case "連":
+                result = result + space + "連體詞";
+                i++;
+                break;
+            case "接":
+                switch (next_char) {
+                    case "頭":
+                        result = result + space + "接頭語";
+                        i++;
+                        break;
+                    case "尾":
+                        result = result + space + "接尾語";
+                        i++;
+                        break;
+                    default:
+                        result = result + space + "連接詞";
+                        break;
+                }
+                break;
+            case "寒":
+                result = result + space + "寒暄語";
+                i++;
+                break;
+            case "漢":
+                result = result + space + "純漢字";
+                break;
+            case "感":
+                result = result + space + "感嘆詞";
+                break;
+            case "代":
+                result = result + space + "代名詞";
+                break;
+            case "副":
+                result = result + space + "副詞";
+                break;
+            case "慣":
+                result = result + space + "慣用語";
+                break;
+            case "名":
+                result = result + space + "名詞";
+                break;
+            case "疑":
+                result = result + space + "疑問詞";
+                break;
+            case "數":
+                result = result + space + "數量詞";
+                break;
+            case "動":
+                result = result + space + "動詞";
+                break;
+            case "外":
+                result = result + space + "外來語";
+                break;
+            default:
+                console.log(original, "未知詞性 " + char);
+                break;
+        }
+    }
+    return (result ? result.substring(1) : "");
 }
