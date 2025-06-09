@@ -692,4 +692,8 @@ html, body {
         padding: 5% 0 0;
         overflow: visible;
     }
+
+    .text_info .part-of-speech {
+        margin-bottom: 10px;
+    }
 }
