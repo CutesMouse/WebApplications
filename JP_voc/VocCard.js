@@ -163,6 +163,10 @@ function cardAction(type) {
     if (this.current_problem === undefined) return;
     if (type === "yes") {
         setWeight(this.current_problem.level, this.current_problem.index, -1);
+        if (isStarRemoving()) {
+            setFavorite(this.current_problem.level, this.current_problem.index, false);
+            updateFavoriteOptions();
+        }
         flipCard('right');
     } else {
         setWeight(this.current_problem.level, this.current_problem.index, 1);

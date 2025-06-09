@@ -19,6 +19,7 @@ function setRealViewportHeight() {
     vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
 }
+
 window.addEventListener('resize', setRealViewportHeight);
 setRealViewportHeight();
 
@@ -156,6 +157,7 @@ function setting() {
     document.getElementById('questions').innerHTML = "<div class=\"setting_div\"><input type=\"checkbox\" id=\"shuffle\" checked=\"\">隨機排序</div>\n" +
         "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"accent_display\" checked=\"\">在單字卡中顯示重音</div>\n" +
         "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"star_display\" checked=\"\">顯示星號控制項目</div>\n" +
+        "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"star_removing\" checked=\"\">「快速檢驗」點選「學會了」之後，自動移除星號項目</div>\n" +
         "    <div class=\"export-row setting_div\">\n" +
         "        <span class=\"label\">導出/導出星號標示</span>\n" +
         "        <input type=\"button\" value=\"導入\" onclick=\"importDatabase()\" class=\"button\">\n" +
@@ -183,6 +185,8 @@ function setting() {
         "    </div>";
     document.getElementById('database').value = exportDatabase();
     document.getElementById('weights').value = exportWeight();
+    document.getElementById('star_removing').checked = isStarRemoving();
+    document.getElementById('star_removing').addEventListener('click', () => setStarRemoving(!isStarRemoving()));
     document.getElementById('shuffle').checked = isShuffle();
     document.getElementById('shuffle').addEventListener('click', () => setShuffle(!isShuffle()));
     document.getElementById('accent_display').checked = isAccentDisplay();
@@ -211,6 +215,16 @@ function isStarDisplay() {
 
 function setStarDisplay(value) {
     localStorage.setItem("star_display", value === true ? "true" : "false");
+}
+
+function isStarRemoving() {
+    let sr = localStorage.getItem("star_removing");
+    if (!sr) return false;
+    return sr === "true";
+}
+
+function setStarRemoving(value) {
+    localStorage.setItem("star_removing", value === true ? "true" : "false");
 }
 
 function isAccentDisplay() {
