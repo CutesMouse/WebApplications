@@ -12,6 +12,11 @@ const margin_x = 20 / scale;
 const margin_y = 5 / scale;
 const space_per_voc = font_size_main + font_size_sub + margin_y + accent_width_sub;
 
+const font_path = "url(./font/UDDigiKyokashoN-R.ttc)";
+const font_name = "UD Digi Kyokasho NP-R";
+loadFont();
+
+
 function generateVocCards(problem_list, div) {
     div.innerHTML = "";
 
@@ -81,14 +86,14 @@ function drawTextDetailed(source, accent, ctx, base_x, base_y) {
 }
 
 function measureTextWidth(text, ctx, size) {
-    ctx.font = size + "px serif";
+    ctx.font = size + "px " + font_name;
     return ctx.measureText(text).width;
 }
 
 // 在指定位置填入置中文字
 function fillTextCenterWithAccent(text, accent, ctx, base_x, base_y, size, line_width) {
     if (text === undefined || text.length === 0) return;
-    ctx.font = size + "px serif"
+    ctx.font = size + "px " + font_name
     ctx.fillStyle = font_color;
     let width = ctx.measureText(text).width;
     let start_x = base_x - width / 2;
@@ -197,4 +202,13 @@ const yoon = "ゃゅょャュョ";
 
 function isKana(char) {
     return hira.includes(char) || kata.includes(char);
+}
+
+function loadFont() {
+    let font = new FontFace(font_name, font_path);
+    font.load().then(function(loadedFont) {
+        document.fonts.add(loadedFont);
+    }).catch(function(error) {
+        console.error('字體載入失敗：', error);
+    });
 }

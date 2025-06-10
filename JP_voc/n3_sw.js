@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mouse-n3voc-20250609';
+const CACHE_NAME = 'mouse-n3voc-20250610';
 
 const urlsToCache = [
     './',
@@ -11,6 +11,7 @@ const urlsToCache = [
     './Voc.js',
     './Voc_List_n3.js',
     './VocCard.js',
+    './font/UDDigiKyokashoN-R.ttc',
     './icons/n3-icon-512.png',
     './icons/n3-icon-192.png'
 ];

@@ -2,6 +2,10 @@ body {
     display: block;
     font-family: "微軟正黑體", serif;
     background-color: #f5f7fa;
+    -webkit-user-select: none; /* Chrome/Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
+    user-select: none;
 }
 
 html, body {

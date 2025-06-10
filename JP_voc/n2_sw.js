@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mouse-n2voc-20250609'; // ← 每次改這個版本號就好
+const CACHE_NAME = 'mouse-n2voc-20250610';
 
 const urlsToCache = [
     './',
@@ -11,6 +11,7 @@ const urlsToCache = [
     './Voc.js',
     './Voc_List_n2.js',
     './VocCard.js',
+    './font/UDDigiKyokashoN-R.ttc',
     './icons/n2-icon-512.png',
     './icons/n2-icon-192.png'
 ];
