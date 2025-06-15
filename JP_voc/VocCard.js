@@ -170,6 +170,10 @@ function cardAction(type) {
         flipCard('right');
     } else {
         setWeight(this.current_problem.level, this.current_problem.index, 1);
+        if (isStarAdding()) {
+            setFavorite(this.current_problem.level, this.current_problem.index, true);
+            updateFavoriteOptions();
+        }
         flipCard('left');
     }
 }

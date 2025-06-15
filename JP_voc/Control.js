@@ -158,6 +158,8 @@ function setting() {
         "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"accent_display\" checked=\"\">在單字卡中顯示重音</div>\n" +
         "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"star_display\" checked=\"\">顯示星號控制項目</div>\n" +
         "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"star_removing\" checked=\"\">「快速檢驗」點選「學會了」之後，自動移除星號項目</div>\n" +
+        "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"star_adding\" checked=\"\">「快速檢驗」點選「還不會」之後，自動加入星號項目</div>\n" +
+        "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"highlight_link\" checked=\"\">在單字卡中顯示同音漢字超連結</div>\n" +
         "    <div class=\"export-row setting_div\">\n" +
         "        <span class=\"label\">導出/導出星號標示</span>\n" +
         "        <input type=\"button\" value=\"導入\" onclick=\"importDatabase()\" class=\"button\">\n" +
@@ -187,6 +189,10 @@ function setting() {
     document.getElementById('weights').value = exportWeight();
     document.getElementById('star_removing').checked = isStarRemoving();
     document.getElementById('star_removing').addEventListener('click', () => setStarRemoving(!isStarRemoving()));
+    document.getElementById('star_adding').checked = isStarAdding();
+    document.getElementById('star_adding').addEventListener('click', () => setStarAdding(!isStarAdding()));
+    document.getElementById('highlight_link').checked = isHighlight();
+    document.getElementById('highlight_link').addEventListener('click', () => setHighlight(!isHighlight()));
     document.getElementById('shuffle').checked = isShuffle();
     document.getElementById('shuffle').addEventListener('click', () => setShuffle(!isShuffle()));
     document.getElementById('accent_display').checked = isAccentDisplay();
@@ -225,6 +231,26 @@ function isStarRemoving() {
 
 function setStarRemoving(value) {
     localStorage.setItem("star_removing", value === true ? "true" : "false");
+}
+
+function isStarAdding() {
+    let sr = localStorage.getItem("star_adding");
+    if (!sr) return false;
+    return sr === "true";
+}
+
+function setStarAdding(value) {
+    localStorage.setItem("star_adding", value === true ? "true" : "false");
+}
+
+function isHighlight() {
+    let sr = localStorage.getItem("highlight_link");
+    if (!sr) return true;
+    return sr === "true";
+}
+
+function setHighlight(value) {
+    localStorage.setItem("highlight_link", value === true ? "true" : "false");
 }
 
 function isAccentDisplay() {

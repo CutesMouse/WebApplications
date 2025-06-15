@@ -140,3 +140,44 @@ function speech_transform(original) {
     }
     return (result ? result.substring(1) : "");
 }
+
+// 尋找所有含有"source"漢字的單字
+function vocSearch(source) {
+    if (isKana(source)) return [];
+    if (voc_bank === undefined) initVocSearch();
+    if (!voc_bank.has(source)) return [];
+    return voc_bank.get(source);
+}
+
+// 初始化單字資料庫
+let voc_bank = undefined;
+function initVocSearch() {
+    voc_bank = new Map();
+    for (let i = 1; i <= TOTAL_LEVEL; i++) {
+        let source = get_questions(i);
+        if (source === "") continue;
+        let problems = convert_json(i, source);
+        for (let j = 0; j < problems.length; j++) {
+            let problem = problems[j];
+            let kanji = problem.kanji;
+            if (kanji === undefined) continue;
+            for (let k = 0; k < kanji.length; k++) {
+                if (isKana(kanji[k])) continue;
+                if (voc_bank.has(kanji[k])) {
+                    voc_bank.get(kanji[k]).push(problem);
+                }
+                else voc_bank.set(kanji[k], [problem]);
+            }
+        }
+    }
+}
+
+const hira = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん" +
+    "っゃゅょがぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽ";
+const kata = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン" +
+    "ッャュョガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポ";
+const yoon = "ゃゅょャュョ";
+
+function isKana(char) {
+    return hira.includes(char) || kata.includes(char);
+}
