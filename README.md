@@ -9,3 +9,4 @@
 - [UNO](https://cutesmouse.github.io/WebApplications/uno/)
 - [課表產生器](https://cutesmouse.github.io/WebApplications/course/)
 - [日檢單字測驗機](https://cutesmouse.github.io/WebApplications/JP_voc/)
+- [行程管理器](https://cutesmouse.github.io/WebApplications/scheduler/)
