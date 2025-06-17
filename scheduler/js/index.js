@@ -74,8 +74,8 @@ document.addEventListener('gesturechange', function (e) {
 document.addEventListener('gestureend', function (e) {
     e.preventDefault();
 });
-window.addEventListener('touchmove', function (event) {
-    if (event.scale !== 1) {
-        event.preventDefault();
-    }
-}, { passive: false });
+// window.addEventListener('touchmove', function (event) {
+//     if (event.scale !== 1) {
+//         event.preventDefault();
+//     }
+// }, { passive: false });
