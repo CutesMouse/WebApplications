@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>行程規劃 App</title>
+    <link href="./style/menu.css" type="text/css" rel="stylesheet">
+    <link href="./style/overview.css" type="text/css" rel="stylesheet">
+    <link href="./style/tailwind.min.css" rel="stylesheet">
+    <link href="manifest.json" rel="manifest">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIO4koi79uW9j7YbxZEsKreUkiEzg7Evk&libraries=places"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./js/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker 註冊成功:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker 註冊失敗:', error);
+                    });
+            });
+        }
+    </script>
+</head>
+<body>
+<main id="main">
+    <div id="overview" class="screen active">
+        <div class="max-w-2xl mx-auto">
+            <div id="timeline" class="relative">
+                <!-- Dynamic content will be injected here -->
+            </div>
+            <div id="loading-spinner" class="text-center text-gray-500 py-4 hidden">
+                載入中...
+            </div>
+        </div>
+
+        <!-- Edit/Add Stop Modal -->
+        <div id="edit-modal" class="modal-backdrop hidden">
+            <div class="modal-content">
+                <h3 class="text-lg font-bold mb-2">編輯/新增行程</h3>
+                <!-- UPDATED: Timeline Summary Container -->
+                <div id="edit-modal-summary-container"
+                     class="summary-timeline-container mb-4 p-3 bg-gray-100 rounded-lg overflow-x-auto whitespace-nowrap">
+                    <!-- JS will inject the timeline visualization here -->
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <input id="edit-destination" type="text" placeholder="請輸入地名或Google Map連結"
+                           class="col-span-2 border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input id="edit-name" type="text" placeholder="顯示名稱"
+                           class="col-span-2 border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input id="edit-mapUrl" type="text" placeholder="連結"
+                           class="col-span-2 border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input id="edit-startTime" type="time" placeholder="開始時間"
+                           class="border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input id="edit-endTime" type="time" placeholder="結束時間"
+                           class="border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input id="edit-distance" type="text" placeholder="離上站距離 (e.g., 1.5 公里)"
+                           class="border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input id="edit-duration" type="text" placeholder="離上站時間 (e.g., 大眾運輸 10分鐘)"
+                           class="border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input id="edit-icon" type="text" placeholder="圖標 (e.g., ☕)"
+                           class="col-span-2 border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex justify-end mt-6">
+                    <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg mr-2"
+                            onclick="closeEditModal()">取消
+                    </button>
+                    <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg"
+                            onclick="saveStop()">確認
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Delete Confirmation Modal -->
+        <div id="delete-confirm-modal" class="modal-backdrop hidden">
+            <div class="modal-content text-center">
+                <h3 class="text-lg font-bold mb-4">確認刪除</h3>
+                <p>您確定要刪除這個行程嗎？此操作無法復原。</p>
+                <div class="flex justify-center mt-6">
+                    <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg mr-2"
+                            onclick="hideDeleteConfirmation()">取消
+                    </button>
+                    <button class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg"
+                            onclick="confirmDelete()">確認刪除
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Import Confirmation Modal -->
+        <div id="import-modal" class="modal-backdrop hidden">
+            <div class="modal-content">
+                <h3 class="text-lg font-bold">確認匯入以下行程？</h3>
+                <!-- NEW: Warning message -->
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 my-4 rounded">
+                    <p class="font-bold">注意：</p>
+                    <p>此動作將會覆蓋原先的行程。</p>
+                </div>
+                <div id="import-modal-body" class="modal-body space-y-6">
+                    <!-- JS will inject import summary here -->
+                </div>
+                <div class="flex justify-end mt-6 pt-4 border-t">
+                    <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg mr-2"
+                            onclick="closeImportModal()">取消
+                    </button>
+                    <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg"
+                            onclick="closeImportModal(); importTrips()">確認匯入
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Import from Text Modal -->
+        <div id="import-text-modal" class="modal-backdrop hidden">
+            <div class="modal-content">
+                <h3 class="text-lg font-bold mb-4">貼上行程JSON資料</h3>
+                <div class="modal-body">
+                    <textarea id="import-json-textarea"
+                              class="w-full h-48 p-2 border rounded-md font-mono text-sm focus:ring-2 focus:ring-indigo-500"
+                              placeholder='[&#10;  {&#10;    "date": "YYYY-MM-DD",&#10;    "stops": [ { "name": "...", ... } ]&#10;  }&#10;]'></textarea>
+                </div>
+                <div class="flex justify-end mt-6 pt-4 border-t">
+                    <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg mr-2"
+                            onclick="closeImportTextWindow()">取消
+                    </button>
+                    <button class="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-lg"
+                            onclick="closeImportTextWindow(); readImportingTrips(document.getElementById('import-json-textarea').value)">
+                        確認匯入
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Calendar Modal -->
+        <div id="calendar-modal" class="modal-backdrop hidden">
+            <div class="modal-content">
+                <!-- Calendar Header -->
+                <div class="flex justify-between items-center mb-4">
+                    <button id="cal-prev-month" class="p-2 rounded-full hover:bg-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
+                    </button>
+                    <h3 id="cal-month-year" class="text-lg font-bold"></h3>
+                    <button id="cal-next-month" class="p-2 rounded-full hover:bg-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
+                    </button>
+                </div>
+                <!-- Calendar Grid -->
+                <div id="cal-grid" class="calendar-grid mb-4"></div>
+                <!-- Day Summary View -->
+                <div class="pt-4 border-t">
+                    <div id="cal-summary-container" class="summary-timeline-container bg-gray-100 rounded-lg overflow-x-auto whitespace-nowrap">
+                        <div class="w-full h-full flex items-center justify-center text-gray-500 italic">點擊日期以顯示行程</div>
+                    </div>
+                </div>
+                <!-- Close Button -->
+                <div class="flex justify-end mt-6">
+                    <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg" onclick="closeCalendar()">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="settings" class="screen">
+        <!-- 設定區塊的內容放這裡 -->
+    </div>
+</main>
+
+<nav id="navbar" class="navbar">
+    <div class="nav-item active" data-target="overview">
+        <img src="./attach/overview-icon.png" alt="總覽">
+        總覽
+    </div>
+    <div class="nav-item" data-target="calendar">
+        <img src="./attach/calendar-icon.png" alt="行事曆">
+        行事曆
+    </div>
+    <div class="nav-item" data-target="itinerary">
+        <img src="./attach/edit-icon.png" alt="行程">
+        行程安排
+    </div>
+    <div class="nav-item" data-target="import">
+        <img src="./attach/import-icon.png" alt="匯入">
+        匯入行程
+    </div>
+    <!--    <div class="nav-item" data-target="settings">-->
+    <!--        <img src="./attach/settings-icon.png" alt="設定">-->
+    <!--        設定-->
+    <!--    </div>-->
+</nav>
+
+<script src="./js/TripData.js"></script>
+<script src="./js/TripManager.js"></script>
+<script src="./js/index.js"></script>
+<script src="./js/Menu.js"></script>
+<script src="./js/Overview.js"></script>
+<script src="./js/Calendar.js"></script>
+<script src="./js/GoogleService.js"></script>
+<script src="./js/Share.js"></script>
+</body>
+</html>

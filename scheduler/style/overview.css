@@ -1,0 +1,115 @@
+.fade-out {
+    opacity: 0.4;
+}
+.slide-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease-out;
+}
+.slide-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+/* Custom scrollbar for better appearance */
+body::-webkit-scrollbar { width: 8px; }
+body::-webkit-scrollbar-track { background: #f1f1f1; }
+body::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+body::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* Modal styles */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background-color: white;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 500px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh; /* 確保視窗不會過高 */
+}
+.modal-body {
+    overflow-y: auto; /* 內容過多時可滾動 */
+}
+.hidden {
+    display: none;
+}
+
+/* Styles for the summary timeline */
+.summary-timeline-container {
+    height: 100px; /* Adjust height for better centering */
+}
+.summary-timeline-container::-webkit-scrollbar {
+    height: 6px;
+}
+.summary-timeline-container::-webkit-scrollbar-track {
+    background: #e0e0e0;
+    border-radius: 3px;
+}
+.summary-timeline-container::-webkit-scrollbar-thumb {
+    background: #a0a0a0;
+    border-radius: 3px;
+}
+.summary-timeline-container::-webkit-scrollbar-thumb:hover {
+    background: #888;
+}
+
+/* --- NEW: Calendar Styles --- */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    text-align: center;
+}
+.calendar-day-name {
+    font-weight: bold;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+.calendar-date {
+    position: relative;
+    padding: 8px 4px;
+    cursor: pointer;
+    border-radius: 9999px;
+    transition: background-color 0.2s;
+}
+.calendar-date.other-month {
+    color: #d1d5db;
+}
+.calendar-date.today {
+    background-color: #ef4444;
+    color: white;
+}
+.calendar-date.selected {
+    background-color: #3b82f6 !important;
+    color: white !important;
+}
+.calendar-date .event-dot {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: #f59e0b;
+}
+.calendar-date.today .event-dot {
+    background-color: white;
+}
+.calendar-date.selected .event-dot {
+    background-color: white;
+}
