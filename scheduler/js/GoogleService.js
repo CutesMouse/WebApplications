@@ -82,6 +82,7 @@ function processInput(place = null) {
 
 function setNameValue(value) {
     const name = document.getElementById('edit-name');
+    const displayname = document.getElementById('edit-displayname');
     const icon = document.getElementById('edit-icon');
     const startTime = document.getElementById('edit-startTime');
     const endTime = document.getElementById('edit-endTime');
@@ -91,6 +92,7 @@ function setNameValue(value) {
         icon.value = sim.icon;
         startTime.value = sim.time.split('-')[0];
         endTime.value = sim.time.split('-')[1];
+        displayname.value = sim.display_name;
     }
 }
 

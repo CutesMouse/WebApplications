@@ -143,7 +143,7 @@ function openEditModal(dateString, stopIndex = null) {
     modal.dataset.stopIndex = stopIndex !== null ? stopIndex : '';
 
     // Clear or populate input fields
-    const fields = ['name', 'destination', 'mapUrl', 'startTime', 'endTime', 'distance', 'duration', 'icon'];
+    const fields = ['name', 'displayname', 'destination', 'mapUrl', 'startTime', 'endTime', 'distance', 'duration', 'icon'];
     fields.forEach(f => document.getElementById(`edit-${f}`).value = '');
     setTimeDefault(dateString);
 
