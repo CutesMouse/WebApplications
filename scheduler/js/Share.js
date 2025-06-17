@@ -14,12 +14,17 @@ function shareTrip(dateString) {
     // console.log(last_date && isDayOffsetByOne(dateString, last_date));
     if (last_date && isDayOffsetByOne(dateString, last_date)) {
         sharedTrip.push(schedule);
-        navigator.clipboard.writeText(JSON.stringify(sharedTrip));
-        showNotification(`接續分享連結！`);
+        showNotification("正在產生分享代碼");
+        getToken(JSON.stringify(sharedTrip), token => {
+            navigator.clipboard.writeText(token);
+            showNotification(`接續分享代碼！`);
+        });
     } else {
         sharedTrip = [schedule];
-        navigator.clipboard.writeText(JSON.stringify(sharedTrip));
-        showNotification(`已複製分享連結！`);
+        getToken(JSON.stringify(sharedTrip), token => {
+            navigator.clipboard.writeText(token);
+            showNotification(`已複製分享代碼！`);
+        });
     }
     last_date = dateString;
 }
@@ -41,49 +46,33 @@ function isDayOffsetByOne(dateA, dateB) {
 
 let import_cache = undefined;
 
-function parseData(input) {
-    let API, json;
-
-    // 正規表達式抓 API
-    const apiMatch = input.match(/^API\s*=\s*([^;]+);?/);
-    if (apiMatch) {
-        API = apiMatch[1].trim();
-
-        // 檢查是否後面還接著 JSON 物件
-        const remaining = input.slice(apiMatch[0].length).trim();
-        if (remaining.startsWith('[')) {
-            try {
-                json = JSON.parse(remaining);
-            } catch (e) {
-                console.warn("JSON parse error:", e);
-            }
+function readImportingTrips(link) {
+    let data = link.split("\n");
+    let progress = 0;
+    let total = 0;
+    import_cache = [];
+    for (const line of data) {
+        if (line.startsWith("API=")) {
+            setAPIKey(line.substring(4));
+            alert("成功設定API Key!");
+        } else {
+            total++;
+            showNotification("讀取資料中，請稍後");
+            getText(line, d => {
+                let segment = JSON.parse(d);
+                for (let i = 0; i < segment.length; i++) {
+                    for (let j = 0; j < segment[i].stops.length; j++) {
+                        segment[i].stops[j] = TripData.fromJSON(segment[i].stops[j]);
+                    }
+                }
+                import_cache.push(...segment);
+                progress++;
+                if (progress === total) {
+                    showNotification("資料讀取完畢");
+                    openImportWindow(import_cache);
+                }
+            });
         }
-    } else {
-        // 若沒有 API= 開頭，視為純 JSON
-        try {
-            json = JSON.parse(input);
-        } catch (e) {
-            console.warn("JSON parse error:", e);
-        }
-    }
-
-    return {API, json};
-}
-
-function readImportingTrips(linkJson) {
-    let data = parseData(linkJson);
-    if (data.API) {
-        setAPIKey(data.API);
-        alert("成功設定API Key!");
-    }
-    if (data.json) {
-        import_cache = data.json;
-        for (let i = 0; i < import_cache.length; i++) {
-            for (let j = 0; j < import_cache[i].stops.length; j++) {
-                import_cache[i].stops[j] = TripData.fromJSON(import_cache[i].stops[j]);
-            }
-        }
-        openImportWindow(import_cache);
     }
 }
 
@@ -95,4 +84,30 @@ function importTrips() {
         updateDayBlock(sim);
     }
     import_cache = undefined;
+    showNotification("已成功匯入資料");
+}
+
+function getToken(text, handle) {
+    fetch("https://hastebin.com/documents", {
+        method: "POST",
+        body: text,
+        headers: {
+            "Content-Type": "text/plain",
+            "Authorization": 'Bearer 26e0b1fa9cddf81e1b875eb53656bf8078e6b7b0e51e05ebf888c7a2d57c9e884da18aad1ac01cea3540ce34f2a85d0052503baca61fdbd8aab162e34aacdd34'
+        }
+    }).then(res => res.json()).then(data => {
+        handle(data.key);
+    });
+}
+
+function getText(token, handle) {
+    fetch("https://hastebin.com/raw/" + token, {
+        method: "GET",
+        headers: {
+            "Content-Type": "text/plain",
+            "Authorization": 'Bearer 26e0b1fa9cddf81e1b875eb53656bf8078e6b7b0e51e05ebf888c7a2d57c9e884da18aad1ac01cea3540ce34f2a85d0052503baca61fdbd8aab162e34aacdd34'
+        }
+    }).then(res => res.text()).then(data => {
+        handle(data);
+    });
 }
