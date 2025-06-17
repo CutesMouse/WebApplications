@@ -12,6 +12,7 @@ function activate() {
 
 function setAPIKey(key) {
     localStorage.setItem('google_api_key', key);
+    activate();
 }
 
 function initAutocomplete() {
