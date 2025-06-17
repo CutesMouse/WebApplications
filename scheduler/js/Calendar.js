@@ -86,19 +86,13 @@ function jumpToDate(dateString) {
     loadingSpinner.classList.add('hidden');
 
     const centralDate = dateString;
-    minLoadedDate = addDays(centralDate, -1);
-    maxLoadedDate = addDays(centralDate, 1);
+    minLoadedDate = addDays(centralDate, -7);
+    maxLoadedDate = addDays(centralDate, 7);
 
-    loadDays(minLoadedDate, 3, false);
+    loadDays(minLoadedDate, 15, false);
 
     setTimeout(() => {
-        const currentDayElement = document.querySelector(`[data-date="${centralDate}"]`);
-        if (currentDayElement) {
-            window.scrollTo({
-                top: currentDayElement.offsetTop - (window.innerHeight / 3),
-                behavior: 'smooth'
-            });
-        }
+        scrollToNow(centralDate);
     }, 100);
 }
 
