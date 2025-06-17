@@ -2,13 +2,12 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>行程規劃 App</title>
     <link href="./style/menu.css" type="text/css" rel="stylesheet">
     <link href="./style/overview.css" type="text/css" rel="stylesheet">
     <link href="./style/tailwind.min.css" rel="stylesheet">
-    <link href="manifest.json" rel="manifest">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIO4koi79uW9j7YbxZEsKreUkiEzg7Evk&libraries=places"></script>
+    <link href="./manifest.json" rel="manifest">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
@@ -120,7 +119,7 @@
                 <div class="modal-body">
                     <textarea id="import-json-textarea"
                               class="w-full h-48 p-2 border rounded-md font-mono text-sm focus:ring-2 focus:ring-indigo-500"
-                              placeholder='[&#10;  {&#10;    "date": "YYYY-MM-DD",&#10;    "stops": [ { "name": "...", ... } ]&#10;  }&#10;]'></textarea>
+                              placeholder='[&#10;  {&#10;    "date": "YYYY-MM-DD",&#10;    "stops": [ { "name": "...", ... } ]&#10;  }&#10;]&#10;&#10;或API=...'></textarea>
                 </div>
                 <div class="flex justify-end mt-6 pt-4 border-t">
                     <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg mr-2"
@@ -128,7 +127,7 @@
                     </button>
                     <button class="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-lg"
                             onclick="closeImportTextWindow(); readImportingTrips(document.getElementById('import-json-textarea').value)">
-                        確認匯入
+                        匯入
                     </button>
                 </div>
             </div>
@@ -151,7 +150,7 @@
                 <!-- Day Summary View -->
                 <div class="pt-4 border-t">
                     <div id="cal-summary-container" class="summary-timeline-container bg-gray-100 rounded-lg overflow-x-auto whitespace-nowrap">
-                        <div class="w-full h-full flex items-center justify-center text-gray-500 italic">點擊日期以顯示行程</div>
+                        <div class="w-full h-full flex items-center justify-center text-gray-500">點擊日期以顯示行程</div>
                     </div>
                 </div>
                 <!-- Close Button -->
@@ -181,7 +180,7 @@
     </div>
     <div class="nav-item" data-target="import">
         <img src="./attach/import-icon.png" alt="匯入">
-        匯入行程
+        匯入
     </div>
     <!--    <div class="nav-item" data-target="settings">-->
     <!--        <img src="./attach/settings-icon.png" alt="設定">-->

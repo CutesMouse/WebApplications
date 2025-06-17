@@ -5,6 +5,9 @@ navItems.forEach(item => {
     item.addEventListener('click', () => {
         // 切換區塊
         const targetId = item.dataset.target;
+        closeCalendar();
+        closeImportModal();
+        closeImportTextWindow();
         switch (targetId) {
             case "overview":
                 if (isEditMode) toggleEdit();
@@ -13,6 +16,7 @@ navItems.forEach(item => {
                 });
                 break;
             case "calendar":
+                if (isEditMode) toggleEdit();
                 openCalendar();
                 screens.forEach(screen => {
                     screen.classList.toggle('active', screen.id === "overview");
@@ -25,6 +29,7 @@ navItems.forEach(item => {
                 });
                 break;
             case "import":
+                if (isEditMode) toggleEdit();
                 openImportTextWindow();
                 screens.forEach(screen => {
                     screen.classList.toggle('active', screen.id === "overview");

@@ -1,3 +1,15 @@
+body {
+    -webkit-user-select: none; /* Chrome/Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
+    user-select: none;
+}
+
+html, body {
+    touch-action: manipulation;
+    overscroll-behavior: none;
+}
+
 main {
     padding-bottom: 60px; /* space for nav bar */
 }

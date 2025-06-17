@@ -41,14 +41,51 @@ function isDayOffsetByOne(dateA, dateB) {
 
 let import_cache = undefined;
 
-function readImportingTrips(linkJson) {
-    import_cache = JSON.parse(linkJson);
-    for (let i = 0; i < import_cache.length; i++) {
-        for (let j = 0; j < import_cache[i].stops.length; j++) {
-            import_cache[i].stops[j] = TripData.fromJSON(import_cache[i].stops[j]);
+function parseData(input) {
+    let API, json;
+
+    // 正規表達式抓 API
+    const apiMatch = input.match(/^API\s*=\s*([^;]+);?/);
+    if (apiMatch) {
+        API = apiMatch[1].trim();
+
+        // 檢查是否後面還接著 JSON 物件
+        const remaining = input.slice(apiMatch[0].length).trim();
+        if (remaining.startsWith('[')) {
+            try {
+                json = JSON.parse(remaining);
+            } catch (e) {
+                console.warn("JSON parse error:", e);
+            }
+        }
+    } else {
+        // 若沒有 API= 開頭，視為純 JSON
+        try {
+            json = JSON.parse(input);
+        } catch (e) {
+            console.warn("JSON parse error:", e);
         }
     }
-    openImportWindow(import_cache);
+
+    return {API, json};
+}
+
+function readImportingTrips(linkJson) {
+    let data = parseData(linkJson);
+    console.log(data);
+    if (data.API) {
+        setAPIKey(data.API);
+        alert("成功設定API Key!");
+    }
+    if (data.json) {
+        import_cache = data.json;
+        for (let i = 0; i < import_cache.length; i++) {
+            for (let j = 0; j < import_cache[i].stops.length; j++) {
+                import_cache[i].stops[j] = TripData.fromJSON(import_cache[i].stops[j]);
+            }
+        }
+        openImportWindow(import_cache);
+    }
 }
 
 function importTrips() {

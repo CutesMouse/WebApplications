@@ -54,3 +54,28 @@ document.getElementById('edit-startTime').addEventListener('change', function ()
     newEnd.setMinutes(m);
     endInput.value = `${pad(newEnd.getHours())}:${pad(newEnd.getMinutes())}`;
 });
+
+// 禁止快速雙擊觸發放大
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function (event) {
+    const now = new Date().getTime();
+    if (now - lastTouchEnd <= 300) {
+        event.preventDefault(); // 防止雙擊放大
+    }
+    lastTouchEnd = now;
+}, false);
+// 阻止縮放手勢
+document.addEventListener('gesturestart', function (e) {
+    e.preventDefault();
+});
+document.addEventListener('gesturechange', function (e) {
+    e.preventDefault();
+});
+document.addEventListener('gestureend', function (e) {
+    e.preventDefault();
+});
+window.addEventListener('touchmove', function (event) {
+    if (event.scale !== 1) {
+        event.preventDefault();
+    }
+}, { passive: false });

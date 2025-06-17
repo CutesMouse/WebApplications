@@ -1,3 +1,19 @@
+function activate() {
+    const apiKey = localStorage.getItem('google_api_key');
+    if (!apiKey) {
+        alert("請先在\"匯入\"中設定你的 Google Maps API Key！");
+    } else {
+        const script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initAutocomplete`;
+        script.async = true;
+        document.head.appendChild(script);
+    }
+}
+
+function setAPIKey(key) {
+    localStorage.setItem('google_api_key', key);
+}
+
 function initAutocomplete() {
     const input = document.getElementById('edit-destination');
     autocomplete = new google.maps.places.Autocomplete(input);
@@ -108,4 +124,4 @@ function arrange(origin, dest, travelMode, departureTime, handler) {
     );
 }
 
-initAutocomplete();
+activate();
