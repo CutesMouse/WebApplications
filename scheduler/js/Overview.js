@@ -394,7 +394,7 @@ const updateDiv = (isLast, lineHeight, index, trip, div) => {
     div.innerHTML = `
                     <div class="relative">
                         <div class="w-10 h-10 rounded-full bg-white border-4 ${trip.past ? 'border-gray-300' : 'border-blue-300'} flex items-center justify-center text-xl p-1">
-                            <a href="${trip.mapUrl}" target="_blank">${trip.image}</a>
+                            ${trip.mapUrl ? '<a href="' + trip.mapUrl + '" target="_blank">' + trip.image + '</a>' : trip.image}
                         </div>
                         ${!isLast ? `<div class="absolute top-10 left-1/2 transform -translate-x-1/2 w-0.5 ${trip.past ? 'border-dashed border-gray-300' : 'border-blue-300'}" style="height: ${lineHeight}px; border-left-width: 2px;"></div>` : ''}
                     </div>
