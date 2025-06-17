@@ -57,15 +57,15 @@ function renderCalendar(year, month) {
         }
 
         dateEl.addEventListener('click', () => {
+            // Handle double click: jump to date
+            if (dateEl.classList.contains('selected')) {
+                jumpToDate(dateString);
+                return;
+            }
             // Handle single click: show summary
             document.querySelectorAll('#cal-grid .calendar-date').forEach(d => d.classList.remove('selected'));
             dateEl.classList.add('selected');
             showCalendarDaySummary(dateString);
-        });
-
-        dateEl.addEventListener('dblclick', () => {
-            // Handle double click: jump to date
-            jumpToDate(dateString);
         });
 
         grid.appendChild(dateEl);
