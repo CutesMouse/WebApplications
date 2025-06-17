@@ -1,6 +1,7 @@
 // --- Calendar Functions ---
 function openCalendar() {
     calendarDate = new Date(); // Reset to current month on open
+    showCalendarDaySummary(calendarDate.toISOString().slice(10));
     renderCalendar(calendarDate.getFullYear(), calendarDate.getMonth());
     document.getElementById('calendar-modal').classList.remove('hidden');
 }
@@ -47,6 +48,7 @@ function renderCalendar(year, month) {
 
         if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
             dateEl.classList.add('today');
+            dateEl.classList.add('selected');
         }
 
         const dayData = getSchedule(dateString);
