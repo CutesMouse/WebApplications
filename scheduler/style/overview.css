@@ -16,7 +16,7 @@ body::-webkit-scrollbar-track { background: #f1f1f1; }
 body::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
 body::-webkit-scrollbar-thumb:hover { background: #555; }
 
-/* Modal styles */
+/* General Modal styles */
 .modal-backdrop {
     position: fixed;
     top: 0;
@@ -48,68 +48,53 @@ body::-webkit-scrollbar-thumb:hover { background: #555; }
     display: none;
 }
 
+/* --- NEW: Share Notification Styles --- */
+.share-notification-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-30%); /* Start off-screen */
+    z-index: 60;
+    width: 90%;
+    max-width: 400px;
+    opacity: 0; /* 預設為完全透明 */
+    pointer-events: none; /* 隱藏時不可點擊 */
+    transition: all 0.3s ease-in-out;
+}
+.share-notification-container.show {
+    transform: translateX(-50%) translateY(0); /* Slide in */
+    opacity: 1; /* 顯示時變為不透明 */
+    pointer-events: auto; /* 顯示時可點擊 */
+}
+.share-notification-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 5px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    text-align: center;
+}
+
 /* Styles for the summary timeline */
 .summary-timeline-container {
     height: 100px; /* Adjust height for better centering */
 }
-.summary-timeline-container::-webkit-scrollbar {
-    height: 6px;
-}
-.summary-timeline-container::-webkit-scrollbar-track {
-    background: #e0e0e0;
-    border-radius: 3px;
-}
-.summary-timeline-container::-webkit-scrollbar-thumb {
-    background: #a0a0a0;
-    border-radius: 3px;
-}
-.summary-timeline-container::-webkit-scrollbar-thumb:hover {
-    background: #888;
-}
+.summary-timeline-container::-webkit-scrollbar { height: 6px; }
+.summary-timeline-container::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 3px; }
+.summary-timeline-container::-webkit-scrollbar-thumb { background: #a0a0a0; border-radius: 3px; }
+.summary-timeline-container::-webkit-scrollbar-thumb:hover { background: #888; }
 
-/* --- NEW: Calendar Styles --- */
+/* --- Calendar Styles --- */
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 4px;
     text-align: center;
 }
-.calendar-day-name {
-    font-weight: bold;
-    color: #6b7280;
-    font-size: 0.875rem;
-}
-.calendar-date {
-    position: relative;
-    padding: 8px 4px;
-    cursor: pointer;
-    border-radius: 9999px;
-    transition: background-color 0.2s;
-}
-.calendar-date.other-month {
-    color: #d1d5db;
-}
-.calendar-date.today {
-    background-color: #ef4444;
-    color: white;
-}
-.calendar-date.selected {
-    background-color: #3b82f6 !important;
-    color: white !important;
-}
-.calendar-date .event-dot {
-    position: absolute;
-    bottom: 4px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background-color: #f59e0b;
-}
-.calendar-date.today .event-dot {
-    background-color: white;
-}
-.calendar-date.selected .event-dot {
-    background-color: white;
-}
+.calendar-day-name { font-weight: bold; color: #6b7280; font-size: 0.875rem; }
+.calendar-date { position: relative; padding: 8px 4px; cursor: pointer; border-radius: 9999px; transition: background-color 0.2s; }
+.calendar-date.other-month { color: #d1d5db; }
+.calendar-date.today { background-color: #ef4444; color: white; }
+.calendar-date.selected { background-color: #3b82f6 !important; color: white !important; }
+.calendar-date .event-dot { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; border-radius: 50%; background-color: #f59e0b; }
+.calendar-date.today .event-dot { background-color: white; }
+.calendar-date.selected .event-dot { background-color: white; }

@@ -10,7 +10,7 @@
     <link href="./manifest.json" rel="manifest">
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
+            window.addEventListener('load', function () {
                 navigator.serviceWorker.register('./js/sw.js')
                     .then(registration => {
                         console.log('ServiceWorker 註冊成功:', registration.scope);
@@ -31,6 +31,29 @@
             </div>
             <div id="loading-spinner" class="text-center text-gray-500 py-4 hidden">
                 載入中...
+            </div>
+        </div>
+
+        <!-- Share Notification Modal -->
+        <div id="share-notification-modal" class="share-notification-container hidden">
+            <div class="share-notification-content">
+                <h3 class="text-lg font-bold text-gray-800 mb-3">分享您的行程</h3>
+                <div id="share-token-display"
+                     class="bg-gray-100 text-gray-900 font-mono text-2xl tracking-wider p-4 rounded-lg mb-3 select-all">
+                    <!-- Share token will be injected here -->
+                </div>
+                <p class="text-xs text-gray-500 mb-5">繼續點擊相鄰的分享以串接多個行程。</p>
+                <div class="flex justify-center space-x-3">
+                    <button class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                            onclick="closeShareNotification();shareToken()">分享
+                    </button>
+                    <button class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                            onclick="closeShareNotification();copyShareToken()">複製
+                    </button>
+                    <button class="flex-1 bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg transition-colors"
+                            onclick="closeShareNotification()">關閉
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -140,24 +163,36 @@
                 <!-- Calendar Header -->
                 <div class="flex justify-between items-center mb-4">
                     <button id="cal-prev-month" class="p-2 rounded-full hover:bg-gray-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                             viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                  d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                        </svg>
                     </button>
                     <h3 id="cal-month-year" class="text-lg font-bold"></h3>
                     <button id="cal-next-month" class="p-2 rounded-full hover:bg-gray-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                             viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                  d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
                     </button>
                 </div>
                 <!-- Calendar Grid -->
                 <div id="cal-grid" class="calendar-grid mb-4"></div>
                 <!-- Day Summary View -->
                 <div class="pt-4 border-t">
-                    <div id="cal-summary-container" class="summary-timeline-container bg-gray-100 rounded-lg overflow-x-auto whitespace-nowrap">
-                        <div class="w-full h-full flex items-center justify-center text-gray-500">點擊日期以顯示行程</div>
+                    <div id="cal-summary-container"
+                         class="summary-timeline-container bg-gray-100 rounded-lg overflow-x-auto whitespace-nowrap">
+                        <div class="w-full h-full flex items-center justify-center text-gray-500">點擊日期以顯示行程
+                        </div>
                     </div>
                 </div>
                 <!-- Close Button -->
                 <div class="flex justify-end mt-6">
-                    <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg" onclick="closeCalendar()">關閉</button>
+                    <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg"
+                            onclick="closeCalendar()">關閉
+                    </button>
                 </div>
             </div>
         </div>

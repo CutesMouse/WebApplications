@@ -225,7 +225,6 @@ const formatDate = (dateString) => {
 function showNotification(message) {
     const existingNotification = document.querySelector('.trip-notification');
     if (existingNotification) existingNotification.remove();
-
     const notification = document.createElement('div');
     notification.className = 'trip-notification fixed bottom-5 left-1/2 -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg transform transition-all duration-300 opacity-0 translate-y-10 z-50';
     notification.textContent = message;

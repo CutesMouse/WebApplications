@@ -1,7 +1,7 @@
 function activate() {
     const apiKey = localStorage.getItem('google_api_key');
     if (!apiKey) {
-        alert("請先在\"匯入\"中設定你的 Google Maps API Key！");
+        showNotification("請先在\"匯入\"中設定你的 Google Maps API Key！");
     } else {
         const script = document.createElement("script");
         script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initAutocomplete`;

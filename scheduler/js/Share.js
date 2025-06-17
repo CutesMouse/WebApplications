@@ -1,12 +1,73 @@
 let sharedTrip = [];
 let last_date = "";
 
+function openShareNotification(token) {
+    const modal = document.getElementById('share-notification-modal');
+    const tokenDisplay = document.getElementById('share-token-display');
+
+    tokenDisplay.textContent = token || 'NO-TOKEN';
+    modal.classList.remove('hidden');
+
+    // Use a short timeout to allow the display property to apply before transitioning
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
+}
+
+function closeShareNotification() {
+    const modal = document.getElementById('share-notification-modal');
+    modal.classList.remove('show');
+
+    // 等待動畫結束後再隱藏元素
+    // 此處時間應與 CSS transition duration 一致 (0.3s = 300ms)
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 200);
+}
+
+function shareToken() {
+    const tokenDisplay = document.getElementById('share-token-display');
+    const token = tokenDisplay.textContent;
+
+    shareText(token);
+}
+
+function copyShareToken() {
+    const tokenDisplay = document.getElementById('share-token-display');
+    const token = tokenDisplay.textContent;
+
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(token).then(() => {
+            showNotification(`已複製！`);
+        }).catch(err => {
+            console.error('Could not copy text: ', err);
+            showNotification('複製失敗！');
+        });
+    } else {
+        // Fallback for older browsers
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = token;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showNotification(`已複製！`);
+        } catch (err) {
+            console.error('Fallback: Oops, unable to copy', err);
+            showNotification('複製失敗！');
+        }
+    }
+}
+
 function shareTrip(dateString) {
+    closeShareNotification();
     let schedule = createDayData(dateString);
 
     for (const trip of sharedTrip) {
         if (trip.date === dateString) {
-            showNotification(`該行程已在複製清單內！`);
+            showNotification(`重複的行程！`);
             last_date = dateString;
             return;
         }
@@ -14,16 +75,17 @@ function shareTrip(dateString) {
     // console.log(last_date && isDayOffsetByOne(dateString, last_date));
     if (last_date && isDayOffsetByOne(dateString, last_date)) {
         sharedTrip.push(schedule);
-        showNotification("正在產生分享代碼");
+        showNotification("正在產生分享碼");
         getToken(JSON.stringify(sharedTrip), token => {
-            navigator.clipboard.writeText(token);
-            showNotification(`接續分享代碼！`);
+            openShareNotification(token);
+            showNotification(`已串接分享碼！`);
         });
     } else {
         sharedTrip = [schedule];
+        showNotification("正在產生分享碼");
         getToken(JSON.stringify(sharedTrip), token => {
-            navigator.clipboard.writeText(token);
-            showNotification(`已複製分享代碼！`);
+            openShareNotification(token);
+            showNotification(`已產生分享碼！`);
         });
     }
     last_date = dateString;
@@ -54,10 +116,10 @@ function readImportingTrips(link) {
     for (const line of data) {
         if (line.startsWith("API=")) {
             setAPIKey(line.substring(4));
-            alert("成功設定API Key!");
+            showNotification("成功設定API Key！");
         } else {
             total++;
-            showNotification("讀取資料中，請稍後");
+            showNotification("讀取資料中...");
             getText(line, d => {
                 let segment = JSON.parse(d);
                 for (let i = 0; i < segment.length; i++) {
@@ -68,7 +130,7 @@ function readImportingTrips(link) {
                 import_cache.push(...segment);
                 progress++;
                 if (progress === total) {
-                    showNotification("資料讀取完畢");
+                    showNotification("資料讀取完畢！");
                     openImportWindow(import_cache);
                 }
             });
@@ -110,4 +172,16 @@ function getText(token, handle) {
     }).then(res => res.text()).then(data => {
         handle(data);
     });
+}
+
+function shareText(text) {
+    if (navigator.share) {
+        navigator.share({
+            text: text
+        }).catch(err => {
+            console.warn("使用者取消或分享失敗：", err);
+        });
+    } else {
+        showNotification("此瀏覽器不支援分享功能");
+    }
 }
