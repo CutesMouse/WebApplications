@@ -179,6 +179,7 @@ function saveStop() {
     createData(date, name, time, distance, duration, mapUrl, icon);
     closeEditModal();
     showNotification("行程已儲存");
+    scrollToNow(date);
 }
 
 function rearrangeTime(date, travelMode) {
