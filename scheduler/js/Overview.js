@@ -114,7 +114,7 @@ function renderSummaryVisualization(container, stops) {
 
         itemContainer.innerHTML = `
                 <div class="w-12 h-12 rounded-full bg-white border-4 border-red-400 flex items-center justify-center text-2xl mb-1">${stop.icon || '📍'}</div>
-                <div class="text-xs font-semibold leading-tight">${stop.name}</div>
+                <div class="text-xs font-semibold leading-tight">${stop.display_text}</div>
                 <div class="text-xs text-gray-500 leading-tight">${timeDisplay}</div>
             `;
         vizContainer.appendChild(itemContainer);
@@ -152,6 +152,7 @@ function openEditModal(dateString, stopIndex = null) {
         const [startTime, endTime] = (stop.time || '-').split('-');
         document.getElementById('edit-destination').value = '';
         document.getElementById('edit-name').value = stop.name || '';
+        document.getElementById('edit-displayname').value = stop.display_name || '';
         document.getElementById('edit-mapUrl').value = stop.mapUrl || '';
         document.getElementById('edit-startTime').value = startTime.trim();
         document.getElementById('edit-endTime').value = endTime ? endTime.trim() : '';
@@ -169,6 +170,7 @@ function saveStop() {
     const index = document.getElementById('edit-modal').dataset.stopIndex;
     const date = document.getElementById('edit-modal').dataset.date;
     let name = document.getElementById('edit-name').value;
+    let displayname = document.getElementById('edit-displayname').value;
     let mapUrl = document.getElementById('edit-mapUrl').value;
     let time = document.getElementById('edit-startTime').value + "-"
         + document.getElementById('edit-endTime').value;
@@ -176,7 +178,7 @@ function saveStop() {
     let duration = document.getElementById('edit-duration').value;
     let icon = document.getElementById('edit-icon').value;
     if (index) deleteData(date, index);
-    createData(date, name, time, distance, duration, mapUrl, icon);
+    createData(date, name, displayname, time, distance, duration, mapUrl, icon);
     closeEditModal();
     showNotification("行程已儲存");
     scrollToNow(date);
@@ -398,7 +400,7 @@ const updateDiv = (isLast, lineHeight, index, trip, div) => {
                     </div>
                     <div class="flex-1 flex justify-between items-start gap-2">
                         <div class="bg-white p-4 rounded-lg shadow-md flex-grow">
-                            <h3 class="font-semibold text-lg">${trip.name}</h3>
+                            <h3 class="font-semibold text-lg">${trip.display_text}</h3>
                             <p class="text-sm text-gray-600">${trip.time}</p>
                         </div>
                         ${isEditMode ? `

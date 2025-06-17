@@ -40,9 +40,9 @@ function deleteData(date, index) {
     updateDayBlock(schedule);
 }
 
-function createData(date, name, time, distance, duration, mapUrl, icon) {
+function createData(date, name, display_name, time, distance, duration, mapUrl, icon) {
     let schedule = createDayData(date);
-    let newdata = new TripData(name, date, time, distance, duration, mapUrl, icon);
+    let newdata = new TripData(name, display_name, date, time, distance, duration, mapUrl, icon);
     let i = 0;
     for (i = 0; i < schedule.stops.length; i++) {
         if (schedule.stops[i].greater(newdata)) break;

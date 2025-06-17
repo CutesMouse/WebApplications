@@ -72,7 +72,6 @@ function parseData(input) {
 
 function readImportingTrips(linkJson) {
     let data = parseData(linkJson);
-    console.log(data);
     if (data.API) {
         setAPIKey(data.API);
         alert("成功設定API Key!");

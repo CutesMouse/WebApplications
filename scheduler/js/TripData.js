@@ -1,6 +1,7 @@
 class TripData {
-    constructor(name, date, time, distance, duration, mapUrl, icon) {
+    constructor(name, display_name, date, time, distance, duration, mapUrl, icon) {
         this.name = name; // 台北101
+        this.display_name = display_name;
         this.date = date;
         this.time = time; // 11:00-12:30
         this.distance = distance; // 離前面景點的距離 (第一個單位不顯示)
@@ -11,9 +12,10 @@ class TripData {
 
     toJSON() {
         return {
-            // __type: 'TripData',
-            version: '1.0',
+            __type: 'TripData',
+            version: '1.1',
             name: this.name,
+            display_name: this.display_name,
             date: this.date,
             time: this.time,
             distance: this.distance,
@@ -25,7 +27,7 @@ class TripData {
 
     // 從 JSON 轉回 class instance
     static fromJSON(json) {
-        return new TripData(json.name, json.date, json.time, json.distance, json.duration, json.mapUrl, json.icon);
+        return new TripData(json.name, json.display_name, json.date, json.time, json.distance, json.duration, json.mapUrl, json.icon);
     }
 
     get past() {
@@ -37,6 +39,11 @@ class TripData {
     get image() {
         if (!this.icon) return "📍";
         else return this.icon;
+    }
+
+    get display_text() {
+        if (this.display_name) return this.display_name;
+        return this.name;
     }
 
     greater(tripdata) {
