@@ -93,7 +93,7 @@ function setNameValue(value) {
         icon.value = sim.icon;
         startTime.value = sim.time.split('-')[0];
         endTime.value = sim.time.split('-')[1];
-        displayname.value = sim.display_name;
+        if (sim.display_name) displayname.value = sim.display_name;
     }
 }
 

@@ -1,20 +1,35 @@
 .fade-out {
     opacity: 0.4;
 }
+
 .slide-in {
     opacity: 0;
     transform: translateY(30px);
     transition: all 0.6s ease-out;
 }
+
 .slide-in.visible {
     opacity: 1;
     transform: translateY(0);
 }
+
 /* Custom scrollbar for better appearance */
-body::-webkit-scrollbar { width: 8px; }
-body::-webkit-scrollbar-track { background: #f1f1f1; }
-body::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-body::-webkit-scrollbar-thumb:hover { background: #555; }
+body::-webkit-scrollbar {
+    width: 8px;
+}
+
+body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
 
 /* General Modal styles */
 .modal-backdrop {
@@ -29,6 +44,7 @@ body::-webkit-scrollbar-thumb:hover { background: #555; }
     justify-content: center;
     align-items: center;
 }
+
 .modal-content {
     background-color: white;
     padding: 24px;
@@ -41,9 +57,11 @@ body::-webkit-scrollbar-thumb:hover { background: #555; }
     flex-direction: column;
     max-height: 90vh; /* 確保視窗不會過高 */
 }
+
 .modal-body {
     overflow-y: auto; /* 內容過多時可滾動 */
 }
+
 .hidden {
     display: none;
 }
@@ -61,11 +79,13 @@ body::-webkit-scrollbar-thumb:hover { background: #555; }
     pointer-events: none; /* 隱藏時不可點擊 */
     transition: all 0.3s ease-in-out;
 }
+
 .share-notification-container.show {
     transform: translateX(-50%) translateY(0); /* Slide in */
     opacity: 1; /* 顯示時變為不透明 */
     pointer-events: auto; /* 顯示時可點擊 */
 }
+
 .share-notification-content {
     background: white;
     border-radius: 12px;
@@ -78,10 +98,24 @@ body::-webkit-scrollbar-thumb:hover { background: #555; }
 .summary-timeline-container {
     height: 100px; /* Adjust height for better centering */
 }
-.summary-timeline-container::-webkit-scrollbar { height: 6px; }
-.summary-timeline-container::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 3px; }
-.summary-timeline-container::-webkit-scrollbar-thumb { background: #a0a0a0; border-radius: 3px; }
-.summary-timeline-container::-webkit-scrollbar-thumb:hover { background: #888; }
+
+.summary-timeline-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.summary-timeline-container::-webkit-scrollbar-track {
+    background: #e0e0e0;
+    border-radius: 3px;
+}
+
+.summary-timeline-container::-webkit-scrollbar-thumb {
+    background: #a0a0a0;
+    border-radius: 3px;
+}
+
+.summary-timeline-container::-webkit-scrollbar-thumb:hover {
+    background: #888;
+}
 
 /* --- Calendar Styles --- */
 .calendar-grid {
@@ -90,11 +124,70 @@ body::-webkit-scrollbar-thumb:hover { background: #555; }
     gap: 4px;
     text-align: center;
 }
-.calendar-day-name { font-weight: bold; color: #6b7280; font-size: 0.875rem; }
-.calendar-date { position: relative; padding: 8px 4px; cursor: pointer; border-radius: 9999px; transition: background-color 0.2s; }
-.calendar-date.other-month { color: #d1d5db; }
-.calendar-date.today { background-color: #ef4444; color: white; }
-.calendar-date.selected { background-color: #3b82f6 !important; color: white !important; }
-.calendar-date .event-dot { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; border-radius: 50%; background-color: #f59e0b; }
-.calendar-date.today .event-dot { background-color: white; }
-.calendar-date.selected .event-dot { background-color: white; }
+
+.calendar-day-name {
+    font-weight: bold;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.calendar-date {
+    position: relative;
+    padding: 8px 4px;
+    cursor: pointer;
+    border-radius: 9999px;
+    transition: background-color 0.2s;
+}
+
+.calendar-date.other-month {
+    color: #d1d5db;
+}
+
+.calendar-date.today {
+    background-color: #ef4444;
+    color: white;
+}
+
+.calendar-date.selected {
+    background-color: #3b82f6 !important;
+    color: white !important;
+}
+
+.calendar-date .event-dot {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: #f59e0b;
+}
+
+.calendar-date.today .event-dot {
+    background-color: white;
+}
+
+.calendar-date.selected .event-dot {
+    background-color: white;
+}
+
+/* --- AI Loading Spinner Animation --- */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    /* 預設邊框顏色，#ec4899 是 Tailwind 的 pink-500 */
+    border-color: #ec4899;
+
+    /* 強制將頂部邊框設為透明來製造缺口 */
+    border-top-color: transparent;
+
+    animation: spin 1s linear infinite;
+}

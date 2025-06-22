@@ -1,5 +1,5 @@
 class TripData {
-    constructor(name, display_name, date, time, distance, duration, mapUrl, icon) {
+    constructor(name, display_name, date, time, distance, duration, mapUrl, icon, description = undefined) {
         this.name = name; // 台北101
         this.display_name = display_name;
         this.date = date;
@@ -8,6 +8,7 @@ class TripData {
         this.duration = duration; // 離前面景點的時間
         this.mapUrl = mapUrl; // 地圖url
         this.icon = icon; // Emoji
+        this.description = description; // 描述，只有AI產生時會有，不會被存入資料庫中
     }
 
     toJSON() {
@@ -27,7 +28,7 @@ class TripData {
 
     // 從 JSON 轉回 class instance
     static fromJSON(json) {
-        return new TripData(json.name, json.display_name, json.date, json.time, json.distance, json.duration, json.mapUrl, json.icon);
+        return new TripData(json.name, json.display_name, json.date, json.time, json.distance, json.duration, json.mapUrl, json.icon, json.description);
     }
 
     get past() {

@@ -41,13 +41,16 @@ function deleteData(date, index) {
 }
 
 function createData(date, name, display_name, time, distance, duration, mapUrl, icon) {
+    createDataWithData(date, new TripData(name, display_name, date, time, distance, duration, mapUrl, icon));
+}
+
+function createDataWithData(date, data) {
     let schedule = createDayData(date);
-    let newdata = new TripData(name, display_name, date, time, distance, duration, mapUrl, icon);
     let i = 0;
     for (i = 0; i < schedule.stops.length; i++) {
-        if (schedule.stops[i].greater(newdata)) break;
+        if (schedule.stops[i].greater(data)) break;
     }
-    schedule.stops.splice(i, 0, newdata);
+    schedule.stops.splice(i, 0, data);
     saveData();
     updateDayBlock(schedule);
 }
@@ -85,6 +88,25 @@ function updateDayBlock(dayData) {
 
 function saveData() {
     localStorage.setItem("trip-data", JSON.stringify(trips));
+}
+
+function parseAIOutputJSON(json, date) {
+    json = [{
+        date: date,
+        stops: json
+    }];
+    return parseDataFromJSON(json, date, true)[0];
+}
+
+function parseDataFromJSON(json, date = undefined, autolink = false) {
+    for (let i = 0; i < json.length; i++) {
+        for (let j = 0; j < json[i].stops.length; j++) {
+            json[i].stops[j] = TripData.fromJSON(json[i].stops[j]);
+            if (date) json[i].stops[j].date = date;
+            if (autolink && !json[i].stops[j].mapUrl) json[i].stops[j].mapUrl = "http://maps.google.com/?q=" + json[i].stops[j].name;
+        }
+    }
+    return json;
 }
 
 initializeData();

@@ -117,16 +117,14 @@ function readImportingTrips(link) {
         if (line.startsWith("API=")) {
             setAPIKey(line.substring(4));
             showNotification("成功設定API Key！");
+        } else if (line.startsWith("GEMINI=")) {
+            setGeminiApiKey(line.substring(7));
+            showNotification("成功設定Gemini！");
         } else {
             total++;
             showNotification("讀取資料中...");
             getText(line, d => {
-                let segment = JSON.parse(d);
-                for (let i = 0; i < segment.length; i++) {
-                    for (let j = 0; j < segment[i].stops.length; j++) {
-                        segment[i].stops[j] = TripData.fromJSON(segment[i].stops[j]);
-                    }
-                }
+                let segment = parseDataFromJSON(JSON.parse(d));
                 import_cache.push(...segment);
                 progress++;
                 if (progress === total) {

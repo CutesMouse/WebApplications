@@ -144,7 +144,7 @@
                 <div class="modal-body">
                     <textarea id="import-json-textarea"
                               class="w-full h-48 p-2 border rounded-md font-mono text-sm focus:ring-2 focus:ring-indigo-500"
-                              placeholder='API=...&#10;apadinogin&#10;xxxxxxxxxx&#10'></textarea>
+                              placeholder='API=...&#10;GEMINI=...&#10;apadinogin'></textarea>
                 </div>
                 <div class="flex justify-end mt-6 pt-4 border-t">
                     <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg mr-2"
@@ -196,6 +196,69 @@
                 </div>
             </div>
         </div>
+        <!-- --- AI Planning Modals --- -->
+
+        <!-- 1. AI Input Modal -->
+        <div id="ai-input-modal" class="modal-backdrop hidden">
+            <div class="modal-content">
+                <h3 class="text-lg font-bold mb-2">AI 智慧行程規劃</h3>
+                <p class="text-sm text-gray-600 mb-4">告訴我們您的計畫，讓 AI 為您安排精彩的一天！</p>
+                <p class="font-semibold text-gray-700">今日目前行程：</p>
+                <div id="ai-modal-summary-container"
+                     class="summary-timeline-container mb-4 p-3 bg-gray-100 rounded-lg overflow-x-auto whitespace-nowrap"></div>
+                <div class="modal-body space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input id="ai-start-location" type="text" placeholder="起點位置"
+                               class="border p-2 rounded focus:ring-2 focus:ring-pink-500">
+                        <input id="ai-end-location" type="text" placeholder="終點位置"
+                               class="border p-2 rounded focus:ring-2 focus:ring-pink-500">
+                        <input id="ai-start-time" type="time"
+                               class="border p-2 rounded focus:ring-2 focus:ring-pink-500">
+                        <input id="ai-end-time" type="time" class="border p-2 rounded focus:ring-2 focus:ring-pink-500">
+                    </div>
+                    <textarea id="ai-prompt" class="w-full h-24 p-2 border rounded focus:ring-2 focus:ring-pink-500"
+                              placeholder="請幫我安排放鬆一點的行程！&#10;多安排一些室內景點！&#10;想吃當地特色小吃"></textarea>
+                </div>
+                <div class="flex justify-end mt-6 pt-4 border-t">
+                    <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg mr-2"
+                            onclick="closeAIWindow()">取消
+                    </button>
+                    <button class="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-lg"
+                            onclick="handleAISubmit()">開始規劃
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. AI Loading Modal -->
+        <div id="ai-loading-modal" class="modal-backdrop hidden">
+            <div class="modal-content text-center bg-white border-none shadow-none">
+                <div class="w-16 h-16 border-4 rounded-full spinner mx-auto mb-4"></div>
+                <p class="text-black text-lg font-semibold">AI 正在規劃您的行程...</p>
+            </div>
+        </div>
+
+        <!-- 3. AI Confirm Modal -->
+        <div id="ai-confirm-modal" class="modal-backdrop hidden">
+            <div class="modal-content">
+                <h3 class="text-lg font-bold mb-2">AI 已為您規劃好行程！</h3>
+                <p class="text-sm text-gray-600 mb-4">請預覽下方的行程，您可以選擇直接匯入、重新生成或取消。</p>
+                <div id="ai-confirm-body" class="modal-body space-y-4 bg-gray-50 p-3 rounded-lg">
+                    <!-- AI generated content will be injected here -->
+                </div>
+                <div class="flex justify-end mt-6 pt-4 border-t space-x-2">
+                    <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg"
+                            onclick="closeAIConfirmModal()">取消
+                    </button>
+                    <button class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg"
+                            onclick="closeAIConfirmModal(); openAIWindow('regenerate')">重新生成
+                    </button>
+                    <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg"
+                            onclick="closeAIConfirmModal(); importAITrip()">確認匯入
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
     <div id="settings" class="screen">
         <!-- 設定區塊的內容放這裡 -->
@@ -230,6 +293,7 @@
 <script src="./js/index.js"></script>
 <script src="./js/Menu.js"></script>
 <script src="./js/Overview.js"></script>
+<script src="./js/AIService.js"></script>
 <script src="./js/Calendar.js"></script>
 <script src="./js/GoogleService.js"></script>
 <script src="./js/Share.js"></script>
