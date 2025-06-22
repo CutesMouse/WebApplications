@@ -427,7 +427,7 @@ const updateDiv = (isLast, next, index, stop, div) => {
 
                         ${(!isLast && next && next.distance && next.duration) ? `
                             <div class="text-center text-sm text-gray-500 pt-4">
-                                距離：${next.distance}，通勤時間：${next.duration}
+                                ${next.distance} ‧ ${next.duration}
                             </div>
                         ` : ''}
                     </div>`;
