@@ -25,6 +25,8 @@ function openAIWindow(date) {
         let start = dayData.stops[0];
         document.getElementById('ai-start-location').value = start.name;
         document.getElementById('ai-start-time').value = start.time.split('-')[1];
+        document.getElementById('ai-end-location').value = start.name;
+        document.getElementById('ai-end-time').value = start.time.split('-')[0];
     }
 
     if (dayData && dayData.stops.length > 1) {

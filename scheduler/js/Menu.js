@@ -8,6 +8,8 @@ navItems.forEach(item => {
         closeCalendar();
         closeImportModal();
         closeImportTextWindow();
+        closeAIWindow();
+        closeAIConfirmModal();
         switch (targetId) {
             case "overview":
                 if (isEditMode) toggleEdit();
