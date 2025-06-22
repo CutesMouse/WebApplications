@@ -246,7 +246,7 @@ const renderDayBlock = (dayData, prepend = false, replace = false) => {
 
     const dateHeaderContainer = document.createElement("div");
     dateHeaderContainer.className = "flex justify-between items-center mb-4 sticky top-0 z-10 p-2 -mx-2";
-    if (new Date().toISOString().slice(0, 10) === dayData.date) dateHeaderContainer.className += " bg-red-50";
+    if (new Date().toISOString().slice(0, 10) === dayData.date) dateHeaderContainer.className += " bg-blue-50 text-blue-600";
     else dateHeaderContainer.className += " bg-gray-50";
 
     const dateTitle = document.createElement("h2");
@@ -308,29 +308,26 @@ const renderDayBlock = (dayData, prepend = false, replace = false) => {
             const next = dayData.stops[index + 1];
 
             const div = document.createElement("div");
-            div.className = `slide-in relative flex items-start gap-4 mb-6 ${stop.past ? 'fade-out' : ''}`;
+            div.className = `slide-in relative flex items-start gap-4 ${stop.past ? 'fade-out' : ''}`;
 
-            const extraGap = (!isLast && next && next.distance && next.duration) ? 48 : 0;
-            const lineHeight = 36 + 2 * extraGap;
+            // Use padding on non-last items to create space that the line can fill.
+            if (!isLast) {
+                div.classList.add('pb-6');
+            } else {
+                div.classList.add('mb-6');
+            }
 
-            updateDiv(isLast, lineHeight, index, stop, div);
+            updateDiv(isLast, next, index, stop, div);
             if (!stop.past) {
                 let id = setInterval(() => {
                     if (stop.past) {
-                        updateDiv(isLast, lineHeight, index, stop, div);
+                        updateDiv(isLast, next, index, stop, div);
                         clearInterval(id);
                     }
                 }, 1000);
             }
 
             dayBlock.appendChild(div);
-
-            if (!isLast && next && next.distance && next.duration) {
-                const between = document.createElement("div");
-                between.className = "relative flex items-start gap-4 mb-4";
-                between.innerHTML = `<div class="w-10"></div> <div class="flex-1 text-center text-sm text-gray-500"> 距離 ${next.distance} · ${next.duration}</div>`;
-                dayBlock.appendChild(between);
-            }
         });
     }
 
@@ -396,31 +393,46 @@ const loadDays = (startDate, numDays, prepend) => {
     loadingSpinner.classList.add('hidden');
 }
 
-const updateDiv = (isLast, lineHeight, index, trip, div) => {
-    div.innerHTML = `
-                    <div class="relative">
-                        <div class="w-10 h-10 rounded-full bg-white border-4 ${trip.past ? 'border-gray-300' : 'border-blue-300'} flex items-center justify-center text-xl p-1">
-                            ${trip.mapUrl ? '<a href="' + trip.mapUrl + '" target="_blank">' + trip.image + '</a>' : trip.image}
+const updateDiv = (isLast, next, index, stop, div) => {
+    const lineHTML = !isLast ? `
+                    <div class="absolute top-5 left-5 transform -translate-x-1/2 w-0.5 h-full ${stop.past ? '' : 'bg-blue-300'}"
+                         style="${stop.past ? 'border-left: 2px dashed #d1d5db;' : ''}">
+                    </div>` : '';
+
+    const iconHTML = `
+                    <div class="relative z-10">
+                        <div class="w-10 h-10 rounded-full bg-gray-50 border-4 ${stop.past ? 'border-gray-300' : 'border-blue-300'} flex items-center justify-center text-xl p-1">
+                            <a href="${stop.mapUrl}" target="_blank">${stop.image}</a>
                         </div>
-                        ${!isLast ? `<div class="absolute top-10 left-1/2 transform -translate-x-1/2 w-0.5 ${trip.past ? 'border-dashed border-gray-300' : 'border-blue-300'}" style="height: ${lineHeight}px; border-left-width: 2px;"></div>` : ''}
-                    </div>
-                    <div class="flex-1 flex justify-between items-start gap-2">
-                        <div class="bg-white p-4 rounded-lg shadow-md flex-grow">
-                            <h3 class="font-semibold text-lg">${trip.display_text}</h3>
-                            <p class="text-sm text-gray-600">${trip.time}</p>
+                    </div>`;
+
+    const contentHTML = `
+                    <div class="flex-1 pt-1">
+                        <div class="flex justify-between items-start gap-2">
+                            <div class="bg-white p-4 rounded-lg shadow-md flex-grow">
+                                <h3 class="font-semibold text-lg break-words">${stop.display_text}</h3>
+                                <p class="text-sm text-gray-600">${stop.time}</p>
+                            </div>
+                            ${isEditMode ? `
+                            <div class="flex flex-col gap-2 pt-2">
+                                <button class="bg-yellow-400 hover:bg-yellow-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow" onclick="openEditModal('${stop.date}', ${index})" title="編輯">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg>
+                                </button>
+                                <button class="bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center shadow" onclick="showDeleteConfirmation('${stop.date}', ${index})" title="刪除">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                                </button>
+                            </div>
+                            ` : ''}
                         </div>
-                        ${isEditMode ? `
-                        <div class="flex flex-col gap-2 pt-2">
-                            <button class="bg-yellow-400 hover:bg-yellow-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow" onclick="openEditModal('${trip.date}', ${index})" title="編輯">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg>
-                            </button>
-                            <button class="bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center shadow" onclick="showDeleteConfirmation('${trip.date}', ${index})" title="刪除">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
-                            </button>
-                        </div>
+
+                        ${(!isLast && next && next.distance && next.duration) ? `
+                            <div class="text-center text-sm text-gray-500 pt-4">
+                                距離：${next.distance}，通勤時間：${next.duration}
+                            </div>
                         ` : ''}
-                    </div>
-                `;
+                    </div>`;
+
+    div.innerHTML = lineHTML + iconHTML + contentHTML;
 }
 
 const loadInitialTrips = () => {

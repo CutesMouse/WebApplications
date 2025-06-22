@@ -6,12 +6,14 @@ function setGeminiApiKey(key) {
     localStorage.setItem('gemini_api_key', key);
 }
 
-function openAIWindow(date) {
+function openAIWindow(date, keepPrompt = false) {
     if (!isAIEnabled()) {
         showNotification("請先在匯入處設定Gemini API Key");
         return;
     }
-    document.getElementById('ai-prompt').value = '';
+    if (!keepPrompt) {
+        document.getElementById('ai-prompt').value = '';
+    }
     const modal = document.getElementById('ai-input-modal');
     if (date === 'regenerate') {
         date = modal.dataset.date;
@@ -21,7 +23,7 @@ function openAIWindow(date) {
     const dayData = getSchedule(date);
     modal.dataset.date = date;
 
-    if (dayData && dayData.stops.length > 0) {
+    if (!keepPrompt && dayData && dayData.stops.length > 0) {
         let start = dayData.stops[0];
         document.getElementById('ai-start-location').value = start.name;
         document.getElementById('ai-start-time').value = start.time.split('-')[1];
@@ -29,7 +31,7 @@ function openAIWindow(date) {
         document.getElementById('ai-end-time').value = start.time.split('-')[0];
     }
 
-    if (dayData && dayData.stops.length > 1) {
+    if (!keepPrompt && dayData && dayData.stops.length > 1) {
         let end = dayData.stops[dayData.stops.length - 1];
         document.getElementById('ai-end-location').value = end.name;
         document.getElementById('ai-end-time').value = end.time.split('-')[0];
