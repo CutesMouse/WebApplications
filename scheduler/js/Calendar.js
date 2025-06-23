@@ -1,8 +1,14 @@
-// --- Calendar Functions ---
-function openCalendar() {
-    calendarDate = new Date(); // Reset to current month on open
+let clickHandler = undefined;
+let calendarDate = undefined;
+let mark = undefined;
+
+// 顯示行事曆
+function openCalendar(handler, highlight = new Date().toISOString().slice(0, 10)) {
+    mark = highlight;
+    calendarDate = new Date(highlight); // Reset to current month on open
     showCalendarDaySummary(calendarDate.toISOString().slice(10));
-    renderCalendar(calendarDate.getFullYear(), calendarDate.getMonth());
+    renderCalendar(calendarDate.getFullYear(), calendarDate.getMonth(), highlight);
+    clickHandler = handler;
     document.getElementById('calendar-modal').classList.remove('hidden');
 }
 
@@ -11,7 +17,7 @@ function closeCalendar() {
     backToOverview();
 }
 
-function renderCalendar(year, month) {
+function renderCalendar(year, month, highlight_date) {
     const grid = document.getElementById('cal-grid');
     const monthYearEl = document.getElementById('cal-month-year');
     grid.innerHTML = '';
@@ -35,8 +41,6 @@ function renderCalendar(year, month) {
     }
 
     // Date cells
-    const today = new Date();
-    const todayStr = today.toISOString().slice(0, 10);
 
     for (let day = 1; day <= daysInMonth; day++) {
         const dateEl = document.createElement('div');
@@ -46,7 +50,7 @@ function renderCalendar(year, month) {
         const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         dateEl.dataset.date = dateString;
 
-        if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+        if (dateString === highlight_date) {
             dateEl.classList.add('today');
             dateEl.classList.add('selected');
         }
@@ -61,7 +65,8 @@ function renderCalendar(year, month) {
         dateEl.addEventListener('click', () => {
             // Handle double click: jump to date
             if (dateEl.classList.contains('selected')) {
-                jumpToDate(dateString);
+                if (clickHandler) clickHandler(dateString);
+                closeCalendar();
                 return;
             }
             // Handle single click: show summary
@@ -81,7 +86,6 @@ function showCalendarDaySummary(dateString) {
 }
 
 function jumpToDate(dateString) {
-    closeCalendar();
     timeline.innerHTML = ''; // Clear the timeline
     loadingSpinner.classList.add('hidden');
 
@@ -98,10 +102,10 @@ function jumpToDate(dateString) {
 
 document.getElementById('cal-prev-month').addEventListener('click', () => {
     calendarDate.setMonth(calendarDate.getMonth() - 1);
-    renderCalendar(calendarDate.getFullYear(), calendarDate.getMonth());
+    renderCalendar(calendarDate.getFullYear(), calendarDate.getMonth(), mark);
 });
 
 document.getElementById('cal-next-month').addEventListener('click', () => {
     calendarDate.setMonth(calendarDate.getMonth() + 1);
-    renderCalendar(calendarDate.getFullYear(), calendarDate.getMonth());
+    renderCalendar(calendarDate.getFullYear(), calendarDate.getMonth(), mark);
 });

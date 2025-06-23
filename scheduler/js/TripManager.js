@@ -101,6 +101,27 @@ function deleteDayData(date) {
     updateDayBlock(schedule);
 }
 
+function swapDayData(dateA, dateB) {
+    if (dateA === dateB) {
+        showNotification("互換的日期相同！");
+        return;
+    }
+    let scheduleA = createDayData(dateA);
+    let scheduleB = createDayData(dateB);
+    scheduleA.date = dateB;
+    for (const stop of scheduleA.stops) {
+        stop.date = dateB;
+    }
+    scheduleB.date = dateA;
+    for (const stop of scheduleB.stops) {
+        stop.date = dateA;
+    }
+    saveData();
+    showNotification("已成功對調行程！");
+    updateDayBlock(scheduleA);
+    updateDayBlock(scheduleB);
+}
+
 function createData(date, name, display_name, time, distance, duration, mapUrl, icon) {
     createDataWithData(date, new TripData(name, display_name, date, time, distance, duration, mapUrl, icon));
 }

@@ -124,6 +124,7 @@ function renderSummaryVisualization(container, stops) {
     container.appendChild(vizContainer);
 }
 
+// 編輯行程視窗
 function openEditModal(dateString, stopIndex = null) {
     const modal = document.getElementById('edit-modal');
     const summaryContainer = document.getElementById('edit-modal-summary-container');
@@ -161,10 +162,12 @@ function closeEditModal() {
     document.getElementById('edit-modal').classList.add('hidden');
 }
 
+// 編輯 - 行程自動排序按鈕
 function rearrangeTime(date, travelMode) {
     autoDayArrange(date, travelMode);
 }
 
+// 確認刪除視窗
 function showDeleteConfirmation(dateString, stopIndex) {
     const modal = document.getElementById('delete-confirm-modal');
     modal.classList.remove('hidden');
@@ -186,6 +189,7 @@ function confirmDelete() {
     showNotification("行程已刪除");
 }
 
+// 顯示通知
 function showNotification(message) {
     const existingNotification = document.querySelector('.trip-notification');
     if (existingNotification) existingNotification.remove();
@@ -276,6 +280,11 @@ const renderDayBlock = (dayData, prepend = false, replace = false) => {
                     <span>計算通勤時間 (大眾運輸)</span>
                 </a>
                 <div class="border-t border-gray-100 my-1"></div>
+                <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"
+                   onclick="event.preventDefault(); openCalendar(date => swapDayData(date, '${dayData.date}'),'${dayData.date}'); this.closest('.day-menu').classList.add('hidden'); this.closest('.day-block').classList.remove('menu-active');">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-week" viewBox="0 0 16 16"><path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm-5 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z"/><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/></svg>
+                    <span>和其他日期對調行程</span>
+                </a>
                 <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"
                    onclick="event.preventDefault(); showDeleteConfirmation('${dayData.date}', -1); this.closest('.day-menu').classList.add('hidden'); this.closest('.day-block').classList.remove('menu-active');">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16"><path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/></svg>

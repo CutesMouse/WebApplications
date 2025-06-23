@@ -144,7 +144,7 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .calendar-date.today {
-    background-color: #ef4444;
+    background-color: #ff6363;
     color: white;
 }
 

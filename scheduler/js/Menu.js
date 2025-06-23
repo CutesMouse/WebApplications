@@ -19,7 +19,7 @@ navItems.forEach(item => {
                 break;
             case "calendar":
                 if (isEditMode) toggleEdit();
-                openCalendar();
+                openCalendar(dateString => jumpToDate(dateString));
                 screens.forEach(screen => {
                     screen.classList.toggle('active', screen.id === "overview");
                 });
