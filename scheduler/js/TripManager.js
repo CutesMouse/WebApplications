@@ -138,7 +138,7 @@ function SearchAutoComplete(query) {
     let result = [];
     for (const trip of trips) {
         for (const stop of trip.stops) {
-            if (stop.name.toLowerCase().startsWith(lowerCaseQuery)) result.push(stop);
+            if (stop.name.toLowerCase().includes(lowerCaseQuery)) result.push(stop);
         }
     }
     return result;
