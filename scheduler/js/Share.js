@@ -17,6 +17,8 @@ function openShareNotification(token) {
 function closeShareNotification() {
     const modal = document.getElementById('share-notification-modal');
     modal.classList.remove('show');
+    sharedTrip = [];
+    last_date = "";
 
     // 等待動畫結束後再隱藏元素
     // 此處時間應與 CSS transition duration 一致 (0.3s = 300ms)
@@ -89,21 +91,6 @@ function shareTrip(dateString) {
         });
     }
     last_date = dateString;
-}
-
-function isDayOffsetByOne(dateA, dateB) {
-    const toDate = (str) => {
-        const [year, month, day] = str.split('-').map(Number);
-        return new Date(year, month - 1, day); // month 0-based
-    };
-
-    const dA = toDate(dateA);
-    const dB = toDate(dateB);
-
-    const diffInMs = Math.abs(dA - dB);
-    const oneDayInMs = 24 * 60 * 60 * 1000;
-
-    return diffInMs === oneDayInMs;
 }
 
 let import_cache = undefined;

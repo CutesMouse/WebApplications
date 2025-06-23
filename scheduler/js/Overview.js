@@ -6,8 +6,7 @@ let minLoadedDate = null;
 let maxLoadedDate = null;
 const daysToLoadPerScroll = 14;
 
-// --- Edit Mode Functions ---
-
+// 編輯模式切換
 function toggleEdit() {
     isEditMode = !isEditMode;
 
@@ -27,13 +26,7 @@ function toggleEdit() {
     }
 }
 
-// Helper to convert HH:MM string to minutes from midnight for sorting
-function timeToMinutes(timeStr) {
-    if (!timeStr || !timeStr.includes(':')) return 9999; // Put stops without time at the end
-    const [hours, minutes] = timeStr.split(':')[0].split(':').map(Number);
-    return hours * 60 + minutes;
-}
-
+// 匯入確認視窗
 function openImportWindow(trips) {
     const modal = document.getElementById('import-modal');
     const body = document.getElementById('import-modal-body');
@@ -69,22 +62,25 @@ function openImportWindow(trips) {
     modal.classList.remove('hidden');
 }
 
+// 關閉匯入確認視窗
 function closeImportModal() {
     document.getElementById('import-modal').classList.add('hidden');
     backToOverview();
 }
 
+// 開啟匯入視窗
 function openImportTextWindow() {
     document.getElementById('import-text-modal').classList.remove('hidden');
-    document.getElementById('import-json-textarea').value = ''; // Clear textarea
+    document.getElementById('import-json-textarea').value = '';
 }
 
+// 關閉匯入視窗
 function closeImportTextWindow() {
     document.getElementById('import-text-modal').classList.add('hidden');
     backToOverview();
 }
 
-// --- Reusable function to render a summary visualization ---
+// 渲染行程概要
 function renderSummaryVisualization(container, stops) {
     container.innerHTML = ''; // Clear previous content
 
@@ -128,7 +124,6 @@ function renderSummaryVisualization(container, stops) {
     container.appendChild(vizContainer);
 }
 
-// UPDATED: Function to open the edit/add modal with new visualization
 function openEditModal(dateString, stopIndex = null) {
     const modal = document.getElementById('edit-modal');
     const summaryContainer = document.getElementById('edit-modal-summary-container');
@@ -156,8 +151,8 @@ function openEditModal(dateString, stopIndex = null) {
         document.getElementById('edit-mapUrl').value = stop.mapUrl || '';
         document.getElementById('edit-startTime').value = startTime.trim();
         document.getElementById('edit-endTime').value = endTime ? endTime.trim() : '';
-        document.getElementById('edit-distance').value = stop.distance;
-        document.getElementById('edit-duration').value = stop.duration;
+        document.getElementById('edit-distance').value = stop.distance || '';
+        document.getElementById('edit-duration').value = stop.duration || '';
         document.getElementById('edit-icon').value = stop.icon || '';
     }
 }
@@ -166,26 +161,8 @@ function closeEditModal() {
     document.getElementById('edit-modal').classList.add('hidden');
 }
 
-function saveStop() {
-    const index = document.getElementById('edit-modal').dataset.stopIndex;
-    const date = document.getElementById('edit-modal').dataset.date;
-    let name = document.getElementById('edit-name').value;
-    let displayname = document.getElementById('edit-displayname').value;
-    let mapUrl = document.getElementById('edit-mapUrl').value;
-    let time = document.getElementById('edit-startTime').value + "-"
-        + document.getElementById('edit-endTime').value;
-    let distance = document.getElementById('edit-distance').value;
-    let duration = document.getElementById('edit-duration').value;
-    let icon = document.getElementById('edit-icon').value;
-    if (index) deleteData(date, index);
-    createData(date, name, displayname, time, distance, duration, mapUrl, icon);
-    closeEditModal();
-    showNotification("行程已儲存");
-    scrollToNow(date);
-}
-
 function rearrangeTime(date, travelMode) {
-    autoArrange(date, travelMode);
+    autoDayArrange(date, travelMode);
 }
 
 function showDeleteConfirmation(dateString, stopIndex) {
@@ -203,24 +180,11 @@ function hideDeleteConfirmation() {
 function confirmDelete() {
     const date = document.getElementById('delete-confirm-modal').dataset.date;
     const index = document.getElementById('delete-confirm-modal').dataset.stopIndex;
-    deleteData(date, index);
+    if (index === "-1") deleteDayData(date);
+    else deleteData(date, index);
     hideDeleteConfirmation();
     showNotification("行程已刪除");
 }
-
-
-// --- Existing Functions (Modified for Edit Mode) ---
-
-function addDays(dateString, days) {
-    const date = new Date(dateString + 'T00:00:00Z');
-    date.setDate(date.getDate() + days);
-    return date.toISOString().slice(0, 10);
-}
-
-const formatDate = (dateString) => {
-    const date = new Date(dateString + 'T00:00:00');
-    return date.toLocaleDateString('zh-TW', {year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'});
-};
 
 function showNotification(message) {
     const existingNotification = document.querySelector('.trip-notification');
@@ -261,31 +225,69 @@ const renderDayBlock = (dayData, prepend = false, replace = false) => {
 
     // NEW: Add "Add" button in edit mode
     if (isEditMode) {
-        const autoDrivingArrange = document.createElement("button");
-        autoDrivingArrange.className = "bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-2 rounded-lg text-sm transition";
-        autoDrivingArrange.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-car-front-fill" viewBox="0 0 16 16"><path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679q.05.242.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.8.8 0 0 0 .381-.404l.792-1.848ZM3 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2m10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2M6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2zM2.906 5.189a.51.51 0 0 0 .497.731c.91-.073 3.35-.17 4.597-.17s3.688.097 4.597.17a.51.51 0 0 0 .497-.731l-.956-1.913A.5.5 0 0 0 11.691 3H4.309a.5.5 0 0 0-.447.276L2.906 5.19Z"/></svg>`;
-        autoDrivingArrange.setAttribute('onclick', `rearrangeTime('${dayData.date}', 'DRIVING')`);
-        buttonsContainer.appendChild(autoDrivingArrange);
-
-        const autoBusArrange = document.createElement("button");
-        autoBusArrange.className = "bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-2 rounded-lg text-sm transition";
-        autoBusArrange.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16"><path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/></svg>`;
-        autoBusArrange.setAttribute('onclick', `rearrangeTime('${dayData.date}', 'TRANSIT')`);
-        buttonsContainer.appendChild(autoBusArrange);
-
-        const aiButton = document.createElement("button");
-        if (!isAIEnabled()) aiButton.className = "bg-gray-700";
-        else aiButton.className = "bg-purple-500 hover:bg-purple-600";
-        aiButton.className += " text-white font-semibold py-1 px-2 rounded-lg text-sm transition";
-        aiButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-robot" viewBox="0 0 16 16"><path d="M6 12.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5M3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.6 26.6 0 0 0 4.94 0C11.765 5.765 13 6.76 13 8.062v1.157a.93.93 0 0 1-.765.935c-.845.147-2.34.346-4.235.346s-3.39-.2-4.235-.346A.93.93 0 0 1 3 9.219zm4.542-.827a.25.25 0 0 0-.217.068l-.92.9a25 25 0 0 1-1.871-.183.25.25 0 0 0-.068.495c.55.076 1.232.149 2.02.193a.25.25 0 0 0 .189-.071l.754-.736.847 1.71a.25.25 0 0 0 .404.062l.932-.97a25 25 0 0 0 1.922-.188.25.25 0 0 0-.068-.495c-.538.074-1.207.145-1.98.189a.25.25 0 0 0-.166.076l-.754.785-.842-1.7a.25.25 0 0 0-.182-.135"/><path d="M8.5 1.866a1 1 0 1 0-1 0V3h-2A4.5 4.5 0 0 0 1 7.5V8a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1v-.5A4.5 4.5 0 0 0 10.5 3h-2zM14 7.5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.5A3.5 3.5 0 0 1 5.5 4h5A3.5 3.5 0 0 1 14 7.5"/></svg>`;
-        aiButton.setAttribute('onclick', `openAIWindow('${dayData.date}')`);
-        buttonsContainer.appendChild(aiButton);
+        const menuContainer = document.createElement("div");
+        // menuContainer 的 className 維持不變
+        menuContainer.className = "relative inline-block text-left";
 
         const addButton = document.createElement("button");
         addButton.className = "bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-2 rounded-lg text-sm transition";
         addButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>`;
         addButton.setAttribute('onclick', `openEditModal('${dayData.date}')`);
         buttonsContainer.appendChild(addButton);
+
+        menuContainer.innerHTML = `
+        <div>
+            <button type="button" class="inline-flex justify-center w-full rounded-lg border border-gray-300 shadow-sm px-3 py-1 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none" 
+                    onclick="event.stopPropagation(); 
+                             const menu = this.closest('div').nextElementSibling; 
+                             const container = this.closest('.day-block');
+                             const isOpening = menu.classList.contains('hidden');
+                             
+                             /* 先關閉所有已開啟的選單 */
+                             document.querySelectorAll('.day-block.menu-active').forEach(c => c.classList.remove('menu-active'));
+                             document.querySelectorAll('.day-menu:not(.hidden)').forEach(m => m.classList.add('hidden'));
+
+                             if (isOpening) {
+                                menu.classList.remove('hidden');
+                                container.classList.add('menu-active');
+                             }">
+                操作
+                <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+        <div class="day-menu origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden z-40" role="menu" aria-orientation="vertical">
+            <div class="py-1">
+                <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"
+                   onclick="event.preventDefault(); openAIWindow('${dayData.date}'); this.closest('.day-menu').classList.add('hidden'); this.closest('.day-block').classList.remove('menu-active');">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-robot" viewBox="0 0 16 16"><path d="M6 12.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5M3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.6 26.6 0 0 0 4.94 0C11.765 5.765 13 6.76 13 8.062v1.157a.93.93 0 0 1-.765.935c-.845.147-2.34.346-4.235.346s-3.39-.2-4.235-.346A.93.93 0 0 1 3 9.219zm4.542-.827a.25.25 0 0 0-.217.068l-.92.9a25 25 0 0 1-1.871-.183.25.25 0 0 0-.068.495c.55.076 1.232.149 2.02.193a.25.25 0 0 0 .189-.071l.754-.736.847 1.71a.25.25 0 0 0 .404.062l.932-.97a25 25 0 0 0 1.922-.188.25.25 0 0 0-.068-.495c-.538.074-1.207.145-1.98.189a.25.25 0 0 0-.166.076l-.754.785-.842-1.7a.25.25 0 0 0-.182-.135"/><path d="M8.5 1.866a1 1 0 1 0-1 0V3h-2A4.5 4.5 0 0 0 1 7.5V8a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1v-.5A4.5 4.5 0 0 0 10.5 3h-2zM14 7.5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.5A3.5 3.5 0 0 1 5.5 4h5A3.5 3.5 0 0 1 14 7.5"/></svg>
+                    <span>AI 自動安排行程</span>
+                </a>
+                <div class="border-t border-gray-100 my-1"></div>
+                <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"
+                   onclick="event.preventDefault(); rearrangeTime('${dayData.date}', 'DRIVING'); this.closest('.day-menu').classList.add('hidden'); this.closest('.day-block').classList.remove('menu-active');">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-car-front-fill" viewBox="0 0 16 16"><path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679q.05.242.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.8.8 0 0 0 .381-.404l.792-1.848ZM3 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2m10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2M6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2zM2.906 5.189a.51.51 0 0 0 .497.731c.91-.073 3.35-.17 4.597-.17s3.688.097 4.597.17a.51.51 0 0 0 .497-.731l-.956-1.913A.5.5 0 0 0 11.691 3H4.309a.5.5 0 0 0-.447.276L2.906 5.19Z"/></svg>
+                    <span>計算通勤時間 (開車)</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"
+                   onclick="event.preventDefault(); rearrangeTime('${dayData.date}', 'TRANSIT'); this.closest('.day-menu').classList.add('hidden'); this.closest('.day-block').classList.remove('menu-active');">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16"><path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/></svg>
+                    <span>計算通勤時間 (大眾運輸)</span>
+                </a>
+                <div class="border-t border-gray-100 my-1"></div>
+                <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"
+                   onclick="event.preventDefault(); showDeleteConfirmation('${dayData.date}', -1); this.closest('.day-menu').classList.add('hidden'); this.closest('.day-block').classList.remove('menu-active');">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16"><path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/></svg>
+                    <span>刪除今日行程</span>
+                </a>
+            </div>
+        </div>
+    `;
+        buttonsContainer.appendChild(menuContainer);
+
+        // 這個 window 事件監聽器需要移出 renderDayBlock 函式，放到您的主要 script 區塊的最外層，確保它只被註冊一次。
+        // 如果尚未移動，請將其移出。
     } else {
         const shareButton = document.createElement("button");
         shareButton.className = "bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-1 px-2 rounded-lg text-sm transition duration-150 ease-in-out";
@@ -293,6 +295,7 @@ const renderDayBlock = (dayData, prepend = false, replace = false) => {
         shareButton.setAttribute('onclick', `shareTrip('${dayData.date}')`);
         buttonsContainer.appendChild(shareButton);
     }
+
     dateHeaderContainer.appendChild(dateTitle);
     dateHeaderContainer.appendChild(buttonsContainer);
     dayBlock.appendChild(dateHeaderContainer);
@@ -351,6 +354,70 @@ const renderDayBlock = (dayData, prepend = false, replace = false) => {
     }, 100);
 };
 
+// --- 自動完成 ---
+/**
+ * Handles user input in the name field, fetches and renders autocomplete suggestions.
+ * @param {string} value - The current value of the input field.
+ */
+function handleAutocompleteInput(value) {
+    const resultsContainer = document.getElementById('autocomplete-results');
+    if (!value.trim()) {
+        resultsContainer.classList.add('hidden');
+        resultsContainer.innerHTML = '';
+        return;
+    }
+
+    const results = SearchAutoComplete(value);
+    renderAutocompleteResults(results);
+}
+
+/**
+ * Renders the autocomplete suggestions in the dropdown.
+ * @param {Array} results - The array of stop objects to display.
+ */
+function renderAutocompleteResults(results) {
+    const resultsContainer = document.getElementById('autocomplete-results');
+    resultsContainer.innerHTML = '';
+
+    if (results.length === 0) {
+        resultsContainer.classList.add('hidden');
+        return;
+    }
+
+    results.forEach(stop => {
+        const item = document.createElement('div');
+        item.className = 'autocomplete-item';
+
+        // This ensures the entire stop object is available on click
+        item.onclick = () => fillFormWithStop(stop);
+
+        item.innerHTML = `
+                <div class="autocomplete-item-icon">${stop.icon || '📍'}</div>
+                <div>
+                    <div class="autocomplete-item-text-primary">${stop.name}</div>
+                    <div class="autocomplete-item-text-secondary">${stop.past ? "於 " + stop.date + " 造訪過" : "預計於 " + stop.date + " 造訪"}</div>
+                </div>
+            `;
+        resultsContainer.appendChild(item);
+    });
+
+    resultsContainer.classList.remove('hidden');
+}
+
+/**
+ * Fills the edit modal form with the data from a selected stop.
+ * @param {object} stop - The stop object to fill the form with.
+ */
+function fillFormWithStop(stop) {
+    const [startTime, endTime] = (stop.time || ' - ').split(' - ');
+    setNameValue(stop.name, true);
+
+    // Hide the autocomplete results
+    const resultsContainer = document.getElementById('autocomplete-results');
+    resultsContainer.classList.add('hidden');
+    resultsContainer.innerHTML = '';
+}
+
 // --- Initial Load and Scroll Handling ---
 
 const observer = new IntersectionObserver(entries => {
@@ -358,14 +425,6 @@ const observer = new IntersectionObserver(entries => {
         if (entry.isIntersecting) entry.target.classList.add('visible');
     });
 }, {threshold: 0.1});
-
-function debounce(func, delay) {
-    let timeout;
-    return function (...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), delay);
-    };
-}
 
 const loadDays = (startDate, numDays, prepend) => {
     loadingSpinner.classList.remove('hidden');

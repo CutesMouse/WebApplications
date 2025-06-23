@@ -81,12 +81,13 @@ function processInput(place = null) {
     }
 }
 
-function setNameValue(value) {
+function setNameValue(value, urlFill = false) {
     const name = document.getElementById('edit-name');
     const displayname = document.getElementById('edit-displayname');
     const icon = document.getElementById('edit-icon');
     const startTime = document.getElementById('edit-startTime');
     const endTime = document.getElementById('edit-endTime');
+    const mapUrl = document.getElementById('edit-mapUrl');
     name.value = value;
     let sim = findSimilar(value);
     if (sim) {
@@ -94,6 +95,7 @@ function setNameValue(value) {
         startTime.value = sim.time.split('-')[0];
         endTime.value = sim.time.split('-')[1];
         if (sim.display_name) displayname.value = sim.display_name;
+        if (urlFill) mapUrl.value = sim.mapUrl || '';
     }
 }
 

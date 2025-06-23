@@ -8,51 +8,6 @@ window.addEventListener('scroll', function (event) {
     for (let e of scrollEvents) {
         e(event);
     }
-})
-
-function pad(num) {
-    return num.toString().padStart(2, '0');
-}
-
-// 設定最近整點時間
-function setTimeDefault(date) {
-    const startInput = document.getElementById('edit-startTime');
-    const endInput = document.getElementById('edit-endTime');
-
-    let now = new Date();
-
-    let schedule = getSchedule(date);
-    if (schedule !== undefined && schedule.stops.length)
-        now = new Date(date + "T" + schedule.stops[schedule.stops.length - 1].time.split('-')[1]);
-
-    // 設定到下一個整點
-    now.setHours(now.getHours() + 1);
-    now.setMinutes(0);
-    now.setSeconds(0);
-    now.setMilliseconds(0);
-
-    const startHour = now.getHours();
-    const startMinute = now.getMinutes();
-    startInput.value = `${pad(startHour)}:${pad(startMinute)}`;
-
-    // endTime = startTime + 1 小時
-    now.setHours(startHour + 1);
-    const endHour = now.getHours();
-    endInput.value = `${pad(endHour)}:${pad(startMinute)}`;
-}
-
-// 當 startTime 改變，自動設 endTime = startTime + 1 小時
-document.getElementById('edit-startTime').addEventListener('change', function () {
-    const startInput = document.getElementById('edit-startTime');
-    const endInput = document.getElementById('edit-endTime');
-
-    const [h, m] = startInput.value.split(':').map(Number);
-    if (isNaN(h) || isNaN(m)) return;
-
-    const newEnd = new Date();
-    newEnd.setHours(h + 1);
-    newEnd.setMinutes(m);
-    endInput.value = `${pad(newEnd.getHours())}:${pad(newEnd.getMinutes())}`;
 });
 
 // 禁止快速雙擊觸發放大
@@ -74,8 +29,22 @@ document.addEventListener('gesturechange', function (e) {
 document.addEventListener('gestureend', function (e) {
     e.preventDefault();
 });
-// window.addEventListener('touchmove', function (event) {
-//     if (event.scale !== 1) {
-//         event.preventDefault();
-//     }
-// }, { passive: false });
+
+// 點空白處關閉選單
+window.addEventListener('click', function(e) {
+    // 找到所有處於 active 狀態的 container 並移除 class
+    document.querySelectorAll('.day-container.menu-active').forEach(container => {
+        container.classList.remove('menu-active');
+    });
+    // 隱藏所有選單
+    document.querySelectorAll('.day-menu:not(.hidden)').forEach(menu => {
+        menu.classList.add('hidden');
+    });
+    // 關閉Autocomplete選單
+    const autocompleteContainer = document.querySelector('.autocomplete-container');
+    if (autocompleteContainer && !autocompleteContainer.contains(e.target)) {
+        const resultsContainer = document.getElementById('autocomplete-results');
+        resultsContainer.classList.add('hidden');
+        resultsContainer.innerHTML = '';
+    }
+});

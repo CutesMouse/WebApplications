@@ -48,8 +48,12 @@ class TripData {
     }
 
     greater(tripdata) {
+        return this.greaterByTime(tripdata.date, tripdata.time.split("-")[0]);
+    }
+
+    greaterByTime(date, time) {
         const former = new Date(this.date + "T" + this.time.split("-")[0]); // 將 "2025-06-12 13:00" 轉為 ISO 格式
-        const latter = new Date(tripdata.date + "T" + tripdata.time.split("-")[0]);
+        const latter = new Date(date + "T" + time);
         return former > latter;
     }
 }

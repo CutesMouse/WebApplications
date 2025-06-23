@@ -67,10 +67,14 @@
                     <!-- JS will inject the timeline visualization here -->
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <input id="edit-destination" type="text" placeholder="快速填入(可填入連結或關鍵字)"
+                    <input id="edit-destination" type="text" placeholder="使用Google Maps搜尋"
                            class="col-span-2 border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <input id="edit-name" type="text" placeholder="景點名稱(供Google用，請盡量填寫完整)"
-                           class="col-span-2 border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="col-span-2 autocomplete-container">
+                        <input id="edit-name" type="text" placeholder="景點名稱(供Google用，請盡量填寫完整)"
+                               class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               autocomplete="off" oninput="handleAutocompleteInput(this.value)">
+                        <div id="autocomplete-results" class="autocomplete-results hidden"></div>
+                    </div>
                     <input id="edit-displayname" type="text" placeholder="顯示名稱(非必填)"
                            class="col-span-2 border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <input id="edit-mapUrl" type="text" placeholder="連結(非必填)"
@@ -87,11 +91,17 @@
                            class="col-span-2 border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div class="flex justify-end mt-6">
+                    <button class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg mr-2"
+                            onclick="arrangeSpecific('DRIVING')">開車
+                    </button>
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg mr-2"
+                            onclick="arrangeSpecific('TRANSIT')">大眾運輸
+                    </button>
                     <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg mr-2"
                             onclick="closeEditModal()">取消
                     </button>
                     <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg"
-                            onclick="saveStop()">確認
+                            onclick="closeEditModal(); saveStop()">確認
                     </button>
                 </div>
             </div>
@@ -288,6 +298,7 @@
     <!--    </div>-->
 </nav>
 
+<script src="./js/TimeUtils.js"></script>
 <script src="./js/TripData.js"></script>
 <script src="./js/TripManager.js"></script>
 <script src="./js/index.js"></script>

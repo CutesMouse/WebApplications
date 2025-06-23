@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mouse-scheduler-20250622v3';
+const CACHE_NAME = 'mouse-scheduler-20250623';
 
 const urlsToCache = [
     './',
@@ -15,6 +15,7 @@ const urlsToCache = [
     './js/Menu.js',
     './js/Overview.js',
     './js/Share.js',
+    './js/TimeUtils.js',
     './js/TripData.js',
     './js/TripManager.js',
     './attach/icon-192.png',

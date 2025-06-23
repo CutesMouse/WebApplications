@@ -18,6 +18,59 @@ function getSchedule(dateString) {
     return trips.find(trip => trip.date === dateString);
 }
 
+function saveStop() {
+    const index = document.getElementById('edit-modal').dataset.stopIndex;
+    const date = document.getElementById('edit-modal').dataset.date;
+    let name = document.getElementById('edit-name').value;
+    let displayname = document.getElementById('edit-displayname').value;
+    let mapUrl = document.getElementById('edit-mapUrl').value;
+    let time = document.getElementById('edit-startTime').value + "-"
+        + document.getElementById('edit-endTime').value;
+    let distance = document.getElementById('edit-distance').value;
+    let duration = document.getElementById('edit-duration').value;
+    let icon = document.getElementById('edit-icon').value;
+    if (index) deleteData(date, index);
+    createData(date, name, displayname, time, distance, duration, mapUrl, icon);
+    showNotification("行程已儲存");
+    scrollToNow(date);
+}
+
+function arrangeSpecific(travelMode) {
+    const index = document.getElementById('edit-modal').dataset.stopIndex;
+    const date = document.getElementById('edit-modal').dataset.date;
+    let name = document.getElementById('edit-name').value;
+    let start = document.getElementById('edit-startTime').value;
+    if (!name || !start) {
+        showNotification("至少要輸入名稱和位置才能計算！");
+        return;
+    }
+    let schedule = getSchedule(date);
+    if (!schedule || schedule.stops.length === 0) {
+        showNotification("今天還沒有行程！");
+        return;
+    }
+    let front = undefined;
+    for (let i = 0; i < schedule.stops.length; i++) {
+        if (index !== null && i === parseInt(index)) continue;
+        if (schedule.stops[i].greaterByTime(date, start)) break;
+        else front = schedule.stops[i];
+    }
+    if (front === undefined) {
+        showNotification("這是今天的起始站！");
+        return;
+    }
+    showNotification("正在進行查詢！");
+    arrange(front.name, name, travelMode, new Date(date + "T" + start + "Z"), result => {
+        if (result.status === "error") {
+            showNotification("查詢不到該路段的交通資料！");
+            return;
+        }
+        document.getElementById('edit-duration').value = (travelMode === "TRANSIT" ? "大眾運輸 " : "開車 ") + result.duration;
+        document.getElementById('edit-distance').value = result.distance;
+        showNotification("成功填入！");
+    });
+}
+
 function createDayData(date) {
     let sc = getSchedule(date);
     if (sc !== undefined) {
@@ -36,6 +89,14 @@ function deleteData(date, index) {
     let schedule = getSchedule(date);
     if (schedule === undefined) return;
     schedule.stops.splice(index, 1);
+    saveData();
+    updateDayBlock(schedule);
+}
+
+function deleteDayData(date) {
+    let schedule = getSchedule(date);
+    if (schedule === undefined) return;
+    schedule.stops = [];
     saveData();
     updateDayBlock(schedule);
 }
@@ -64,7 +125,26 @@ function findSimilar(name) {
     return null;
 }
 
-function autoArrange(date, travelMode) {
+/**
+ * Searches for stops with names similar to the query.
+ * @param {string} query - The search string from the user.
+ * @returns {Array} - An array of matching stop objects.
+ */
+function SearchAutoComplete(query) {
+    if (!query) {
+        return [];
+    }
+    const lowerCaseQuery = query.toLowerCase();
+    let result = [];
+    for (const trip of trips) {
+        for (const stop of trip.stops) {
+            if (stop.name.toLowerCase().startsWith(lowerCaseQuery)) result.push(stop);
+        }
+    }
+    return result;
+}
+
+function autoDayArrange(date, travelMode) {
     let schedule = getSchedule(date);
     if (schedule === undefined) return;
     let stops = schedule.stops;
