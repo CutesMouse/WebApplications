@@ -14,11 +14,13 @@ function openShareNotification(token) {
     }, 10);
 }
 
-function closeShareNotification() {
+function closeShareNotification(keepTracking = false) {
     const modal = document.getElementById('share-notification-modal');
     modal.classList.remove('show');
-    sharedTrip = [];
-    last_date = "";
+    if (!keepTracking) {
+        sharedTrip = [];
+        last_date = "";
+    }
 
     // 等待動畫結束後再隱藏元素
     // 此處時間應與 CSS transition duration 一致 (0.3s = 300ms)
@@ -64,7 +66,7 @@ function copyShareToken() {
 }
 
 function shareTrip(dateString) {
-    closeShareNotification();
+    closeShareNotification(true);
     let schedule = createDayData(dateString);
 
     for (const trip of sharedTrip) {
@@ -77,7 +79,7 @@ function shareTrip(dateString) {
     // console.log(last_date && isDayOffsetByOne(dateString, last_date));
     if (last_date && isDayOffsetByOne(dateString, last_date)) {
         sharedTrip.push(schedule);
-        showNotification("正在產生分享碼");
+        showNotification("正在串接分享碼");
         getToken(JSON.stringify(sharedTrip), token => {
             openShareNotification(token);
             showNotification(`已串接分享碼！`);
