@@ -385,6 +385,7 @@ function renderAutocompleteResults(results) {
     }
 
     results.forEach(stop => {
+        if (stop !== findSimilar(stop.name)) return;
         const item = document.createElement('div');
         item.className = 'autocomplete-item';
 
@@ -394,7 +395,7 @@ function renderAutocompleteResults(results) {
         item.innerHTML = `
                 <div class="autocomplete-item-icon">${stop.icon || '📍'}</div>
                 <div>
-                    <div class="autocomplete-item-text-primary">${stop.name}</div>
+                    <div class="autocomplete-item-text-primary">${stop.display_text}(${stop.name})</div>
                     <div class="autocomplete-item-text-secondary">${stop.past ? "於 " + stop.date + " 造訪過" : "預計於 " + stop.date + " 造訪"}</div>
                 </div>
             `;

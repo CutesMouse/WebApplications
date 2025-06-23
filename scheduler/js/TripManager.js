@@ -138,7 +138,8 @@ function SearchAutoComplete(query) {
     let result = [];
     for (const trip of trips) {
         for (const stop of trip.stops) {
-            if (stop.name.toLowerCase().includes(lowerCaseQuery)) result.push(stop);
+            if (stop.name.toLowerCase().includes(lowerCaseQuery)
+                || stop.display_text.toLowerCase().includes(lowerCaseQuery)) result.push(stop);
         }
     }
     return result;
@@ -167,6 +168,15 @@ function updateDayBlock(dayData) {
 }
 
 function saveData() {
+    trips.sort((x, y) => {
+        if (x.date < y.date) {
+            return -1;
+        }
+        if (x.date > y.date) {
+            return 1;
+        }
+        return 0;
+    });
     localStorage.setItem("trip-data", JSON.stringify(trips));
 }
 
