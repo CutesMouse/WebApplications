@@ -30,8 +30,8 @@ function save() {
 function setFavorite(level, index, value) {
     if (database === undefined) loadDatabase();
     if (database[level] === undefined || database[level] === null) database[level] = [];
-    if (value === true && !database[level].includes(index)) {
-        database[level].push(index);
+    if (value === true) {
+        if (!database[level].includes(index)) database[level].push(index);
     } else {
         let i = database[level].indexOf(index);
         if (i !== -1) database[level].splice(i, 1);
