@@ -48,3 +48,7 @@ window.addEventListener('click', function(e) {
         resultsContainer.innerHTML = '';
     }
 });
+
+// Initialize the two draggable selector components
+createDraggableSelector('start-location-selector', '選擇起始位置');
+createDraggableSelector('end-location-selector', '選擇終點位置');

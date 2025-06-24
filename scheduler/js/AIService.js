@@ -20,21 +20,27 @@ function openAIWindow(date, keepPrompt = false) {
     }
     const summaryContainer = document.getElementById('ai-modal-summary-container');
 
-    const dayData = getSchedule(date);
+    const dayData = createDayData(date);
     modal.dataset.date = date;
 
-    if (!keepPrompt && dayData && dayData.stops.length > 0) {
-        let start = dayData.stops[0];
-        document.getElementById('ai-start-location').value = start.name;
-        document.getElementById('ai-start-time').value = start.time.split('-')[1];
-        document.getElementById('ai-end-location').value = start.name;
-        document.getElementById('ai-end-time').value = start.time.split('-')[0];
-    }
+    setOptions('start-location-selector', dayData.stops);
+    setOptions('end-location-selector', dayData.stops);
 
-    if (!keepPrompt && dayData && dayData.stops.length > 1) {
-        let end = dayData.stops[dayData.stops.length - 1];
-        document.getElementById('ai-end-location').value = end.name;
-        document.getElementById('ai-end-time').value = end.time.split('-')[0];
+    if (!keepPrompt) {
+
+        selectOption('start-location-selector', -1, '');
+        selectOption('end-location-selector', -1, '');
+
+        if (dayData && dayData.stops.length > 0) {
+            let start = dayData.stops[0];
+            selectOption('start-location-selector', 0, start.name);
+            selectOption('end-location-selector', 0, start.name);
+        }
+
+        if (dayData && dayData.stops.length > 1) {
+            let end = dayData.stops[dayData.stops.length - 1];
+            selectOption('end-location-selector', dayData.stops.length - 1, end.name);
+        }
     }
 
     renderSummaryVisualization(summaryContainer, dayData ? dayData.stops : []);
@@ -49,16 +55,26 @@ function closeAIWindow() {
 let ai_generated_trips = undefined;
 
 function handleAISubmit() {
-    closeAIWindow();
-    document.getElementById('ai-loading-modal').classList.remove('hidden');
+    let start_selected = getSelectedOption('start-location-selector');
+    let end_selected = getSelectedOption('end-location-selector');
+
+    if (start_selected.index === -1 || end_selected.index === -1) {
+        showNotification("起點或終點未設定完成！");
+        return;
+    }
 
     const modal = document.getElementById('ai-input-modal');
-    let start_loc = document.getElementById('ai-start-location').value;
+    let start_loc = start_selected.value;
     let start_time = document.getElementById('ai-start-time').value;
-    let end_loc = document.getElementById('ai-end-location').value;
+    let end_loc = end_selected.value;
     let end_time = document.getElementById('ai-end-time').value;
     let user_prompt = document.getElementById('ai-prompt').value || '無';
     let date = modal.dataset.date;
+
+    if (start_time > end_time) {
+        showNotification("開始時間不得晚於結束時間！");
+        return;
+    }
 
     // send the prompt to gemini
     let prompt = `使用者輸入：
@@ -73,6 +89,9 @@ function handleAISubmit() {
 4) 回傳一個陣列[{行程1}, {行程2}, ...]，每個行程包含以上資訊，以JSON 格式表示
 5) 不用列出交通方式，全部給景點資訊即可
 `
+    closeAIWindow();
+    document.getElementById('ai-loading-modal').classList.remove('hidden');
+
     generateTextWithGeminiFlash(prompt, text => {
         document.getElementById('ai-loading-modal').classList.add('hidden');
 
@@ -195,4 +214,184 @@ function renderAIConfirmDetails(container, stops) {
             `;
         container.appendChild(stopElement);
     });
+}
+
+// --- Draggable Selector Logic ---
+
+/**
+ * Creates and initializes a draggable selector component.
+ * @param {string} wrapperId - The ID of the wrapper element for the selector.
+ * @param {string} placeholder - The placeholder text.
+ */
+function createDraggableSelector(wrapperId, placeholder) {
+    const wrapper = document.getElementById(wrapperId);
+    if (!wrapper) return;
+
+    wrapper.innerHTML = `
+            <div class="draggable-selector-container">
+                <div class="selected-value placeholder">${placeholder}</div>
+            </div>
+            <div class="selector-options-list hidden"></div>
+            <div class="draggable-dot"></div>
+        `;
+
+    const container = wrapper.querySelector('.draggable-selector-container');
+    const dot = wrapper.querySelector('.draggable-dot');
+    const optionsList = wrapper.querySelector('.selector-options-list');
+
+    let isDragging = false;
+    let startY = 0;
+
+    const handleDragStart = (e) => {
+        e.preventDefault();
+        isDragging = true;
+        container.classList.add('dragging');
+        dot.classList.add('dot-active'); // MODIFIED: Activate dot's z-index
+        optionsList.classList.remove('hidden');
+        startY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        document.addEventListener('mousemove', handleDragMove);
+        document.addEventListener('mouseup', handleDragEnd);
+        document.addEventListener('touchmove', handleDragMove, {passive: false});
+        document.addEventListener('touchend', handleDragEnd);
+    };
+
+    const handleDragMove = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+        const deltaY = currentY - startY;
+        dot.style.transform = `translate(-50%, calc(-50% + ${deltaY}px))`;
+        highlightClosestOption(currentY);
+    };
+
+    const handleDragEnd = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        container.classList.remove('dragging');
+        dot.classList.remove('dot-active'); // MODIFIED: Deactivate dot's z-index
+
+        const highlightedOption = optionsList.querySelector('.highlight');
+        if (highlightedOption) {
+            selectOption(wrapperId, highlightedOption.dataset.index, highlightedOption.dataset.value);
+        }
+
+        optionsList.classList.add('hidden');
+        dot.style.transform = 'translate(-50%, -50%)';
+        removeHighlight();
+
+        document.removeEventListener('mousemove', handleDragMove);
+        document.removeEventListener('mouseup', handleDragEnd);
+        document.removeEventListener('touchmove', handleDragMove);
+        document.removeEventListener('touchend', handleDragEnd);
+    };
+
+    const highlightClosestOption = (cursorY) => {
+        const options = Array.from(optionsList.querySelectorAll('.selector-option'));
+        if (options.length === 0) return;
+
+        let closestOption = null;
+        let minDistance = Infinity;
+
+        options.forEach(option => {
+            const rect = option.getBoundingClientRect();
+            const optionCenterY = rect.top + rect.height / 2;
+            const distance = Math.abs(cursorY - optionCenterY);
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestOption = option;
+            }
+        });
+
+        removeHighlight();
+        if (closestOption) {
+            closestOption.classList.add('highlight');
+            const listRect = optionsList.getBoundingClientRect();
+            const optionRect = closestOption.getBoundingClientRect();
+            const desiredScrollTop = closestOption.offsetTop - (listRect.height / 2) + (optionRect.height / 2);
+            optionsList.scrollTop = desiredScrollTop;
+        }
+    };
+
+    const removeHighlight = () => {
+        optionsList.querySelectorAll('.selector-option.highlight').forEach(el => el.classList.remove('highlight'));
+    };
+
+    const selectOptionOnClick = (e) => {
+        const clickedOption = e.target.closest('.selector-option');
+        if (clickedOption) {
+            selectOption(wrapperId, clickedOption.dataset.index, clickedOption.dataset.value);
+            optionsList.classList.add('hidden');
+            // Ensure dot is not active after click selection
+            dot.classList.remove('dot-active');
+        }
+    };
+
+    dot.addEventListener('mousedown', handleDragStart);
+    dot.addEventListener('touchstart', handleDragStart, {passive: false});
+    // MODIFIED: Removed click listener on container to disable click-to-open
+    optionsList.addEventListener('click', selectOptionOnClick);
+}
+
+let options = [];
+
+/**
+ * Sets the options for the draggable selectors.
+ * @param {string} selectorId - The ID of the specific selector wrapper.
+ * @param {Array<object>} stops - An array of location objects.
+ */
+function setOptions(selectorId, stops) {
+    const optionsList = document.querySelector(`#${selectorId} .selector-options-list`);
+    if (!optionsList) return;
+
+    optionsList.innerHTML = '';
+    options = stops;
+
+    if (!stops || stops.length === 0) {
+        optionsList.innerHTML = `<div class="selector-option text-gray-400" data-value="" data-index="-1">無可用選項</div>`;
+        return;
+    }
+
+    for (let i = 0; i < stops.length; i++) {
+        const stop = stops[i];
+        const optionElement = document.createElement('div');
+        optionElement.className = 'selector-option';
+        optionElement.dataset.value = stop.name;
+        optionElement.dataset.index = i.toString();
+
+        optionElement.innerHTML = `
+                <div class="option-icon">${stop.image}</div>
+                <div class="option-text-content">
+                    <div class="option-title">${stop.name}</div>
+                    <div class="option-subtitle">${stop.time}</div>
+                </div>
+            `;
+        optionsList.appendChild(optionElement);
+    }
+}
+
+function selectOption(wrapperId, index, value) {
+    const wrapper = document.getElementById(wrapperId);
+    const valueDisplay = wrapper.querySelector('.selected-value');
+
+    valueDisplay.textContent = value;
+    valueDisplay.classList.remove('placeholder');
+
+    wrapper.dataset.selectedValue = value;
+    wrapper.dataset.selectedIndex = index;
+
+    index = parseInt(index);
+    if (index !== -1) {
+        let stop = options[index];
+        if (wrapperId === "start-location-selector") document.getElementById('ai-start-time').value = stop.time.split('-')[1];
+        else if (wrapperId === "end-location-selector") document.getElementById('ai-end-time').value = stop.time.split('-')[0];
+    }
+}
+
+function getSelectedOption(wrapperId) {
+    return {
+        value: document.getElementById(wrapperId).dataset.selectedValue,
+        index: parseInt(document.getElementById(wrapperId).dataset.selectedIndex)
+    }
 }
