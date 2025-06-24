@@ -28,18 +28,18 @@ function openAIWindow(date, keepPrompt = false) {
 
     if (!keepPrompt) {
 
-        selectOption('start-location-selector', -1, '');
-        selectOption('end-location-selector', -1, '');
+        selectOption('start-location-selector', -1, '', '無');
+        selectOption('end-location-selector', -1, '', '無');
 
         if (dayData && dayData.stops.length > 0) {
             let start = dayData.stops[0];
-            selectOption('start-location-selector', 0, start.name);
-            selectOption('end-location-selector', 0, start.name);
+            selectOption('start-location-selector', 0, start.name, start.display_text);
+            selectOption('end-location-selector', 0, start.name, start.display_text);
         }
 
         if (dayData && dayData.stops.length > 1) {
             let end = dayData.stops[dayData.stops.length - 1];
-            selectOption('end-location-selector', dayData.stops.length - 1, end.name);
+            selectOption('end-location-selector', dayData.stops.length - 1, end.name, end.display_text);
         }
     }
 
@@ -273,7 +273,7 @@ function createDraggableSelector(wrapperId, placeholder) {
 
         const highlightedOption = optionsList.querySelector('.highlight');
         if (highlightedOption) {
-            selectOption(wrapperId, highlightedOption.dataset.index, highlightedOption.dataset.value);
+            selectOption(wrapperId, highlightedOption.dataset.index, highlightedOption.dataset.value, highlightedOption.dataset.display);
         }
 
         optionsList.classList.add('hidden');
@@ -321,7 +321,7 @@ function createDraggableSelector(wrapperId, placeholder) {
     const selectOptionOnClick = (e) => {
         const clickedOption = e.target.closest('.selector-option');
         if (clickedOption) {
-            selectOption(wrapperId, clickedOption.dataset.index, clickedOption.dataset.value);
+            selectOption(wrapperId, clickedOption.dataset.index, clickedOption.dataset.value, clickedOption.dataset.display);
             optionsList.classList.add('hidden');
             // Ensure dot is not active after click selection
             dot.classList.remove('dot-active');
@@ -349,7 +349,7 @@ function setOptions(selectorId, stops) {
     options = stops;
 
     if (!stops || stops.length === 0) {
-        optionsList.innerHTML = `<div class="selector-option text-gray-400" data-value="" data-index="-1">無可用選項</div>`;
+        optionsList.innerHTML = `<div class="selector-option text-gray-400" data-value="" data-index="-1" data-display="無">無可用選項</div>`;
         return;
     }
 
@@ -359,11 +359,12 @@ function setOptions(selectorId, stops) {
         optionElement.className = 'selector-option';
         optionElement.dataset.value = stop.name;
         optionElement.dataset.index = i.toString();
+        optionElement.dataset.display = stop.display_text;
 
         optionElement.innerHTML = `
                 <div class="option-icon">${stop.image}</div>
                 <div class="option-text-content">
-                    <div class="option-title">${stop.name}</div>
+                    <div class="option-title">${stop.display_text}</div>
                     <div class="option-subtitle">${stop.time}</div>
                 </div>
             `;
@@ -371,11 +372,11 @@ function setOptions(selectorId, stops) {
     }
 }
 
-function selectOption(wrapperId, index, value) {
+function selectOption(wrapperId, index, value, displayValue) {
     const wrapper = document.getElementById(wrapperId);
     const valueDisplay = wrapper.querySelector('.selected-value');
 
-    valueDisplay.textContent = value;
+    valueDisplay.textContent = displayValue;
     valueDisplay.classList.remove('placeholder');
 
     wrapper.dataset.selectedValue = value;
