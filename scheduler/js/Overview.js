@@ -207,7 +207,7 @@ function showNotification(message) {
     }, 2500);
 }
 
-const renderDayBlock = (dayData, prepend = false, replace = false) => {
+const renderDayBlock = (dayData, prepend = false, replace = false, urlLink = 'no_change') => {
     const dayBlock = document.createElement("div");
     dayBlock.className = "day-block mb-10";
     dayBlock.setAttribute('data-date', dayData.date);
@@ -268,6 +268,15 @@ const renderDayBlock = (dayData, prepend = false, replace = false) => {
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-robot" viewBox="0 0 16 16"><path d="M6 12.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5M3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.6 26.6 0 0 0 4.94 0C11.765 5.765 13 6.76 13 8.062v1.157a.93.93 0 0 1-.765.935c-.845.147-2.34.346-4.235.346s-3.39-.2-4.235-.346A.93.93 0 0 1 3 9.219zm4.542-.827a.25.25 0 0 0-.217.068l-.92.9a25 25 0 0 1-1.871-.183.25.25 0 0 0-.068.495c.55.076 1.232.149 2.02.193a.25.25 0 0 0 .189-.071l.754-.736.847 1.71a.25.25 0 0 0 .404.062l.932-.97a25 25 0 0 0 1.922-.188.25.25 0 0 0-.068-.495c-.538.074-1.207.145-1.98.189a.25.25 0 0 0-.166.076l-.754.785-.842-1.7a.25.25 0 0 0-.182-.135"/><path d="M8.5 1.866a1 1 0 1 0-1 0V3h-2A4.5 4.5 0 0 0 1 7.5V8a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1v-.5A4.5 4.5 0 0 0 10.5 3h-2zM14 7.5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.5A3.5 3.5 0 0 1 5.5 4h5A3.5 3.5 0 0 1 14 7.5"/></svg>
                     <span>AI 自動安排行程</span>
                 </a>
+                ${urlLink === 'no_change' ? "<a href='#' class='flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100' role='menuitem'\n" +
+            "                   onclick=\"event.preventDefault(); updateDayBlock('" + dayData.date + "', false, true, 'navigate'); this.closest('.day-menu').classList.add('hidden'); this.closest('.day-block').classList.remove('menu-active');\">\n" +
+            "                    <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-sign-turn-right' viewBox='0 0 16 16'><path d='M5 8.5A2.5 2.5 0 0 1 7.5 6H9V4.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L9.41 8.658A.25.25 0 0 1 9 8.466V7H7.5A1.5 1.5 0 0 0 6 8.5V11H5z'/><path fill-rule='evenodd' d='M6.95.435c.58-.58 1.52-.58 2.1 0l6.515 6.516c.58.58.58 1.519 0 2.098L9.05 15.565c-.58.58-1.519.58-2.098 0L.435 9.05a1.48 1.48 0 0 1 0-2.098zm1.4.7a.495.495 0 0 0-.7 0L1.134 7.65a.495.495 0 0 0 0 .7l6.516 6.516a.495.495 0 0 0 .7 0l6.516-6.516a.495.495 0 0 0 0-.7L8.35 1.134Z'/></svg>\n" +
+            "                    <span>將URL設定為導航連結</span>\n" +
+            "                </a>" : "<a href='#' class='flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100' role='menuitem'\n" +
+            "                   onclick=\"event.preventDefault(); updateDayBlock('" + dayData.date + "', false, true, 'no_change'); this.closest('.day-menu').classList.add('hidden'); this.closest('.day-block').classList.remove('menu-active');\">\n" +
+            "                    <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-sign-turn-right' viewBox='0 0 16 16'><path d='M5 8.5A2.5 2.5 0 0 1 7.5 6H9V4.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L9.41 8.658A.25.25 0 0 1 9 8.466V7H7.5A1.5 1.5 0 0 0 6 8.5V11H5z'/><path fill-rule='evenodd' d='M6.95.435c.58-.58 1.52-.58 2.1 0l6.515 6.516c.58.58.58 1.519 0 2.098L9.05 15.565c-.58.58-1.519.58-2.098 0L.435 9.05a1.48 1.48 0 0 1 0-2.098zm1.4.7a.495.495 0 0 0-.7 0L1.134 7.65a.495.495 0 0 0 0 .7l6.516 6.516a.495.495 0 0 0 .7 0l6.516-6.516a.495.495 0 0 0 0-.7L8.35 1.134Z'/></svg>\n" +
+            "                    <span>還原連結</span>\n" +
+            "                </a>"}
                 <div class="border-t border-gray-100 my-1"></div>
                 <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem"
                    onclick="event.preventDefault(); rearrangeTime('${dayData.date}', 'DRIVING'); this.closest('.day-menu').classList.add('hidden'); this.closest('.day-block').classList.remove('menu-active');">
@@ -318,6 +327,7 @@ const renderDayBlock = (dayData, prepend = false, replace = false) => {
         dayData.stops.forEach((stop, index) => {
             const isLast = index === dayData.stops.length - 1;
             const next = dayData.stops[index + 1];
+            const prev = dayData.stops[index - 1];
 
             const div = document.createElement("div");
             div.className = `slide-in relative flex items-start gap-4 ${stop.past ? 'fade-out' : ''}`;
@@ -329,11 +339,11 @@ const renderDayBlock = (dayData, prepend = false, replace = false) => {
                 div.classList.add('mb-6');
             }
 
-            updateDiv(isLast, next, index, stop, div);
+            updateDiv(isLast, next, prev, index, stop, div, urlLink);
             if (!stop.past) {
                 let id = setInterval(() => {
                     if (stop.past) {
-                        updateDiv(isLast, next, index, stop, div);
+                        updateDiv(isLast, next, prev, index, stop, div, urlLink);
                         clearInterval(id);
                     }
                 }, 1000);
@@ -462,7 +472,10 @@ const loadDays = (startDate, numDays, prepend) => {
     loadingSpinner.classList.add('hidden');
 }
 
-const updateDiv = (isLast, next, index, stop, div) => {
+const updateDiv = (isLast, next, prev, index, stop, div, urlLink) => {
+
+    const link = urlLink === 'no_change' ? stop.mapUrl : (prev ? "https://www.google.com/maps/dir/?api=1&origin=" + prev.name + "&destination=" + stop.name + "&travelmode=transit" : "")
+
     const lineHTML = !isLast ? `
                     <div class="absolute top-5 left-5 transform -translate-x-1/2 w-0.5 h-full ${stop.past ? '' : 'bg-blue-300'}"
                          style="${stop.past ? 'border-left: 2px dashed #d1d5db;' : ''}">
@@ -471,7 +484,7 @@ const updateDiv = (isLast, next, index, stop, div) => {
     const iconHTML = `
                     <div class="relative z-10">
                         <div class="w-10 h-10 rounded-full bg-gray-50 border-4 ${stop.past ? 'border-gray-300' : 'border-blue-300'} flex items-center justify-center text-xl p-1">
-                            <a href="${stop.mapUrl}" target="_blank">${stop.image}</a>
+                            ${link ? '<a href="' + link +'" target="_blank">' : ''}${stop.image}${link ? "</a>" : ""}
                         </div>
                     </div>`;
 

@@ -183,9 +183,10 @@ function autoDayArrange(date, travelMode) {
     }
 }
 
-function updateDayBlock(dayData) {
+function updateDayBlock(dayData, prepend = false, replace = true, urlLink = 'no_change') {
     saveData();
-    renderDayBlock(dayData, false, true);
+    if (typeof(dayData) === 'string') dayData = createDayData(dayData);
+    renderDayBlock(dayData, prepend, replace, urlLink);
 }
 
 function saveData() {

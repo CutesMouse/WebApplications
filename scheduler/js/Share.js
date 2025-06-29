@@ -109,6 +109,9 @@ function readImportingTrips(link) {
         } else if (line.startsWith("GEMINI=")) {
             setGeminiApiKey(line.substring(7));
             showNotification("成功設定Gemini！");
+        } else if (line.startsWith("OPENAI=")) {
+            setOpenAIApiKey(line.substring(7));
+            showNotification("成功設定OpenAI！");
         } else {
             total++;
             showNotification("讀取資料中...");

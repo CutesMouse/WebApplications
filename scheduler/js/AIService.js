@@ -6,6 +6,10 @@ function setGeminiApiKey(key) {
     localStorage.setItem('gemini_api_key', key);
 }
 
+function setOpenAIApiKey(key) {
+    localStorage.setItem('openai_api_key', key);
+}
+
 function openAIWindow(date, keepPrompt = false) {
     if (!isAIEnabled()) {
         showNotification("請先在匯入處設定Gemini API Key");
@@ -85,9 +89,10 @@ function handleAISubmit() {
 
 1) 解析偏好與限制 → 檢索適合的景點類型
 2) 請列出所有景點的name(名稱、需要能在Google上直接搜尋到)、time(包含起點、終點時間，格式如13:00-14:00), icon(給我一個表示這個景點的Emoji), description(推薦原因)
-3) 請排出旅行上最順暢的順序，不用包含起、終點
+3) 請排出旅行上最順暢的順序，請不要在行程中包含起點、終點
 4) 回傳一個陣列[{行程1}, {行程2}, ...]，每個行程包含以上資訊，以JSON 格式表示
 5) 不用列出交通方式，全部給景點資訊即可
+6) 請幫我把資料包在 \`\`\`json中
 `
     closeAIWindow();
     document.getElementById('ai-loading-modal').classList.remove('hidden');
@@ -153,6 +158,46 @@ function generateTextWithGeminiFlash(prompt, success, failure) {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(requestBody)
         }).then(res => res.text()).then(text => success(text));
+    } catch (error) {
+        failure("調用AI時發生錯誤:" + error);
+    }
+}
+
+/**
+ * 使用 ChatGPT 4o-mini 生成文字。
+ * @param {string} prompt 要傳遞給模型的提示。
+ * @param {function(string)} success 成功handler
+ * @param {function(string)} failure 失敗handler
+ */
+function generateTextWithChatGPT(prompt, success, failure) {
+    try {
+        if (!localStorage.getItem('openai_api_key')) {
+            failure('需要先加入OpenAI API Key');
+            return;
+        }
+
+        // 存取 GoogleGenerativeAI
+        const url = `https://api.chatanywhere.org/v1/chat/completions`;
+        const requestBody = {
+            model: "gpt-4.1-mini",
+            messages: [
+                {role: "user", content: prompt}
+            ]
+        };
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem('openai_api_key')}` // 👈 加入你的 API Key
+            },
+            body: JSON.stringify(requestBody)
+        }).then(res => res.json()).then(json => {
+            if (json.choices && json.choices.length > 0) {
+                success(json.choices[0].message.content)
+            }
+            else failure("調用AI時發生錯誤");
+            console.log(json)
+        });
     } catch (error) {
         failure("調用AI時發生錯誤:" + error);
     }
