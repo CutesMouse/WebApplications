@@ -122,6 +122,23 @@ function swapDayData(dateA, dateB) {
     updateDayBlock(scheduleB);
 }
 
+function copyDayData(dateA, dateB) {
+    if (dateA === dateB) {
+        showNotification("複製的日期相同！");
+        return;
+    }
+    let scheduleA = createDayData(dateA);
+    let scheduleB = createDayData(dateB);
+    scheduleB.stops = [...scheduleA.stops];
+    console.log(scheduleB.stops)
+    for (const stop of scheduleB.stops) {
+        stop.date = dateB;
+    }
+    saveData();
+    showNotification("已成功複製行程！");
+    updateDayBlock(scheduleB);
+}
+
 function createData(date, name, display_name, time, distance, duration, mapUrl, icon) {
     createDataWithData(date, new TripData(name, display_name, date, time, distance, duration, mapUrl, icon));
 }
@@ -185,7 +202,7 @@ function autoDayArrange(date, travelMode) {
 
 function updateDayBlock(dayData, prepend = false, replace = true, urlLink = 'no_change') {
     saveData();
-    if (typeof(dayData) === 'string') dayData = createDayData(dayData);
+    if (typeof (dayData) === 'string') dayData = createDayData(dayData);
     renderDayBlock(dayData, prepend, replace, urlLink);
 }
 
