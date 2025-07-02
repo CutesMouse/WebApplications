@@ -16,7 +16,7 @@ function loadGoogleMapsApi() {
     mapLoaded = true;
     geocoder = new google.maps.Geocoder();
     infoWindow = new google.maps.InfoWindow({
-        pixelOffset: new google.maps.Size(0, -50)
+        pixelOffset: new google.maps.Size(0, -50),
     });
 
     const mapContainer = document.getElementById('map-container');
@@ -68,7 +68,7 @@ async function openMap(dateString) {
         return;
     }
 
-    title.textContent = `${formatDate(dateString)} 的地圖`;
+    title.textContent = `${formatDate(dateString)}`;
     modal.classList.remove('hidden');
 
     if (!mapLoaded) {
