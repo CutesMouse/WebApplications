@@ -16,7 +16,7 @@ function loadGoogleMapsApi() {
     mapLoaded = true;
     geocoder = new google.maps.Geocoder();
     infoWindow = new google.maps.InfoWindow({
-        pixelOffset: new google.maps.Size(0, -50),
+        pixelOffset: new google.maps.Size(0, -10),
     });
 
     const mapContainer = document.getElementById('map-container');
