@@ -116,7 +116,7 @@ async function renderMapForDate(dateString) {
     // --- Add new custom markers ---
     validStops.forEach(({stop, location}, i) => {
         // MODIFIED: Use standard marker with custom SVG icon
-        const svg = createMarkerSvg(stop.image, validStops.length - i);
+        const svg = createMarkerSvg(stop.image, i + 1);
         const iconUri = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
 
         const marker = new google.maps.Marker({
@@ -127,7 +127,7 @@ async function renderMapForDate(dateString) {
                 scaledSize: new google.maps.Size(44, 44),
                 anchor: new google.maps.Point(22, 44) // Anchor at bottom-center
             },
-            zIndex: i // Give later markers higher z-index
+            zIndex: validStops.length - i // Give later markers higher z-index
         });
 
         // Create InfoWindow content and attach it to the marker
