@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mouse-scheduler-20250629';
+const CACHE_NAME = 'mouse-scheduler-20250702';
 
 const urlsToCache = [
     './',
@@ -12,6 +12,7 @@ const urlsToCache = [
     './js/Calendar.js',
     './js/GoogleService.js',
     './js/index.js',
+    './js/Map.js',
     './js/Menu.js',
     './js/Overview.js',
     './js/Share.js',

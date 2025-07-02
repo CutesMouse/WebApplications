@@ -227,6 +227,12 @@ const renderDayBlock = (dayData, prepend = false, replace = false, urlLink = 'no
     const buttonsContainer = document.createElement("div");
     buttonsContainer.className = "flex items-center gap-2";
 
+    const mapButton = document.createElement("button");
+    mapButton.className = "bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold py-1 px-2 rounded-lg text-sm transition";
+    mapButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-map-fill" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.598-.49L10.5.99 5.598.01a.5.5 0 0 0-.196 0l-5 1A.5.5 0 0 0 0 1.5v14a.5.5 0 0 0 .598.49l4.902-.98 4.902.98a.5.5 0 0 0 .196 0l5-1A.5.5 0 0 0 16 14.5zM5 14.09V1.11l.5-.1.5.1v12.98l-.402-.08a.5.5 0 0 0-.196 0zm5 .8V1.91l.402.08a.5.5 0 0 0 .196 0L11 1.91v12.98l-.5.1z"/></svg>`;
+    mapButton.setAttribute('onclick', `openMap('${dayData.date}')`);
+    buttonsContainer.appendChild(mapButton);
+
     // NEW: Add "Add" button in edit mode
     if (isEditMode) {
         const menuContainer = document.createElement("div");
@@ -241,7 +247,7 @@ const renderDayBlock = (dayData, prepend = false, replace = false, urlLink = 'no
 
         menuContainer.innerHTML = `
         <div>
-            <button type="button" class="inline-flex justify-center w-full rounded-lg border border-gray-300 shadow-sm px-3 py-1 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none" 
+            <button type="button" class="inline-flex justify-center w-full rounded-lg border border-gray-300 shadow-sm px-2 py-1 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none" 
                     onclick="event.stopPropagation(); 
                              const menu = this.closest('div').nextElementSibling; 
                              const container = this.closest('.day-block');

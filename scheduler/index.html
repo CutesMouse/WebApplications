@@ -21,6 +21,11 @@
             });
         }
     </script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier/1.0.3/oms.min.js"></script>
 </head>
 <body>
 <main id="main">
@@ -274,6 +279,30 @@
                 </div>
             </div>
         </div>
+
+        <!-- 4. Map Modal -->
+        <div id="map-modal" class="modal-backdrop hidden">
+            <div id="map-modal-content" class="modal-content">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="map-modal-title" class="text-lg font-bold">行程地圖</h3>
+                    <button class="p-2 rounded-full hover:bg-gray-200" onclick="closeMap()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div id="map-container" class="relative">
+                    <div id="map-loading" class="absolute inset-0 bg-gray-200 bg-opacity-75 flex items-center justify-center z-20 hidden">
+                        <div class="text-center">
+                            <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                            <p class="mt-2 text-gray-700 font-semibold">正在定位景點...</p>
+                        </div>
+                    </div>
+                    <div id="map-error" class="absolute top-2 left-1/2 -translate-x-1/2 bg-red-100 text-red-700 p-3 rounded-lg shadow-md z-20 hidden"></div>
+                </div>
+            </div>
+        </div>
+
     </div>
     <div id="settings" class="screen">
         <!-- 設定區塊的內容放這裡 -->
@@ -308,6 +337,7 @@
 <script src="./js/TripManager.js"></script>
 <script src="./js/AIService.js"></script>
 <script src="./js/index.js"></script>
+<script src="./js/Map.js"></script>
 <script src="./js/Menu.js"></script>
 <script src="./js/Overview.js"></script>
 <script src="./js/Calendar.js"></script>

@@ -367,3 +367,83 @@ body::-webkit-scrollbar-thumb:hover {
 .selector-option.highlight .option-subtitle {
     color: #db2777;
 }
+
+/* --- Map Modal Styles --- */
+#map-modal-content {
+    max-width: 80vw;
+    height: 85vh;
+}
+#map-container {
+    flex-grow: 1;
+    background-color: #e5e7eb;
+    border-radius: 0.5rem;
+}
+
+/* --- Custom Marker Styles --- */
+.custom-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    border: 2px solid #3b82f6;
+    position: relative;
+    cursor: pointer;
+}
+.custom-marker .marker-number {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background-color: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+}
+.custom-marker .marker-icon {
+    font-size: 20px;
+}
+
+/* --- MODIFIED: Custom InfoWindow Styles --- */
+/* This is the main container, remove its background and default padding */
+.gm-style-iw-c {
+    padding: 0 !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+/* This is the content wrapper, make sure it has no overflow issues */
+.gm-style-iw-d {
+    overflow: hidden !important;
+}
+/* Hide the default white bubble background/arrow */
+.gm-style .gm-style-iw-t::after {
+    display: none !important;
+}
+/* Force hide the close button */
+.gm-style-iw-c button[aria-label="Close"] {
+    display: none !important;
+}
+
+.gm-ui-hover-effect {
+    display: none !important;
+}
+
+/* This will be our new, custom-styled content block */
+.custom-infowindow-content {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 16px;
+    font-family: sans-serif;
+    max-width: 250px;
+}
