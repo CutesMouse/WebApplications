@@ -31,18 +31,13 @@ function openAIWindow(date, keepPrompt = false) {
     setOptions('end-location-selector', dayData.stops);
 
     if (!keepPrompt) {
-
         selectOption('start-location-selector', -1, '', '無');
         selectOption('end-location-selector', -1, '', '無');
 
         if (dayData && dayData.stops.length > 0) {
             let start = dayData.stops[0];
-            selectOption('start-location-selector', 0, start.name, start.display_text);
-            selectOption('end-location-selector', 0, start.name, start.display_text);
-        }
-
-        if (dayData && dayData.stops.length > 1) {
             let end = dayData.stops[dayData.stops.length - 1];
+            selectOption('start-location-selector', 0, start.name, start.display_text);
             selectOption('end-location-selector', dayData.stops.length - 1, end.name, end.display_text);
         }
     }
@@ -430,8 +425,20 @@ function selectOption(wrapperId, index, value, displayValue) {
     index = parseInt(index);
     if (index !== -1) {
         let stop = options[index];
-        if (wrapperId === "start-location-selector") document.getElementById('ai-start-time').value = stop.time.split('-')[1];
-        else if (wrapperId === "end-location-selector") document.getElementById('ai-end-time').value = stop.time.split('-')[0];
+        switch (wrapperId) {
+            case "start-location-selector":
+                document.getElementById('ai-start-time').value = stop.time.split('-')[1];
+                break;
+            case "end-location-selector":
+                document.getElementById('ai-end-time').value = stop.time.split('-')[0];
+                break;
+            case "route-start-location-selector":
+                document.getElementById('route-start-time').value = stop.time.split('-')[1];
+                break;
+            case "route-end-location-selector":
+                document.getElementById('route-end-time').value = stop.time.split('-')[0];
+                break;
+        }
     }
 }
 

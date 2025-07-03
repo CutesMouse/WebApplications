@@ -193,7 +193,7 @@ function setNameValue(value, urlFill = false) {
     // 檢查是否有相似的歷史紀錄
     let sim = findSimilar(value);
     if (sim) {
-        icon.value = sim.icon;
+        icon.value = sim.icon || '';
         startTime.value = sim.time.split('-')[0].trim();
         const end = sim.time.split('-')[1];
         if (end) endTime.value = end.trim();
@@ -238,6 +238,119 @@ function arrange(origin, dest, travelMode, departureTime, handler) {
             handler({status: "success", distance: distance, duration: duration});
         }
     );
+}
+
+/**
+ * 使用 DistanceMatrixService 計算最佳路徑。
+ * @param {string[]} locs - 包含起、終點的景點名稱
+ * @param {function(Object)} success - 回傳的最佳順序
+ * @param {function(string)} failure - 處理失敗結果
+ */
+function findRoute(locs, success, failure) {
+    const directionsService = new google.maps.DirectionsService();
+
+    if (locs.length < 4) {
+        failure("至少需要包含四個地點");
+        return;
+    }
+
+    const origin = locs[0];
+    const destination = locs[locs.length - 1];
+    const waypoints = locs.slice(1, -1).map(loc => ({
+        location: loc,
+        stopover: true
+    }));
+
+    directionsService.route(
+        {
+            origin: origin,
+            destination: destination,
+            waypoints: waypoints,
+            optimizeWaypoints: true,
+            travelMode: 'DRIVING',
+        },
+        (response, status) => {
+            if (status === "OK") {
+                const route = response.routes[0];
+                success({
+                    order: [0, ...route.waypoint_order.map(i => i + 1), locs.length - 1],
+                    legs: route.legs
+                });
+            } else {
+                failure("路線規劃失敗：" + status);
+            }
+        }
+    );
+}
+
+function openRouteWindow(date) {
+    const modal = document.getElementById('route-input-modal');
+    const summaryContainer = document.getElementById('route-modal-summary-container');
+
+    const dayData = createDayData(date);
+    modal.dataset.date = date;
+
+    setOptions('route-start-location-selector', dayData.stops);
+    setOptions('route-end-location-selector', dayData.stops);
+
+    selectOption('route-start-location-selector', -1, '', '無');
+    selectOption('route-end-location-selector', -1, '', '無');
+
+    if (dayData && dayData.stops.length > 0) {
+        let start = dayData.stops[0];
+        let end = dayData.stops[dayData.stops.length - 1];
+        selectOption('route-start-location-selector', 0, start.name, start.display_text);
+        selectOption('route-end-location-selector', dayData.stops.length - 1, end.name, end.display_text);
+    }
+
+    renderSummaryVisualization(summaryContainer, dayData ? dayData.stops : []);
+
+    modal.classList.remove('hidden');
+}
+
+function closeRouteWindow() {
+    document.getElementById('route-input-modal').classList.add('hidden');
+}
+
+function handleRouteSubmit() {
+    let start_selected = getSelectedOption('route-start-location-selector');
+    let end_selected = getSelectedOption('route-end-location-selector');
+
+    if (start_selected.index === -1 || end_selected.index === -1) {
+        showNotification("起點或終點未設定完成！");
+        return;
+    }
+
+    const modal = document.getElementById('route-input-modal');
+    let date = modal.dataset.date;
+    let start_index = start_selected.index;
+    let end_index = end_selected.index;
+    let schedule = createDayData(date);
+
+    if (start_index > end_index) {
+        showNotification("開始時間不得晚於結束時間！");
+        return;
+    }
+
+    closeRouteWindow();
+
+    findRoute(schedule.stops.map(stop => stop.name).splice(start_index, end_index - start_index + 1), res => {
+        let source = schedule.stops.splice(start_index, end_index - start_index + 1);
+        let times = source.map(stop => stop.time);
+
+        for (let i = 0; i <= (end_index - start_index); i++) {
+            console.log(source, res.order[i], res);
+            source[res.order[i]].time = times[i];
+            if (i) {
+                source[res.order[i]].distance = res.legs[i - 1].distance.text;
+                source[res.order[i]].duration = "開車 " + res.legs[i - 1].duration.text;
+            }
+            schedule.stops.splice(start_index + i, 0, source[res.order[i]]);
+        }
+        saveData();
+        updateDayBlock(schedule);
+        showNotification("成功調整行程順序！");
+    }, reason => showNotification(reason));
 }
 
 // 頁面載入時自動啟動

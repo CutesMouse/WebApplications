@@ -52,3 +52,5 @@ window.addEventListener('click', function(e) {
 // Initialize the two draggable selector components
 createDraggableSelector('start-location-selector', '選擇起始位置');
 createDraggableSelector('end-location-selector', '選擇終點位置');
+createDraggableSelector('route-start-location-selector', '選擇起始行程');
+createDraggableSelector('route-end-location-selector', '選擇終點行程');

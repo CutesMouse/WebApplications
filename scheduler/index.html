@@ -277,25 +277,66 @@
             </div>
         </div>
 
-        <!-- 4. Map Modal -->
+        <!-- Map Modal -->
         <div id="map-modal" class="modal-backdrop hidden">
             <div id="map-modal-content" class="modal-content">
                 <div class="flex justify-between items-center mb-4">
                     <h3 id="map-modal-title" class="text-lg font-bold">行程地圖</h3>
                     <button class="p-2 rounded-full hover:bg-gray-200" onclick="closeMap()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                             viewBox="0 0 16 16">
                             <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
                         </svg>
                     </button>
                 </div>
                 <div id="map-container" class="relative">
-                    <div id="map-loading" class="absolute inset-0 bg-gray-200 bg-opacity-75 flex items-center justify-center z-20 hidden">
+                    <div id="map-loading"
+                         class="absolute inset-0 bg-gray-200 bg-opacity-75 flex items-center justify-center z-20 hidden">
                         <div class="text-center">
                             <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
                             <p class="mt-2 text-gray-700 font-semibold">正在定位景點...</p>
                         </div>
                     </div>
-                    <div id="map-error" class="absolute top-2 left-1/2 -translate-x-1/2 bg-red-100 text-red-700 p-3 rounded-lg shadow-md z-20 hidden"></div>
+                    <div id="map-error"
+                         class="absolute top-2 left-1/2 -translate-x-1/2 bg-red-100 text-red-700 p-3 rounded-lg shadow-md z-20 hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- --- Google Route Optimize --- -->
+        <div id="route-input-modal" class="modal-backdrop hidden">
+            <div class="modal-content">
+                <h3 class="text-lg font-bold mb-2">旅程路徑最佳化</h3>
+                <div id="route-modal-summary-container"
+                     class="summary-timeline-container mb-4 p-3 bg-gray-100 rounded-lg overflow-x-auto whitespace-nowrap"></div>
+                <div class="modal-body space-y-4 no-scroll">
+                    <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
+                        <!-- Draggable Selector for Start Location -->
+                        <div id="route-start-location-selector" class="draggable-selector-wrapper">
+                            <!-- This container will be populated by JavaScript -->
+                        </div>
+
+                        <!-- Draggable Selector for End Location -->
+                        <div id="route-end-location-selector" class="draggable-selector-wrapper">
+                            <!-- This container will be populated by JavaScript -->
+                        </div>
+                        <input id="route-start-time" type="time"
+                               class="border p-2 rounded focus:ring-2 focus:ring-pink-500" disabled>
+                        <input id="route-end-time" type="time"
+                               class="border p-2 rounded focus:ring-2 focus:ring-pink-500" disabled>
+                        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 my-4 rounded">
+                            <p class="font-bold">注意：</p>
+                            <p>Google Maps僅提供開車路徑的最佳化服務。調整後僅順序改變，其餘內容（包括起始時間）皆不會更動。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-6 pt-4 border-t">
+                    <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg mr-2"
+                            onclick="closeRouteWindow()">取消
+                    </button>
+                    <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg"
+                            onclick="handleRouteSubmit()">確認
+                    </button>
                 </div>
             </div>
         </div>

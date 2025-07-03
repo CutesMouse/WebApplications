@@ -249,7 +249,7 @@ async function packImage(date) {
         });
 
         // 4. Convert canvas to JPG data URL
-        const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        const imageDataUrl = canvas.toDataURL('image/png', 0.9);
         const blob = await (await fetch(imageDataUrl)).blob();
 
         // 5. Store the generated image data
@@ -292,7 +292,7 @@ function showImageExportMessage(message, isError = false) {
 
 async function shareCurrentImage() {
     if (!currentImage.blob) return;
-    const file = new File([currentImage.blob], `行程-${currentImage.date}.jpg`, { type: 'image/jpeg' });
+    const file = new File([currentImage.blob], `行程-${currentImage.date}.png`, { type: 'image/png' });
     const shareData = {
         files: [file],
         title: `我的行程 - ${currentImage.date}`,
@@ -320,7 +320,7 @@ async function copyCurrentImage() {
             throw new Error("Clipboard API not available.");
         }
         await navigator.clipboard.write([
-            new ClipboardItem({ 'image/jpeg': currentImage.blob })
+            new ClipboardItem({ 'image/png': currentImage.blob })
         ]);
         showNotification('圖片已複製！');
     } catch (err) {
