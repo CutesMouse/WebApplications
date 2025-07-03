@@ -29,8 +29,9 @@ function saveStop() {
     let distance = document.getElementById('edit-distance').value;
     let duration = document.getElementById('edit-duration').value;
     let icon = document.getElementById('edit-icon').value;
+    let description = document.getElementById('edit-description').value;
     if (index) deleteData(date, index);
-    createData(date, name, displayname, time, distance, duration, mapUrl, icon);
+    createData(date, name, displayname, time, distance, duration, mapUrl, icon, description);
     showNotification("行程已儲存");
     scrollToNow(date);
 }
@@ -139,8 +140,8 @@ function copyDayData(dateA, dateB) {
     updateDayBlock(scheduleB);
 }
 
-function createData(date, name, display_name, time, distance, duration, mapUrl, icon) {
-    createDataWithData(date, new TripData(name, display_name, date, time, distance, duration, mapUrl, icon));
+function createData(date, name, display_name, time, distance, duration, mapUrl, icon, description) {
+    createDataWithData(date, new TripData(name, display_name, date, time, distance, duration, mapUrl, icon, description));
 }
 
 function createDataWithData(date, data) {

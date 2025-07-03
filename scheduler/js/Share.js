@@ -175,3 +175,167 @@ function shareText(text) {
         showNotification("此瀏覽器不支援分享功能");
     }
 }
+
+// --- Image Export Functionality ---
+/**
+ * Main function to generate and pack the image for a given date.
+ * @param {string} date - The date string in 'YYYY-MM-DD' format.
+ */
+async function packImage(date) {
+    const tripData = createDayData(date);
+    showNotification('正在產生圖片...');
+
+    try {
+        // 1. Create an off-screen container for rendering the landscape image
+        const exportContainer = document.createElement('div');
+        exportContainer.style.position = 'absolute';
+        exportContainer.style.left = '-9999px';
+        exportContainer.style.top = '0';
+        exportContainer.style.width = '800px';
+        exportContainer.style.height = 'auto';
+        exportContainer.style.minHeight = '630px';
+        exportContainer.style.backgroundColor = '#F9FAFB'; // bg-gray-50
+        exportContainer.style.padding = '40px';
+        exportContainer.style.fontFamily = 'sans-serif';
+        exportContainer.style.boxSizing = 'border-box';
+        document.body.appendChild(exportContainer);
+
+        // 2. Clone the content into the export container with proper styling
+        const dayOfWeek = formatDate(date); //new Date(date).toLocaleDateString('zh-TW', { weekday: 'long' });
+
+        let contentHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #E5E7EB; padding-bottom: 16px; margin-bottom: 24px;">
+                    <h1 style="font-size: 36px; font-weight: bold; color: #1F2937;">${formatDate(date)}</h1>
+                </div>
+                <div>
+            `;
+
+        if (tripData && tripData.stops.length > 0) {
+            // MODIFIED: Changed to a standard list
+            contentHTML += '<ul style="list-style: none; padding: 0;">';
+            for (let i = 0; i < tripData.stops.length; i++) {
+                let stop = tripData.stops[i];
+                const hasTravelInfo = (i !== (tripData.stops.length - 1)) && (tripData.stops[i+1].distance || tripData.stops[i+1].duration);
+                contentHTML += `
+                        <li style="display: flex; align-items: flex-start; margin-bottom: 20px;">
+                            <div style="text-align: right; width: 100px; margin-right: 20px; flex-shrink: 0;">
+                                <p style="font-weight: bold; font-size: 18px; color: #EC4899;">${stop.time}</p>
+                            </div>
+                            <div style="border-left: 2px solid #D1D5DB; padding-left: 18px; flex-grow: 1;">
+                                <h2 style="font-size: 22px; font-weight: bold; color: #111827;">${stop.image} ${stop.display_text}</h2>
+                                <p style="font-size: 16px; color: #4B5563; margin-top: 4px; margin-bottom: 15px">${stop.description || ''}</p>
+                                <div style="margin-bottom: 8px; font-size: 14px; color: #6B7280; display: flex; align-items: center; gap: 12px;">
+                                ${hasTravelInfo ? `
+                                    <span>${tripData.stops[i+1].distance ? `🚗 ${tripData.stops[i+1].distance}` : ''}</span>
+                                    <span>${tripData.stops[i+1].duration ? `⏱️ ${tripData.stops[i+1].duration}` : ''}</span>
+                                ` : ''}
+                                </div>
+                            </div>
+                        </li>
+                    `;
+            }
+            contentHTML += '</ul>';
+        } else {
+            contentHTML += `<p style="font-size: 20px; color: #6B7280; text-align: center; margin-top: 40px;">這天沒有安排行程。</p>`;
+        }
+        contentHTML += `</div>`;
+        exportContainer.innerHTML = contentHTML;
+
+        // 3. Use html2canvas to generate the image
+        const canvas = await html2canvas(exportContainer, {
+            useCORS: true,
+            scale: 2, // Higher scale for better resolution
+            backgroundColor: null // Use the container's background
+        });
+
+        // 4. Convert canvas to JPG data URL
+        const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        const blob = await (await fetch(imageDataUrl)).blob();
+
+        // 5. Store the generated image data
+        currentImage = {
+            dataUrl: imageDataUrl,
+            blob: blob,
+            date: date
+        };
+
+        // 6. Clean up the off-screen container
+        document.body.removeChild(exportContainer);
+
+        // 7. Show the export modal with the preview
+        const modal = document.getElementById('image-export-modal');
+        const imgPreview = document.getElementById('exported-image-preview');
+        imgPreview.src = imageDataUrl;
+        modal.classList.remove('hidden');
+
+    } catch (error) {
+        showNotification('圖片產生失敗');
+        console.log(error)
+    }
+}
+
+function closeImageExportModal() {
+    document.getElementById('image-export-modal').classList.add('hidden');
+    // Clear message and image data
+    document.getElementById('image-export-message').classList.add('hidden');
+    document.getElementById('exported-image-preview').src = '';
+    currentImage = { dataUrl: null, blob: null, date: null };
+}
+
+function showImageExportMessage(message, isError = false) {
+    const msgEl = document.getElementById('image-export-message');
+    msgEl.textContent = message;
+    msgEl.style.color = isError ? '#DC2626' : '#059669'; // red-600 or green-600
+    msgEl.classList.remove('hidden');
+    setTimeout(() => msgEl.classList.add('hidden'), 3000);
+}
+
+async function shareCurrentImage() {
+    if (!currentImage.blob) return;
+    const file = new File([currentImage.blob], `行程-${currentImage.date}.jpg`, { type: 'image/jpeg' });
+    const shareData = {
+        files: [file],
+        title: `我的行程 - ${currentImage.date}`,
+        text: `快來看看我 ${currentImage.date} 的精彩行程！`,
+    };
+
+    if (navigator.canShare && navigator.canShare(shareData)) {
+        try {
+            await navigator.share(shareData);
+            showNotification('分享成功！');
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                showNotification('分享失敗');
+            }
+        }
+    } else {
+        showNotification('您的瀏覽器不支援分享檔案功能。');
+    }
+}
+
+async function copyCurrentImage() {
+    if (!currentImage.blob) return;
+    try {
+        if (!navigator.clipboard.write) {
+            throw new Error("Clipboard API not available.");
+        }
+        await navigator.clipboard.write([
+            new ClipboardItem({ 'image/jpeg': currentImage.blob })
+        ]);
+        showNotification('圖片已複製！');
+    } catch (err) {
+        console.error('Copy failed:', err);
+        showNotification('複製失敗');
+    }
+}
+
+function downloadCurrentImage() {
+    if (!currentImage.dataUrl) return;
+    const link = document.createElement('a');
+    link.href = currentImage.dataUrl;
+    link.download = `行程-${currentImage.date}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showNotification('下載已開始！');
+}

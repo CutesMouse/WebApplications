@@ -1,5 +1,5 @@
 class TripData {
-    constructor(name, display_name, date, time, distance, duration, mapUrl, icon, description = undefined) {
+    constructor(name, display_name, date, time, distance, duration, mapUrl, icon, description) {
         this.name = name; // 台北101
         this.display_name = display_name;
         this.date = date;
@@ -8,13 +8,13 @@ class TripData {
         this.duration = duration; // 離前面景點的時間
         this.mapUrl = mapUrl; // 地圖url
         this.icon = icon; // Emoji
-        this.description = description; // 描述，只有AI產生時會有，不會被存入資料庫中
+        this.description = description; // 備註
     }
 
     toJSON() {
         return {
             __type: 'TripData',
-            version: '1.1',
+            version: '1.2',
             name: this.name,
             display_name: this.display_name,
             date: this.date,
@@ -23,6 +23,7 @@ class TripData {
             duration: this.duration,
             mapUrl: this.mapUrl,
             icon: this.icon,
+            description: this.description,
         };
     }
 

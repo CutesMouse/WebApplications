@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier/1.0.3/oms.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 <main id="main">
@@ -72,12 +73,10 @@
                     <!-- JS will inject the timeline visualization here -->
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <input id="edit-destination" type="text" placeholder="使用Google Maps搜尋"
-                           class="col-span-2 border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <div class="col-span-2 autocomplete-container">
-                        <input id="edit-name" type="text" placeholder="景點名稱(供Google用，請盡量填寫完整)"
+                        <input id="edit-name" type="text" placeholder="輸入景點名稱"
                                class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                               autocomplete="off" oninput="handleAutocompleteInput(this.value)">
+                               autocomplete="off" oninput="handleCombinedInput(this)">
                         <div id="autocomplete-results" class="autocomplete-results hidden"></div>
                     </div>
                     <input id="edit-displayname" type="text" placeholder="顯示名稱(非必填)"
@@ -93,6 +92,8 @@
                     <input id="edit-duration" type="text" placeholder="離上站時間 (e.g. 大眾運輸 10分鐘)"
                            class="border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <input id="edit-icon" type="text" placeholder="Emoji (e.g., ☕)"
+                           class="col-span-2 border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input id="edit-description" type="text" placeholder="備註"
                            class="col-span-2 border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div class="flex justify-end mt-6">
@@ -299,6 +300,31 @@
                         </div>
                     </div>
                     <div id="map-error" class="absolute top-2 left-1/2 -translate-x-1/2 bg-red-100 text-red-700 p-3 rounded-lg shadow-md z-20 hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- --- Image Export Modal --- -->
+        <div id="image-export-modal" class="modal-backdrop hidden">
+            <div class="modal-content" style="max-width: 600px;">
+                <h3 class="text-lg font-bold mb-4">匯出行程圖片</h3>
+                <div class="modal-body bg-gray-100 p-4 rounded-lg mb-4">
+                    <img id="exported-image-preview" src="" alt="行程預覽" class="w-full h-auto rounded-md shadow-md">
+                </div>
+                <div id="image-export-message" class="text-center text-sm text-green-600 mb-4 hidden"></div>
+                <div class="flex justify-end space-x-3">
+                    <button class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                            onclick="shareCurrentImage()">分享
+                    </button>
+                    <button class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                            onclick="copyCurrentImage()">複製
+                    </button>
+                    <button class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                            onclick="downloadCurrentImage()">下載
+                    </button>
+                    <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-lg transition-colors"
+                            onclick="closeImageExportModal()">關閉
+                    </button>
                 </div>
             </div>
         </div>

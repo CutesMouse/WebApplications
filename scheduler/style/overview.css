@@ -247,6 +247,12 @@ body::-webkit-scrollbar-thumb:hover {
     color: #6b7280; /* gray-500 */
 }
 
+.autocomplete-header {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280; /* gray-500 */
+}
+
 /* --- Draggable Selector Styles --- */
 .draggable-selector-wrapper {
     position: relative;

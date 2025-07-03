@@ -139,14 +139,13 @@ function openEditModal(dateString, stopIndex = null) {
     modal.dataset.stopIndex = stopIndex !== null ? stopIndex : '';
 
     // Clear or populate input fields
-    const fields = ['name', 'displayname', 'destination', 'mapUrl', 'startTime', 'endTime', 'distance', 'duration', 'icon'];
+    const fields = ['name', 'displayname', 'mapUrl', 'startTime', 'endTime', 'distance', 'duration', 'icon', 'description'];
     fields.forEach(f => document.getElementById(`edit-${f}`).value = '');
     setTimeDefault(dateString);
 
     if (stopIndex !== null && dayData) {
         const stop = dayData.stops[stopIndex];
         const [startTime, endTime] = (stop.time || '-').split('-');
-        document.getElementById('edit-destination').value = '';
         document.getElementById('edit-name').value = stop.name || '';
         document.getElementById('edit-displayname').value = stop.display_name || '';
         document.getElementById('edit-mapUrl').value = stop.mapUrl || '';
@@ -155,6 +154,7 @@ function openEditModal(dateString, stopIndex = null) {
         document.getElementById('edit-distance').value = stop.distance || '';
         document.getElementById('edit-duration').value = stop.duration || '';
         document.getElementById('edit-icon').value = stop.icon || '';
+        document.getElementById('edit-description').value = stop.description || '';
     }
 }
 
@@ -314,10 +314,13 @@ const renderDayBlock = (dayData, prepend = false, replace = false, urlLink = 'no
         </div>
     `;
         buttonsContainer.appendChild(menuContainer);
-
-        // 這個 window 事件監聽器需要移出 renderDayBlock 函式，放到您的主要 script 區塊的最外層，確保它只被註冊一次。
-        // 如果尚未移動，請將其移出。
     } else {
+        const imageButton = document.createElement("button");
+        imageButton.className = "bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-1 px-2 rounded-lg text-sm transition duration-150 ease-in-out";
+        imageButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-image" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/></svg>`;
+        imageButton.setAttribute('onclick', `packImage('${dayData.date}')`);
+        buttonsContainer.appendChild(imageButton);
+
         const shareButton = document.createElement("button");
         shareButton.className = "bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-1 px-2 rounded-lg text-sm transition duration-150 ease-in-out";
         shareButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-share-fill" viewBox="0 0 16 16"><path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5"/></svg>`;
@@ -384,70 +387,135 @@ const renderDayBlock = (dayData, prepend = false, replace = false, urlLink = 'no
     }, 100);
 };
 
-// --- 自動完成 ---
+// --- 自動完成 (MODIFIED) ---
+
 /**
- * Handles user input in the name field, fetches and renders autocomplete suggestions.
- * @param {string} value - The current value of the input field.
+ * 處理合併後輸入框的輸入事件。
+ * @param {HTMLElement} inputElement - 輸入框的 HTML 元素。
  */
-function handleAutocompleteInput(value) {
+const handleCombinedInput = debounce(async (inputElement) => {
+    const value = inputElement.value;
     const resultsContainer = document.getElementById('autocomplete-results');
+
+    // 檢查是否為貼上的 Google Maps 連結
+    if (value.startsWith("https://www.google.com/maps/")) {
+        resultsContainer.classList.add('hidden');
+        resultsContainer.innerHTML = '';
+        await processPastedUrl(value); // 來自 GoogleService.js
+        return;
+    }
+
     if (!value.trim()) {
         resultsContainer.classList.add('hidden');
         resultsContainer.innerHTML = '';
         return;
     }
 
-    const results = SearchAutoComplete(value);
-    renderAutocompleteResults(results);
-}
+    // 同時取得本地和 Google 的建議
+    const localResults = SearchAutoComplete(value);
+    const googleResults = await getGooglePredictions(value); // 來自 GoogleService.js
+
+    renderCombinedAutocomplete(localResults, googleResults);
+}, 300); // 加入 debounce 防止 API 過度呼叫
 
 /**
- * Renders the autocomplete suggestions in the dropdown.
- * @param {Array} results - The array of stop objects to display.
+ * 渲染合併後的自動完成建議列表。
+ * @param {Array} localResults - 本地歷史紀錄的搜尋結果。
+ * @param {Array} googleResults - Google Maps API 的建議結果。
  */
-function renderAutocompleteResults(results) {
+function renderCombinedAutocomplete(localResults, googleResults) {
     const resultsContainer = document.getElementById('autocomplete-results');
     resultsContainer.innerHTML = '';
 
-    if (results.length === 0) {
+    if (localResults.length === 0 && googleResults.length === 0) {
         resultsContainer.classList.add('hidden');
         return;
     }
 
-    results.forEach(stop => {
-        if (stop !== findSimilar(stop.name)) return;
-        const item = document.createElement('div');
-        item.className = 'autocomplete-item';
+    // 渲染歷史紀錄建議
+    if (localResults.length > 0) {
+        const header = document.createElement('div');
+        header.className = 'autocomplete-header';
+        header.textContent = '歷史紀錄';
+        resultsContainer.appendChild(header);
 
-        // This ensures the entire stop object is available on click
-        item.onclick = () => fillFormWithStop(stop);
-
-        item.innerHTML = `
-                <div class="autocomplete-item-icon">${stop.icon || '📍'}</div>
+        localResults.forEach(stop => {
+            if (stop !== findSimilar(stop.name)) return;
+            const item = document.createElement('div');
+            item.className = 'autocomplete-item';
+            item.onmousedown = () => fillFormWithStop(stop);
+            item.innerHTML = `
+                <div class="autocomplete-item-icon">${stop.icon || '📖'}</div>
                 <div>
                     <div class="autocomplete-item-text-primary">${stop.display_text}(${stop.name})</div>
                     <div class="autocomplete-item-text-secondary">${stop.past ? "於 " + stop.date + " 造訪過" : "預計於 " + stop.date + " 造訪"}</div>
                 </div>
             `;
-        resultsContainer.appendChild(item);
-    });
+            resultsContainer.appendChild(item);
+        });
+    }
+
+    // 渲染 Google Maps 建議
+    if (googleResults.length > 0) {
+        const header = document.createElement('div');
+        header.className = 'autocomplete-header';
+        header.textContent = 'Google Maps 建議';
+        resultsContainer.appendChild(header);
+
+        googleResults.forEach(prediction => {
+            const item = document.createElement('div');
+            item.className = 'autocomplete-item';
+            // 使用 mousedown 取代 click，避免 input blur 事件先觸發而隱藏了列表
+            item.onmousedown = () => selectGoogleResult(prediction.place_id);
+            item.innerHTML = `
+                <div class="autocomplete-item-icon">📍</div>
+                <div>
+                    <div class="autocomplete-item-text-primary">${prediction.structured_formatting.main_text}</div>
+                    <div class="autocomplete-item-text-secondary">${prediction.structured_formatting.secondary_text}</div>
+                </div>
+            `;
+            resultsContainer.appendChild(item);
+        });
+    }
 
     resultsContainer.classList.remove('hidden');
 }
 
+
 /**
- * Fills the edit modal form with the data from a selected stop.
- * @param {object} stop - The stop object to fill the form with.
+ * 處理使用者選擇 Google 建議的事件。
+ * @param {string} placeId - Google 地點的 place_id。
+ */
+async function selectGoogleResult(placeId) {
+    try {
+        // 先隱藏建議列表
+        const resultsContainer = document.getElementById('autocomplete-results');
+        resultsContainer.classList.add('hidden');
+        resultsContainer.innerHTML = '';
+
+        const place = await getGooglePlaceDetails(placeId); // 來自 GoogleService.js
+        processGooglePlace(place); // 來自 GoogleService.js
+    } catch (error) {
+        console.error(error);
+        showNotification("無法取得地點詳細資訊");
+    }
+}
+
+
+/**
+ * 使用選擇的歷史紀錄項目填寫表單。
+ * @param {object} stop - 包含行程點資訊的物件。
  */
 function fillFormWithStop(stop) {
-    const [startTime, endTime] = (stop.time || ' - ').split(' - ');
-    setNameValue(stop.name, true);
+    // 使用 setNameValue 來填寫大部分欄位，並觸發歷史紀錄比對
+    setNameValue(stop.name, true); // true 表示要填寫 mapUrl
 
-    // Hide the autocomplete results
+    // 隱藏建議列表
     const resultsContainer = document.getElementById('autocomplete-results');
     resultsContainer.classList.add('hidden');
     resultsContainer.innerHTML = '';
 }
+
 
 // --- Initial Load and Scroll Handling ---
 
