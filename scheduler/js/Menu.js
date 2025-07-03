@@ -59,13 +59,40 @@ function backToOverview() {
 // 控制導覽列顯示 / 隱藏
 let lastScrollY = window.scrollY;
 const navbar = document.getElementById('navbar');
+let forceHidden = false;
 
 addScrollEvent(() => {
     const currentScrollY = window.scrollY;
-    if (currentScrollY > lastScrollY) {
+    if (forceHidden || currentScrollY > lastScrollY) {
         navbar.classList.add('nav-hidden'); // 往下滑，隱藏
     } else {
         navbar.classList.remove('nav-hidden'); // 往上滑，顯示
     }
     lastScrollY = currentScrollY;
-})
+});
+
+new MutationObserver((mutationsList) => {
+    for (const mutation of mutationsList) {
+        if (mutation.type === "attributes" && mutation.attributeName === "class") {
+            const el = mutation.target;
+            const oldClassList = mutation.oldValue?.split(" ") || [];
+            const currentClassList = Array.from(el.classList);
+
+            const isModal = currentClassList.includes("modal-backdrop");
+            const hasHidden = currentClassList.includes("hidden");
+            const hadHidden = oldClassList.includes("hidden");
+
+            if (isModal) {
+                if (hadHidden && !hasHidden) { // modal is open
+                    forceHidden = true;
+                    navbar.classList.add('nav-hidden');
+                } else if (!hadHidden && hasHidden) forceHidden = false; // modal is closed
+            }
+        }
+    }
+}).observe(document.body, {
+    attributes: true,
+    subtree: true,
+    attributeFilter: ["class"],
+    attributeOldValue: true
+});

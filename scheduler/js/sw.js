@@ -20,7 +20,11 @@ const urlsToCache = [
     './js/TripData.js',
     './js/TripManager.js',
     './attach/icon-192.png',
-    './attach/icon-512.png'
+    './attach/icon-512.png',
+    './style/html2canvas.min.js',
+    './style/menu.css',
+    './style/overview.css',
+    './style/tailwind.min.css',
 ];
 
 self.addEventListener('install', event => {

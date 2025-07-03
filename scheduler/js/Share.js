@@ -219,7 +219,7 @@ async function packImage(date) {
                 contentHTML += `
                         <li style="display: flex; align-items: flex-start; margin-bottom: 20px;">
                             <div style="text-align: right; width: 100px; margin-right: 20px; flex-shrink: 0;">
-                                <p style="font-weight: bold; font-size: 18px; color: #EC4899;">${stop.time}</p>
+                                <p style="font-weight: bold; font-size: 18px; color: #EC4899;">${stop.time.replaceAll('-', '-\n')}</p>
                             </div>
                             <div style="border-left: 2px solid #D1D5DB; padding-left: 18px; flex-grow: 1;">
                                 <h2 style="font-size: 22px; font-weight: bold; color: #111827;">${stop.image} ${stop.display_text}</h2>
