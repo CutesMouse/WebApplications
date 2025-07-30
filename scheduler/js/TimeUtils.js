@@ -4,6 +4,14 @@ function addDays(dateString, days) {
     return date.toISOString().slice(0, 10);
 }
 
+function getLocalDateString() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // 月份從 0 開始
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 const formatDate = (dateString) => {
     const date = new Date(dateString + 'T00:00:00');
     return date.toLocaleDateString('zh-TW', {year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'});

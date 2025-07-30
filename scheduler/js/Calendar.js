@@ -3,7 +3,7 @@ let calendarDate = undefined;
 let mark = undefined;
 
 // 顯示行事曆
-function openCalendar(handler, highlight = new Date().toISOString().slice(0, 10)) {
+function openCalendar(handler, highlight = getLocalDateString()) {
     mark = highlight;
     calendarDate = new Date(highlight); // Reset to current month on open
     showCalendarDaySummary(calendarDate.toISOString().slice(10));

@@ -119,7 +119,7 @@ function get_problem_list() {
             }
         }
     }
-    return problem_list;
+    return problem_list.filter(problem => problem.kanji === undefined && !kata.includes(problem.voc[0]));
 }
 
 function get_favorite_list() {
@@ -135,7 +135,7 @@ function start_generate() {
     let div = document.getElementById('questions');
     let selected = document.getElementById('level');
     let mixed = selected.value[0] === 'M' || selected.value === 'F0';
-    generate_questions(get_problem_list(), (mixed ? 20 : 0), div);
+    generate_questions(get_problem_list(), (mixed ? 0 : 0), div);
 }
 
 function show_all_answers() {

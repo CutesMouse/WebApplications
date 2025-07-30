@@ -214,12 +214,12 @@ const renderDayBlock = (dayData, prepend = false, replace = false, urlLink = 'no
 
     const dateHeaderContainer = document.createElement("div");
     dateHeaderContainer.className = "flex justify-between items-center mb-4 sticky top-0 z-10 p-2 -mx-2";
-    if (new Date().toISOString().slice(0, 10) === dayData.date) dateHeaderContainer.className += " bg-blue-50 text-blue-600";
+    if (getLocalDateString() === dayData.date) dateHeaderContainer.className += " bg-blue-50 text-blue-600";
     else dateHeaderContainer.className += " bg-gray-50";
 
     const dateTitle = document.createElement("h2");
     dateTitle.className = "text-xl font-bold";
-    if (new Date().toISOString().slice(0, 10) === dayData.date) dateHeaderContainer.className += " text-red-800";
+    if (getLocalDateString() === dayData.date) dateHeaderContainer.className += " text-red-800";
     else dateHeaderContainer.className += " text-gray-800";
 
     dateTitle.textContent = formatDate(dayData.date);
@@ -602,7 +602,7 @@ const updateDiv = (isLast, next, prev, index, stop, div, urlLink) => {
 }
 
 const loadInitialTrips = () => {
-    const centralDate = new Date().toISOString().slice(0, 10);
+    const centralDate = getLocalDateString();
 
     minLoadedDate = addDays(centralDate, -7);
     maxLoadedDate = addDays(centralDate, 7);
@@ -614,7 +614,7 @@ const loadInitialTrips = () => {
     }, 100);
 };
 
-const scrollToNow = (centralDate = new Date().toISOString().slice(0, 10)) => {
+const scrollToNow = (centralDate = getLocalDateString()) => {
     const currentDayElement = document.querySelector(`[data-date="${centralDate}"]`);
     if (currentDayElement) {
         window.scrollTo({
