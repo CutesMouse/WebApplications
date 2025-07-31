@@ -145,9 +145,10 @@ function getToken(text, handle) {
         body: text,
         headers: {
             "Content-Type": "text/plain",
-            "Authorization": 'Bearer 26e0b1fa9cddf81e1b875eb53656bf8078e6b7b0e51e05ebf888c7a2d57c9e884da18aad1ac01cea3540ce34f2a85d0052503baca61fdbd8aab162e34aacdd34'
+            "Authorization": 'Bearer 891f599a02cb82fc2323e189b9e69f37659a6c6f38e34ee87f0da664b6684f6df23db08a0809f2b8bdf069c57dfb5c68e799211d26aff58fefb082076917855f'
         }
     }).then(res => res.json()).then(data => {
+        console.log(data)
         handle(data.key);
     });
 }
@@ -157,7 +158,7 @@ function getText(token, handle) {
         method: "GET",
         headers: {
             "Content-Type": "text/plain",
-            "Authorization": 'Bearer 26e0b1fa9cddf81e1b875eb53656bf8078e6b7b0e51e05ebf888c7a2d57c9e884da18aad1ac01cea3540ce34f2a85d0052503baca61fdbd8aab162e34aacdd34'
+            "Authorization": 'Bearer 891f599a02cb82fc2323e189b9e69f37659a6c6f38e34ee87f0da664b6684f6df23db08a0809f2b8bdf069c57dfb5c68e799211d26aff58fefb082076917855f'
         }
     }).then(res => res.text()).then(data => {
         handle(data);
