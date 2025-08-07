@@ -119,7 +119,7 @@ function get_problem_list() {
             }
         }
     }
-    return problem_list.filter(problem => problem.kanji === undefined && !kata.includes(problem.voc[0]));
+    return problem_list;
 }
 
 function get_favorite_list() {
