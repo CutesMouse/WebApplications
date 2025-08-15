@@ -1,5 +1,5 @@
 // CACHE_NAME
-const CACHE_NAME = 'mouse-scheduler-20250731-v1';
+const CACHE_NAME = 'mouse-scheduler-20250815-v1';
 
 // App Shell：應用程式的核心檔案，讓網站能基本運作並顯示介面。
 // 這些是使用者首次訪問時，需要被立刻快取的最小資源集。
