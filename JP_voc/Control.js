@@ -175,7 +175,7 @@ function setting() {
         "                                                                                                           id=\"chunk\">\n" +
         "    </div>\n" +
         "    <div class=\"export-row setting_div\">\n" +
-        "        <span class=\"label\">導出/導出權重表</span>\n" +
+        "        <span class=\"label\">導出/導出權重表 " + getProgress() + "</span>\n" +
         "        <input type=\"button\" value=\"導入\" onclick=\"importWeight()\" class=\"button\">\n" +
         "        <span class=\"hint\">權重表是用以在單字檢驗項目中，為使用者篩選出較不擅長的單字</span>\n" +
         "        <textarea id=\"weights\"></textarea>\n" +

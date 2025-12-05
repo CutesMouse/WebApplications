@@ -194,3 +194,18 @@ function restart() {
     }
     renderCard(getWeightedRandomCard());
 }
+
+function getProgress() {
+    let total = 0;
+    let pass = 0;
+    for (let i = 1; i <= TOTAL_LEVEL; i++) {
+        for (let j = 0; j < convert_json(i, get_questions(i)).length; j++) {
+            total++;
+            if (getWeight(i, j) === -1) {
+                pass++;
+            }
+        }
+    }
+    let rate = Math.round(pass * 1000 / total) / 10.0
+    return "(進度 " + rate + "%, " + pass + "/" + total + ")";
+}
