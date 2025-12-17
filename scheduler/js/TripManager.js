@@ -36,6 +36,20 @@ function saveStop() {
     scrollToNow(date);
 }
 
+function copyHotelYesterday(date) {
+    let yesterday = addDays(date, -1)
+    let schedule = getSchedule(yesterday)
+    if (!schedule || schedule.stops.length === 0) {
+        showNotification("昨天沒有任何飯店行程！")
+        return;
+    }
+    let new_trip = TripData.clone(schedule.stops[0]);
+    new_trip.date = date;
+    new_trip.time = '08:00-09:00'
+    createDataWithData(date, new_trip);
+    showNotification("行程已儲存");
+}
+
 function arrangeSpecific(travelMode) {
     const index = document.getElementById('edit-modal').dataset.stopIndex;
     const date = document.getElementById('edit-modal').dataset.date;
@@ -131,7 +145,6 @@ function copyDayData(dateA, dateB) {
     let scheduleA = createDayData(dateA);
     let scheduleB = createDayData(dateB);
     scheduleB.stops = [...scheduleA.stops];
-    console.log(scheduleB.stops)
     for (const stop of scheduleB.stops) {
         stop.date = dateB;
     }

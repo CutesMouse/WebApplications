@@ -139,57 +139,57 @@ function importTrips() {
     showNotification("已成功匯入資料");
 }
 
-function getToken(text, handle) {
-    fetch("https://api.myjson.online/v2/records", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "x-collection-access-token": "8c8b32d1-d15f-4bf9-a8be-fc2f862101ea",
-            "Accept": "*/*"
-        },
-        body: JSON.stringify({
-            collectionId: "608b69ea-bbda-4232-938b-feb3073f118e",
-            data: { text },
-            metadata: true
-        })
-    }).then(res => res.json()).then(data => {
-        handle(data.id);
-    });
-}
-
 // function getToken(text, handle) {
-//     fetch("https://hastebin.com/documents", {
+//     fetch("https://api.myjson.online/v2/records", {
 //         method: "POST",
-//         body: text,
 //         headers: {
-//             "Content-Type": "text/plain",
-//             "Authorization": 'Bearer 891f599a02cb82fc2323e189b9e69f37659a6c6f38e34ee87f0da664b6684f6df23db08a0809f2b8bdf069c57dfb5c68e799211d26aff58fefb082076917855f'
-//         }
+//             "Content-Type": "application/json",
+//             "x-collection-access-token": "8c8b32d1-d15f-4bf9-a8be-fc2f862101ea",
+//             "Accept": "*/*"
+//         },
+//         body: JSON.stringify({
+//             collectionId: "608b69ea-bbda-4232-938b-feb3073f118e",
+//             data: { text },
+//             metadata: true
+//         })
 //     }).then(res => res.json()).then(data => {
-//         console.log(data)
-//         handle(data.key);
+//         handle(data.id);
 //     });
 // }
 
-function getText(token, handle) {
-    fetch("https://api.myjson.online/v2/records/" + token, {
-        headers: { "x-collection-access-token": "8c8b32d1-d15f-4bf9-a8be-fc2f862101ea" }
+function getToken(text, handle) {
+    fetch("https://hastebin.com/documents", {
+        method: "POST",
+        body: text,
+        headers: {
+            "Content-Type": "text/plain",
+            "Authorization": 'Bearer 891f599a02cb82fc2323e189b9e69f37659a6c6f38e34ee87f0da664b6684f6df23db08a0809f2b8bdf069c57dfb5c68e799211d26aff58fefb082076917855f'
+        }
     }).then(res => res.json()).then(data => {
-        handle(data.data.text);
+        console.log(data)
+        handle(data.key);
     });
 }
 
 // function getText(token, handle) {
-//     fetch("https://hastebin.com/raw/" + token, {
-//         method: "GET",
-//         headers: {
-//             "Content-Type": "text/plain",
-//             "Authorization": 'Bearer 891f599a02cb82fc2323e189b9e69f37659a6c6f38e34ee87f0da664b6684f6df23db08a0809f2b8bdf069c57dfb5c68e799211d26aff58fefb082076917855f'
-//         }
-//     }).then(res => res.text()).then(data => {
-//         handle(data);
+//     fetch("https://api.myjson.online/v2/records/" + token, {
+//         headers: { "x-collection-access-token": "8c8b32d1-d15f-4bf9-a8be-fc2f862101ea" }
+//     }).then(res => res.json()).then(data => {
+//         handle(data.data.text);
 //     });
 // }
+
+function getText(token, handle) {
+    fetch("https://hastebin.com/raw/" + token, {
+        method: "GET",
+        headers: {
+            "Content-Type": "text/plain",
+            "Authorization": 'Bearer 891f599a02cb82fc2323e189b9e69f37659a6c6f38e34ee87f0da664b6684f6df23db08a0809f2b8bdf069c57dfb5c68e799211d26aff58fefb082076917855f'
+        }
+    }).then(res => res.text()).then(data => {
+        handle(data);
+    });
+}
 
 function shareText(text) {
     if (navigator.share) {

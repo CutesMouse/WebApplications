@@ -27,6 +27,12 @@ class TripData {
         };
     }
 
+    static clone(ref) {
+        let inst = new TripData(ref.name, ref.display_name, ref.date, ref.time,
+            ref.distance, ref.duration, ref.mapUrl, ref.icon, ref.description)
+        return inst;
+    }
+
     // 從 JSON 轉回 class instance
     static fromJSON(json) {
         return new TripData(json.name, json.display_name, json.date, json.time, json.distance, json.duration, json.mapUrl, json.icon, json.description);
