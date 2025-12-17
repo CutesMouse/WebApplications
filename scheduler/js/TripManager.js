@@ -43,9 +43,11 @@ function copyHotelYesterday(date) {
         showNotification("昨天沒有任何飯店行程！")
         return;
     }
-    let new_trip = TripData.clone(schedule.stops[0]);
+    let new_trip = TripData.clone(schedule.stops[schedule.stops.length-1]);
     new_trip.date = date;
-    new_trip.time = '08:00-09:00'
+    new_trip.time = '08:00-09:00';
+    new_trip.distance = undefined;
+    new_trip.duration = undefined;
     createDataWithData(date, new_trip);
     showNotification("行程已儲存");
 }
@@ -144,9 +146,11 @@ function copyDayData(dateA, dateB) {
     }
     let scheduleA = createDayData(dateA);
     let scheduleB = createDayData(dateB);
-    scheduleB.stops = [...scheduleA.stops];
-    for (const stop of scheduleB.stops) {
-        stop.date = dateB;
+    scheduleB.stops = [];
+    for (const stop of scheduleA.stops) {
+        let new_stop = TripData.clone(stop)
+        new_stop.date = dateB;
+        scheduleB.stops.push(new_stop)
     }
     saveData();
     showNotification("已成功複製行程！");
