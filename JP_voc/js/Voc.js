@@ -83,7 +83,7 @@ function speech_transform(original) {
                 break;
             case "連":
                 result = result + space + "連體詞";
-                i++;
+                if (next_char === "體") i++;
                 break;
             case "接":
                 switch (next_char) {
