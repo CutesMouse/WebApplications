@@ -6,7 +6,7 @@ function convert_json(level, source, favorite_only = false) {
         if (favorite_only && !isFavorite(level, index)) continue;
         let content = ary[index].split("/");
         let voc = content[0];
-        let accent = ACCENT_ENABLE ? parseInt(content[1]) : -1;
+        let accent = ACCENT_ENABLE ? content[1].split(/,\s*/).map(i => parseInt(i)) : -1;
         let voc_chinese = content[ACCENT_ENABLE ? 3 : 2];
         let sentences = [];
         let speech = content[ACCENT_ENABLE ? 2 : 1];

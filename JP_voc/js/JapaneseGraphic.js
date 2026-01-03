@@ -211,22 +211,33 @@ function getAccentArray(voc_length, accent, voc) {
     if (isYoon) { // 開頭為拗音
         voc_length = voc_length - 1; // 去掉開頭
     }
-    if (accent === -1) { // 未登記重音
+    if (accent === undefined || (accent.length === 1 && accent[0] === -1)) { // 未登記重音
         return undefined;
-    } else if (accent === 0) { // 平板音
+    } else if (accent[0] === 0) { // 平板音
         result.push(0);
         for (let i = 0; i < voc_length; i++) result.push(1);
-    } else if (accent === 1) { // 頭高音
+    } else if (accent[0] === 1) { // 頭高音
         result.push(1);
         for (let i = 0; i < voc_length; i++) result.push(0);
-    } else if (accent === voc_length) { // 尾高音
+    } else if (accent[0] === voc_length) { // 尾高音
         result.push(0);
         for (let i = 1; i < voc_length; i++) result.push(1);
         result.push(0);
     } else { // 中高音
         result.push(0);
-        for (let i = 1; i < accent; i++) result.push(1);
-        for (let i = 0; i <= (voc_length - accent); i++) result.push(0);
+        for (let i = 1; i < accent[0]; i++) result.push(1);
+        for (let i = 0; i <= (voc_length - accent[0]); i++) result.push(0);
+    }
+    if (accent.length > 1) {
+        let inverse = false;
+        let j = 1;
+        for (let i = 0; i < result.length; i++) {
+            if (accent[j] === i) {
+                j++;
+                inverse = !inverse;
+            }
+            if (inverse) result[i] = (result[i] === 0 ? 1 : 0);
+        }
     }
     if (isYoon) result.unshift(result[0]);
     return result;
