@@ -55,7 +55,7 @@ function loadOptions(favorite_only = false) {
         if (value[0] !== 'M' && !option.disabled) finished++;
     }
 
-    let finish_ratio = Math.round(100 * finished / TOTAL_LEVEL);
+    let finish_ratio = Math.round(100 * finished / getTotalLevel());
     document.getElementById('progress').innerHTML = "完成進度: " + finish_ratio + "%";
 }
 
@@ -124,7 +124,7 @@ function get_problem_list() {
 
 function get_favorite_list() {
     let problem_list = [];
-    for (let i = 1; i <= TOTAL_LEVEL; i++) {
+    for (let i = 1; i <= getTotalLevel(); i++) {
         let source = convert_json(i, get_questions(i), true);
         problem_list = problem_list.concat(source);
     }

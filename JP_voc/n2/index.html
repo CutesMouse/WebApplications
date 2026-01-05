@@ -5,10 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>單字學習 (絕對合格全攻略！新制日檢N2必背必出單字)</title>
     <link rel="stylesheet" type="text/css" href="index.css">
+    <link rel="stylesheet" type="text/css" href="../css/index.css">
     <link rel="manifest" href="n2_manifest.json">
     <link rel="icon" href="../icons/n2-icon-48.ico" type="image/x-icon"/>
     <script src="../js/Control.js"></script>
-    <script src="Voc_List_n2.js"></script>
+    <script src="../js/ServiceConfig.js"></script>
+    <script src="../n1/Voc_List_n1.js"></script>
+    <script src="../n2/Voc_List_n2.js"></script>
+    <script src="../n3/Voc_List_n3.js"></script>
     <script src="../js/Voc.js"></script>
     <script src="../js/Favorite.js"></script>
     <script src="../js/VocCard.js"></script>
@@ -16,9 +20,7 @@
     <script src="../js/Question.js"></script>
 
     <script>
-        const ACCENT_ENABLE = true;
         const LEVEL = "N2";
-        const TOTAL_LEVEL = 70;
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {

@@ -1,4 +1,4 @@
-function get_questions(level) {
+function get_questions_n3(level) {
     switch (level) {
         case 1:
             return "栄養(えいよう)/名/營養/ほうれん草はとても{栄養}がある/菠菜非常有營養/子供のために{栄養}のある料理を作りたい/為了孩子，想做有營養的料理\n" +

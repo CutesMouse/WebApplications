@@ -120,7 +120,11 @@ function generate_header(info, problem) {
 
 function createElement(type, classname = "", innerHTML = "") {
     let item = document.createElement(type);
-    if (classname) item.classList.add(classname);
+    if (classname) {
+        for (let name of classname.split(" ")) {
+            item.classList.add(name);
+        }
+    }
     if (innerHTML) item.innerHTML = innerHTML;
     return item;
 }

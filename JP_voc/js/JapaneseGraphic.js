@@ -19,7 +19,7 @@ const font_name = "UD Digi Kyokasho NP-R";
 loadFont();
 
 
-function generateVocCards(problem_list, div, highlight = undefined) {
+function generateVocCards(problem_list, div, show_main_level = false, highlight = undefined) {
     div.innerHTML = "";
 
     for (let i = 0; i < problem_list.length; i++) {
@@ -27,12 +27,16 @@ function generateVocCards(problem_list, div, highlight = undefined) {
         let voc_box = createElement('span', 'voc_box');
         let text_info = createElement('div', 'text_info');
         let chi = createElement('span', 'voc_chinese', problem_list[i].chinese);
+        let tag_box = createElement('div', 'tag_box');
         let tag = createElement("div", "part-of-speech", problem_list[i].speech);
+        let tag_level = createElement("div", "part-of-speech " + problem_list[i].main_level + "-tag", problem_list[i].main_level + "-" + problem_list[i].level);
         let box = createElement("div", "vocabulary_div");
-        text_info.appendChild(tag);
+        if (show_main_level) tag_box.appendChild(tag_level);
+        tag_box.appendChild(tag);
+        text_info.appendChild(tag_box);
         text_info.appendChild(chi);
         voc_box.appendChild(voc);
-        if (isStarDisplay()) box.appendChild(getFavoriteDisplay(problem_list[i].level, problem_list[i].index));
+        if (problem_list[i].main_level === getCurrentLevel() && isStarDisplay()) box.appendChild(getFavoriteDisplay(problem_list[i].level, problem_list[i].index));
         box.appendChild(voc_box);
         box.appendChild(text_info);
         div.appendChild(box);
@@ -51,13 +55,12 @@ function getVocCanvas(voc_obj, div = undefined, link_enable = false, highlight =
 
     // 點擊反應
     if (link_enable) canvas.addEventListener("click", (e) => {
-        const rect = canvas.getBoundingClientRect();
         const mx = e.offsetX;
         const my = e.offsetY;
 
         for (let task of canvas.click_tasks) {
             if (isInside(mx, my, task, canvas)) {
-                generateVocCards(vocSearch(task.content), div, task.content);
+                generateVocCards(vocSearch(task.content), div, true, task.content);
             }
         }
 

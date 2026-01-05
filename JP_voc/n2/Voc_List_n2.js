@@ -1,4 +1,4 @@
-function get_questions(level) {
+function get_questions_n2(level) {
     switch (level) {
         /* GPT Prompt
         以下是一段日文單字列表

@@ -1,16 +1,20 @@
-const CACHE_NAME = 'mouse-n1voc-20260105';
+const CACHE_NAME = 'mouse-n1voc-20260105v2';
 
 const urlsToCache = [
     './',
     './index.html',
     './index.css',
+    './../css/index.css',
     './../js/Control.js',
     './../js/Favorite.js',
     './../js/JapaneseGraphic.js',
     './../js/Question.js',
+    './../js/ServiceConfig.js',
     './../js/Voc.js',
-    './Voc_List_n1.js',
     './../js/VocCard.js',
+    './../n1/Voc_List_n1.js',
+    './../n2/Voc_List_n2.js',
+    './../n3/Voc_List_n3.js',
     './../font/UDDigiKyokashoN-R.ttc',
     './../icons/n1-icon-48.ico',
     './../icons/n1-icon-512.png',

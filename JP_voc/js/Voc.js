@@ -1,15 +1,17 @@
-function convert_json(level, source, favorite_only = false) {
+function convert_json(level, source, favorite_only = false, main_level = undefined) {
     if (!source) return []
+    if (main_level === undefined) main_level = getCurrentLevel();
+    let accent_enable = isAccentEnable(main_level)
     let ary = source.split("\n");
     let result = [];
     for (let index = 0; index < ary.length; index++) {
         if (favorite_only && !isFavorite(level, index)) continue;
         let content = ary[index].split("/");
         let voc = content[0];
-        let accent = ACCENT_ENABLE ? content[1].split(/,\s*/).map(i => parseInt(i)) : -1;
-        let voc_chinese = content[ACCENT_ENABLE ? 3 : 2];
+        let accent = accent_enable ? content[1].split(/,\s*/).map(i => parseInt(i)) : [-1];
+        let voc_chinese = content[accent_enable ? 3 : 2];
         let sentences = [];
-        let speech = content[ACCENT_ENABLE ? 2 : 1];
+        let speech = content[accent_enable ? 2 : 1];
         let kanji = undefined;
         let reading = undefined;
         if (voc.indexOf('(') !== -1) {
@@ -17,7 +19,7 @@ function convert_json(level, source, favorite_only = false) {
             reading = voc.substring(voc.indexOf('(') + 1, voc.indexOf(')'));
         }
         try {
-            for (let i = (3 + ACCENT_ENABLE); (i + 1) < content.length; i += 2) {
+            for (let i = (3 + accent_enable); (i + 1) < content.length; i += 2) {
                 sentences.push({
                     "sentence": content[i],
                     "translation": content[i + 1],
@@ -29,6 +31,7 @@ function convert_json(level, source, favorite_only = false) {
         }
         result.push({
             "level": level,
+            "main_level": main_level,
             "index": index,
             "sentences": sentences,
             "voc": voc,
@@ -158,22 +161,24 @@ function vocSearch(source) {
 
 // 初始化單字資料庫
 let voc_bank = undefined;
+
 function initVocSearch() {
     voc_bank = new Map();
-    for (let i = 1; i <= TOTAL_LEVEL; i++) {
-        let source = get_questions(i);
-        if (source === "") continue;
-        let problems = convert_json(i, source);
-        for (let j = 0; j < problems.length; j++) {
-            let problem = problems[j];
-            let kanji = problem.kanji;
-            if (kanji === undefined) continue;
-            for (let k = 0; k < kanji.length; k++) {
-                if (isKana(kanji[k])) continue;
-                if (voc_bank.has(kanji[k])) {
-                    voc_bank.get(kanji[k]).push(problem);
+    for (let L of getAllLevels()) {
+        for (let i = 1; i <= getTotalLevel(L); i++) {
+            let source = get_questions(i, L);
+            if (source === "") continue;
+            let problems = convert_json(i, source, false, L);
+            for (let j = 0; j < problems.length; j++) {
+                let problem = problems[j];
+                let kanji = problem.kanji;
+                if (kanji === undefined) continue;
+                for (let k = 0; k < kanji.length; k++) {
+                    if (isKana(kanji[k])) continue;
+                    if (voc_bank.has(kanji[k])) {
+                        voc_bank.get(kanji[k]).push(problem);
+                    } else voc_bank.set(kanji[k], [problem]);
                 }
-                else voc_bank.set(kanji[k], [problem]);
             }
         }
     }

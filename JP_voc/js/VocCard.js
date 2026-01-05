@@ -198,7 +198,7 @@ function restart() {
 function getProgress() {
     let total = 0;
     let pass = 0;
-    for (let i = 1; i <= TOTAL_LEVEL; i++) {
+    for (let i = 1; i <= getTotalLevel(); i++) {
         for (let j = 0; j < convert_json(i, get_questions(i)).length; j++) {
             total++;
             if (getWeight(i, j) === -1) {
