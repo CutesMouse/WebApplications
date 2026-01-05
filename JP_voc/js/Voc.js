@@ -16,10 +16,16 @@ function convert_json(level, source, favorite_only = false) {
             kanji = voc.substring(0, voc.indexOf('('));
             reading = voc.substring(voc.indexOf('(') + 1, voc.indexOf(')'));
         }
-        for (let i = (3 + ACCENT_ENABLE); (i + 1) < content.length; i += 2) {
-            sentences.push({
-                "sentence": content[i], "translation": content[i + 1], "blank": content[i].split('{')[1].split('}')[0]
-            });
+        try {
+            for (let i = (3 + ACCENT_ENABLE); (i + 1) < content.length; i += 2) {
+                sentences.push({
+                    "sentence": content[i],
+                    "translation": content[i + 1],
+                    "blank": content[i].split('{')[1].split('}')[0]
+                });
+            }
+        } catch (e) {
+            console.log("格式錯誤! 發生在 " + voc)
         }
         result.push({
             "level": level,
