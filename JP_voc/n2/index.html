@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>單字學習 (絕對合格全攻略！新制日檢N2必背必出單字)</title>
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <link rel="stylesheet" type="text/css" href="../css/index.css">
+    <link rel="manifest" href="n2_manifest.json">
+    <link rel="icon" href="../icons/n2-icon-48.ico" type="image/x-icon"/>
+    <script src="../js/Control.js"></script>
+    <script src="../js/ServiceConfig.js"></script>
+    <script src="../n1/Voc_List_n1.js"></script>
+    <script src="../n2/Voc_List_n2.js"></script>
+    <script src="../n3/Voc_List_n3.js"></script>
+    <script src="../js/Voc.js"></script>
+    <script src="../js/Favorite.js"></script>
+    <script src="../js/VocCard.js"></script>
+    <script src="../js/JapaneseGraphic.js"></script>
+    <script src="../js/Question.js"></script>
+
+    <script>
+        const LEVEL = "N2";
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./n2_sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker 註冊成功:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker 註冊失敗:', error);
+                    });
+            });
+        }
+    </script>
+</head>
+<body>
+<div class="control">
+    <div class="control-row">
+        <select id="level">
+            <option value="M1-70">所有N2單字 (全章節/20題)</option>
+            <option value="0">- 星號標示 -</option>
+            <option value="F0">星號標示單字</option>
+            <option value="0">- 各日進度 -</option>
+            <option value="1">Day.1 (あ/40題)</option>
+            <option value="2">Day.2 (あ/40題)</option>
+            <option value="3">Day.3 (あ-い/40題)</option>
+            <option value="4">Day.4 (い/40題)</option>
+            <option value="5">Day.5 (い-う/40題)</option>
+            <option value="6">Day.6 (う-え/40題)</option>
+            <option value="7">Day.7 (え-お/40題)</option>
+            <option value="8">Day.8 (お/40題)</option>
+            <option value="9">Day.9 (お-か/40題)</option>
+            <option value="10">Day.10 (か/40題)</option>
+            <option value="11">Day.11 (か/40題)</option>
+            <option value="12">Day.12 (か/40題)</option>
+            <option value="13">Day.13 (か/40題)</option>
+            <option value="14">Day.14 (か-き/40題)</option>
+            <option value="15">Day.15 (き/40題)</option>
+            <option value="16">Day.16 (き/40題)</option>
+            <option value="17">Day.17 (き/40題)</option>
+            <option value="18">Day.18 (き-く/40題)</option>
+            <option value="19">Day.19 (く-け/40題)</option>
+            <option value="20">Day.20 (け/40題)</option>
+            <option value="21">Day.21 (け-こ/40題)</option>
+            <option value="22">Day.22 (こ/40題)</option>
+            <option value="23">Day.23 (こ/40題)</option>
+            <option value="24">Day.24 (こ-さ/40題)</option>
+            <option value="25">Day.25 (さ/40題)</option>
+            <option value="26">Day.26 (さ/40題)</option>
+            <option value="27">Day.27 (し/40題)</option>
+            <option value="28">Day.28 (し/40題)</option>
+            <option value="29">Day.29 (し/40題)</option>
+            <option value="30">Day.30 (し/40題)</option>
+            <option value="31">Day.31 (し/40題)</option>
+            <option value="32">Day.32 (し/40題)</option>
+            <option value="33">Day.33 (し/40題)</option>
+            <option value="34">Day.34 (し-す/40題)</option>
+            <option value="35">Day.35 (す/40題)</option>
+            <option value="36">Day.36 (す-せ/40題)</option>
+            <option value="37">Day.37 (せ/40題)</option>
+            <option value="38">Day.38 (せ-そ/40題)</option>
+            <option value="39">Day.39 (そ/40題)</option>
+            <option value="40">Day.40 (そ-た/40題)</option>
+            <option value="41">Day.41 (た/40題)</option>
+            <option value="42">Day.42 (た/40題)</option>
+            <option value="43">Day.43 (た-ち/40題)</option>
+            <option value="44">Day.44 (ち-つ/40題)</option>
+            <option value="45">Day.45 (つ/40題)</option>
+            <option value="46">Day.46 (つ-て/40題)</option>
+            <option value="47">Day.47 (て-と/40題)</option>
+            <option value="48">Day.48 (と/40題)</option>
+            <option value="49">Day.49 (と/40題)</option>
+            <option value="50">Day.50 (と-な/40題)</option>
+            <option value="51">Day.51 (な-に/40題)</option>
+            <option value="52">Day.52 (に-の/40題)</option>
+            <option value="53">Day.53 (の-は/40題)</option>
+            <option value="54">Day.54 (は/40題)</option>
+            <option value="55">Day.55 (は-ひ/40題)</option>
+            <option value="56">Day.56 (ひ/40題)</option>
+            <option value="57">Day.57 (ひ/40題)</option>
+            <option value="58">Day.58 (ひ-ふ/40題)</option>
+            <option value="59">Day.59 (ふ/40題)</option>
+            <option value="60">Day.60 (ふ-ほ/40題)</option>
+            <option value="61">Day.61 (ほ/40題)</option>
+            <option value="62">Day.62 (ほ-ま/40題)</option>
+            <option value="63">Day.63 (ま-み/40題)</option>
+            <option value="64">Day.64 (み-む/41題)</option>
+            <option value="65">Day.65 (む-も/41題)</option>
+            <option value="66">Day.66 (も-や/41題)</option>
+            <option value="67">Day.67 (や-ゆ/41題)</option>
+            <option value="68">Day.68 (ゆ-よ/41題)</option>
+            <option value="69">Day.69 (よ-り/41題)</option>
+            <option value="70">Day.70 (り-わ/41題)</option>
+
+        </select>
+        <input type="button" value="生成題目" onclick="start_generate()">
+        <input type="button" value="顯示解答" onclick="show_all_answers()">
+        <input type="button" value="單字表" onclick="show_voc_card()">
+        <input type="button" value="快速檢驗" onclick="fast_voc_test()">
+        <input type="button" value="設定" onclick="setting()">
+    </div>
+
+</div>
+<div id="questions">
+
+</div>
+<div class="copyright">所有單字出自「絕對合格全攻略！新制日檢N2必背必出單字 (山田社)」，例句使用ChatGPT產生<br>由CutesMouse設計/<span id="progress"></span></div>
+</body>
+</html>

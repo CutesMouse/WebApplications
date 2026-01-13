@@ -1,61 +1,129 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>日文單字學習網站</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日文單字學習門戶</title>
     <style>
-        html {
-            overflow: -moz-hidden-unscrollable;
-            height: 100%;
-            padding: 0;
+        /* 基礎樣式重置 */
+        * {
             margin: 0;
-        }
-
-        body::-webkit-scrollbar {
-            display: none;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            -ms-overflow-style: none;
-            height: 100%;
-            width: calc(100vw + 18px);
-            overflow: auto;
+            font-family: 'PingFang TC', 'Microsoft JhengHei', -apple-system, sans-serif;
+            background-color: #f0f2f5;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .flex {
+        /* 主容器：手機垂直排列，電腦水平排列 */
+        .container {
             display: flex;
+            flex-direction: column;
             height: 100vh;
             width: 100%;
         }
 
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+            }
+        }
+
+        /* 單個選項樣式 */
         .selection {
             flex: 1;
-            text-align: center;
-            font-size: 100px;
-            font-family: Consolas, "微軟正黑體", serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 字體與裝飾 */
+        .selection h2 {
+            font-size: clamp(4rem, 10vw, 8rem);
+            color: white;
+            z-index: 2;
+            margin: 0;
+            letter-spacing: 4px;
+        }
+
+        .selection span {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            margin-top: 10px;
+            z-index: 2;
+            text-transform: uppercase;
+        }
+
+        /* 各等級配色 - 使用更現代的漸層色 */
+        .n1 { background: linear-gradient(135deg, #ff5f6d, #ffc371); }
+        .n2 { background: linear-gradient(135deg, #2193b0, #6dd5ed); }
+        .n3 { background: linear-gradient(135deg, #b06ab3, #4568dc); }
+
+        /* 滑鼠懸停效果 */
+        .selection:hover {
+            flex: 1.3; /* 懸停時稍微變寬/高 */
+            filter: brightness(1.1);
+        }
+
+        .selection::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            align-content: center;
+            background: rgba(0,0,0,0.05);
+            opacity: 0;
+            transition: 0.3s;
         }
 
-        .n2 {
-            color: white;
-            background-color: #67e4ff;
+        .selection:hover::after {
+            opacity: 1;
         }
 
-        .n3 {
-            color: white;
-            background-color: #d800ff;
+        /* 點擊時的微動畫 */
+        .selection:active {
+            transform: scale(0.98);
         }
     </style>
 </head>
 <body>
-<div class="flex">
-    <div class="selection n2" id="n2">N2</div>
-    <div class="selection n3" id="n3">N3</div>
+
+<div class="container">
+    <div class="selection n1" id="n1">
+        <h2>N1</h2>
+        <span>Advanced / 上級</span>
+    </div>
+    <div class="selection n2" id="n2">
+        <h2>N2</h2>
+        <span>Intermediate / 中上級</span>
+    </div>
+    <div class="selection n3" id="n3">
+        <h2>N3</h2>
+        <span>Pre-Intermediate / 中級</span>
+    </div>
 </div>
+
 <script>
-    document.getElementById('n2').addEventListener('click', () => window.open('index_n2.html', '_self'));
-    document.getElementById('n3').addEventListener('click', () => window.open('index_n3.html', '_self'));
+    // 封裝跳轉邏輯
+    const navigate = (level) => {
+        window.open(`${level}/index.html`, '_self');
+    };
+
+    document.getElementById('n1').addEventListener('click', () => navigate('n1'));
+    document.getElementById('n2').addEventListener('click', () => navigate('n2'));
+    document.getElementById('n3').addEventListener('click', () => navigate('n3'));
 </script>
+
 </body>
 </html>
