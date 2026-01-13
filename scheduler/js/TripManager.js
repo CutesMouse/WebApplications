@@ -43,7 +43,7 @@ function copyHotelYesterday(date) {
         showNotification("昨天沒有任何飯店行程！")
         return;
     }
-    let new_trip = TripData.clone(schedule.stops[schedule.stops.length-1]);
+    let new_trip = TripData.clone(schedule.stops[schedule.stops.length - 1]);
     new_trip.date = date;
     new_trip.time = '08:00-09:00';
     new_trip.distance = undefined;
@@ -77,7 +77,7 @@ function arrangeSpecific(travelMode) {
         return;
     }
     showNotification("正在進行查詢！");
-    arrange(front.name, name, travelMode, new Date(date + "T" + start + "Z"), result => {
+    arrange(front.name, name, travelMode, new Date(date + "T" + start), result => {
         if (result.status === "error") {
             showNotification("查詢不到該路段的交通資料！");
             return;
@@ -208,7 +208,7 @@ function autoDayArrange(date, travelMode) {
     for (let i = 1; i < stops.length; i++) {
         let origin = stops[i - 1].name;
         let dest = stops[i].name;
-        let departure_time = new Date(date + "T" + stops[i - 1].time + "Z");
+        let departure_time = new Date(date + "T" + stops[i - 1].time.split("-")[0]);
         arrange(origin, dest, travelMode, departure_time, result => {
             if (result.status === "error") return;
             stops[i].duration = (travelMode === "TRANSIT" ? "大眾運輸 " : "開車 ") + result.duration;
