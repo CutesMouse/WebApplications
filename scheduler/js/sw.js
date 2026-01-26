@@ -1,5 +1,5 @@
 // CACHE_NAME
-const CACHE_NAME = 'mouse-scheduler-20260126';
+const CACHE_NAME = 'mouse-scheduler-20260113';
 
 // App Shell：應用程式的核心檔案，讓網站能基本運作並顯示介面。
 // 這些是使用者首次訪問時，需要被立刻快取的最小資源集。
@@ -19,8 +19,7 @@ const APP_SHELL_URLS = [
     './js/TripManager.js',
     './attach/icon-192.png',
     './style/menu.css',
-    './style/overview.css',
-    './style/tailwind.min.css',
+    './style/overview.css'
 ];
 
 // 安裝 Service Worker
