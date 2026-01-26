@@ -4,10 +4,14 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>行程規劃 App</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="./attach/icon-192.png">
     <link href="./style/menu.css" type="text/css" rel="stylesheet">
     <link href="./style/overview.css" type="text/css" rel="stylesheet">
     <link href="./style/tailwind.min.css" rel="stylesheet">
     <link href="./manifest.json" rel="manifest">
+    <link rel="preload" href="./style/tailwind.min.css" as="style">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
