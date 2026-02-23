@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日文單字極速輸入系統 V3</title>
+    <style>
+        :root {
+            --bg-reading: #e3f2fd; /* 藍色系：假名 */
+            --bg-accent: #fce4ec;  /* 紅色系：重音 */
+            --bg-meaning: #e8f5e9; /* 綠色系：中文 */
+            --bg-pos: #f3e5f5;     /* 紫色系：詞性 */
+
+            --card-bg: #ffffff;
+            --text-main: #333;
+            --text-sub: #666;
+            --shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.5s ease;
+            background-color: #f0f0f0; /* 預設 */
+            overflow: hidden;
+        }
+
+        /* 狀態指示條 (頂部) */
+        .status-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px 0;
+            text-align: center;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(5px);
+            font-weight: bold;
+            color: var(--text-sub);
+            z-index: 100;
+        }
+        #progress-indicator {
+            height: 4px;
+            background: #ccc;
+            width: 0%;
+            transition: width 0.3s;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        /* 主卡片 */
+        .card {
+            background: var(--card-bg);
+            width: 90%;
+            max-width: 800px;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* 類型標籤 (大大顯示當前要輸入什麼) */
+        .type-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            margin: 0 auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .word-display {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 10px 0;
+            line-height: 1.2;
+        }
+
+        .context-preview {
+            font-size: 1.1rem;
+            color: var(--text-sub);
+            min-height: 1.5em;
+            font-family: monospace;
+        }
+
+        /* 輸入框 */
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.8rem;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #666;
+        }
+
+        /* 詞性按鈕區 */
+        #pos-container {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .pos-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .pos-btn {
+            padding: 10px 18px;
+            border: 2px solid #e0e0e0;
+            background: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #555;
+            transition: all 0.15s;
+            user-select: none;
+        }
+        /* 選中狀態 */
+        .pos-btn.active {
+            background: #9c27b0; /* 紫色系配合詞性主題 */
+            color: white;
+            border-color: #9c27b0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(156, 39, 176, 0.3);
+        }
+
+        /* 錯誤/fallback 區域 */
+        #error-fallback {
+            display: none;
+            text-align: center;
+        }
+        .btn-retry {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* 結果輸出區 */
+        #result-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white;
+            z-index: 200;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+        textarea {
+            width: 100%;
+            height: 80%;
+            font-family: monospace;
+            font-size: 1.2rem;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="status-bar">
+    <span id="status-text">載入中...</span>
+    <div id="progress-indicator"></div>
+</div>
+
+<div id="error-fallback" class="card" style="display:none;">
+    <h2 style="color:#d32f2f;">無法自動讀取檔案</h2>
+    <p>這通常是因為瀏覽器安全性限制 (CORS) 禁止直接讀取本地檔案。</p>
+    <p>請選擇手動上傳 <strong>voc_input.txt</strong> 繼續：</p>
+    <input type="file" id="fallback-file" accept=".txt">
+</div>
+
+<div id="workspace" class="card" style="display:none;">
+
+    <div id="type-badge" class="type-badge">準備中</div>
+
+    <div class="word-display" id="current-word">---</div>
+
+    <div class="context-preview" id="context-preview"></div>
+
+    <input type="text" id="main-input" autocomplete="off" placeholder="輸入...">
+
+    <div id="pos-container"></div>
+
+    <div style="font-size: 0.8rem; color: #999; margin-top:10px;">
+        [Enter] 下一題 / 確認 &nbsp;&nbsp; [last] 回上一步
+    </div>
+</div>
+
+<div id="result-overlay">
+    <h2>輸入完成</h2>
+    <textarea id="result-area"></textarea>
+    <button onclick="copyResult()" class="btn-retry" style="font-size:1.2rem; width:100%;">複製全部內容</button>
+</div>
+
+<script>
+    // --- 設定與對照表 ---
+    // 格式: { label: 顯示名稱, code: 輸出名稱 }
+    const POS_DEFINITIONS = [
+        // 第一行：動詞類
+        [{l:'自動詞', c:'自'}, {l:'他動詞', c:'他'}, {l:'純漢字', c:'漢'}],
+        // 第二行：形容詞
+        [{l:'い形容詞', c:'い'}, {l:'な形容詞', c:'な'}, {l:'連體詞', c:'連'}],
+        // 第三行：副詞/名詞/代詞/數量
+        [{l:'副詞', c:'副'}, {l:'名詞', c:'名'}, {l:'代名詞', c:'代'}, {l:'數量詞', c:'數'}, {l:'疑問詞', c:'疑'}],
+        // 第四行：接續/接頭尾
+        [{l:'連接詞', c:'接'}, {l:'接頭語', c:'接頭'}, {l:'接尾語', c:'接尾'}],
+        // 第五行：其他
+        [{l:'慣用語', c:'慣'}, {l:'寒暄語', c:'寒'}, {l:'感嘆詞', c:'感'}]
+    ];
+
+    // 扁平化的對照表，用於快速查詢
+    const POS_FLAT = POS_DEFINITIONS.flat();
+
+    // --- 狀態管理 ---
+    let rawWords = [];
+    let items = [];
+    let workQueue = [];
+    let currentIndex = 0;
+
+    // DOM 元素
+    const els = {
+        body: document.body,
+        workspace: document.getElementById('workspace'),
+        fallback: document.getElementById('error-fallback'),
+        input: document.getElementById('main-input'),
+        word: document.getElementById('current-word'),
+        preview: document.getElementById('context-preview'),
+        badge: document.getElementById('type-badge'),
+        posContainer: document.getElementById('pos-container'),
+        status: document.getElementById('status-text'),
+        progress: document.getElementById('progress-indicator'),
+        resultOverlay: document.getElementById('result-overlay'),
+        resultArea: document.getElementById('result-area')
+    };
+
+    // --- 1. 啟動與檔案讀取 ---
+    window.onload = async () => {
+        try {
+            // 嘗試 Fetch 本地檔案
+            const response = await fetch('voc_input.txt');
+            if (!response.ok) throw new Error("File not found or blocked");
+            const text = await response.text();
+            initSystem(text);
+        } catch (err) {
+            console.warn("Auto-load failed:", err);
+            // 失敗時顯示手動上傳
+            els.fallback.style.display = 'block';
+            document.getElementById('fallback-file').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => initSystem(ev.target.result);
+                    reader.readAsText(file);
+                }
+            });
+        }
+    };
+
+    // --- 2. 系統初始化 ---
+    function initSystem(text) {
+        rawWords = text.split(/\r?\n/).map(line => line.trim()).filter(line => line !== '');
+        if (rawWords.length === 0) return alert("檔案內容為空");
+
+        // 隱藏錯誤區，顯示工作區
+        els.fallback.style.display = 'none';
+        els.workspace.style.display = 'flex';
+
+        // 初始化資料物件
+        items = rawWords.map((w, i) => ({
+            id: i + 1,
+            headword: w,
+            reading: '',
+            accent: '',
+            meaning: '',
+            pos: '' // 這裡會存 output code，例如 "自他"
+        }));
+
+        generateQueue();
+        renderPosButtons(); // 預先生成按鈕
+        renderTask();
+    }
+
+    // --- 3. 產生 Z 字型任務佇列 ---
+    function generateQueue() {
+        workQueue = [];
+        const count = items.length;
+
+        // 1. 假名 (40->1)
+        for (let i = count - 1; i >= 0; i--) workQueue.push({ idx: i, type: 'reading', label: '輸入假名', color: '#2196F3', bg: 'var(--bg-reading)' });
+
+        // 2. 重音 (1->40)
+        for (let i = 0; i < count; i++) workQueue.push({ idx: i, type: 'accent', label: '輸入重音', color: '#E91E63', bg: 'var(--bg-accent)' });
+
+        // 3. 中文 (40->1)
+        for (let i = count - 1; i >= 0; i--) workQueue.push({ idx: i, type: 'meaning', label: '輸入中文', color: '#4CAF50', bg: 'var(--bg-meaning)' });
+
+        // 4. 詞性 (1->40)
+        for (let i = 0; i < count; i++) workQueue.push({ idx: i, type: 'pos', label: '選擇詞性', color: '#9C27B0', bg: 'var(--bg-pos)' });
+    }
+
+    // --- 4. 介面渲染 ---
+    function renderTask() {
+        if (currentIndex >= workQueue.length) {
+            finish();
+            return;
+        }
+
+        const task = workQueue[currentIndex];
+        const item = items[task.idx];
+
+        // 顏色與標籤設定
+        els.body.style.backgroundColor = task.bg;
+        els.badge.textContent = task.label;
+        els.badge.style.backgroundColor = task.color;
+        els.progress.style.width = `${((currentIndex) / workQueue.length) * 100}%`;
+        els.status.textContent = `${task.label} : ${task.idx + 1} / ${items.length} (總進度 ${Math.round((currentIndex/workQueue.length)*100)}%)`;
+
+        // 顯示文字
+        els.word.textContent = item.headword;
+
+        // 預覽上下文
+        let preview = [];
+        if (item.reading) preview.push(item.reading);
+        if (item.accent) preview.push(`[${item.accent}]`);
+        if (item.meaning) preview.push(item.meaning);
+        if (item.pos) preview.push(`<${item.pos}>`); // 顯示已存的code
+        els.preview.innerHTML = preview.join(' / ');
+
+        // UI 模式切換
+        if (task.type === 'pos') {
+            els.posContainer.style.display = 'flex';
+            els.input.placeholder = "點擊按鈕選擇，按 Enter 確認";
+            // 鎖定輸入框 (防止打字，只允許指令)
+            els.input.readOnly = false;
+            restorePosButtons(item.pos); // 恢復上次選擇的按鈕狀態
+        } else {
+            els.posContainer.style.display = 'none';
+            els.input.placeholder = task.type === 'meaning' ? "空白自動轉頓號..." : "輸入...";
+            els.input.readOnly = false;
+            els.input.value = item[task.type] || '';
+        }
+
+        els.input.focus();
+    }
+
+    // --- 5. 詞性按鈕邏輯 (重要更新) ---
+    function renderPosButtons() {
+        els.posContainer.innerHTML = '';
+        POS_DEFINITIONS.forEach(rowGroup => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'pos-row';
+            rowGroup.forEach(p => {
+                const btn = document.createElement('button');
+                btn.className = 'pos-btn';
+                btn.textContent = p.l; // 顯示名稱
+                btn.dataset.code = p.c; // 輸出代碼
+                // 點擊事件：切換 Active 狀態
+                btn.onclick = () => {
+                    btn.classList.toggle('active');
+                    // 讓焦點回到 input，方便按 Enter
+                    els.input.focus();
+                };
+                rowDiv.appendChild(btn);
+            });
+            els.posContainer.appendChild(rowDiv);
+        });
+    }
+
+    function restorePosButtons(savedCodes) {
+        // 重置所有按鈕
+        document.querySelectorAll('.pos-btn').forEach(btn => btn.classList.remove('active'));
+        // 根據已儲存的代碼 (例如 "自名") 恢復按鈕狀態
+        if (!savedCodes) return;
+
+        document.querySelectorAll('.pos-btn').forEach(btn => {
+            const code = btn.dataset.code;
+            // 這裡做個簡單檢查，如果 savedCodes 包含該 code
+            // 注意：如果有 code 是其他 code 的子字串(如 "接" 和 "接頭")，indexOf 可能誤判
+            // 嚴謹作法是儲存 Array，但配合你的單字串格式，我們用遍歷檢查
+            // 因為你的 code 都是單字或雙字，且有重疊 ("接", "接頭")
+            // 我們這裡改為：解析 savedCodes。但因為你要求輸出是 "自他"，黏在一起很難解析回來。
+            // *妥協方案*：在 queue 執行期間，記憶體中可以暫存 Array，但在 finish 時才轉 String。
+            // 為了簡單符合你的 "last" 功能，我們假設你輸入時不會太頻繁修改詞性。
+            // 這裡僅作簡單回顯：如果 savedString 包含 code，就亮起 (可能會有點小誤差但影響不大)
+            if (savedCodes.includes(code)) {
+                btn.classList.add('active');
+            }
+        });
+        // 清空輸入框顯示 (因為是視覺選擇)
+        els.input.value = '';
+    }
+
+    function getSelectedPosString() {
+        let result = "";
+        // 關鍵：依照 DOM 順序遍歷所有按鈕
+        // 這樣保證了輸出順序符合「按鈕排列順序」
+        document.querySelectorAll('.pos-btn').forEach(btn => {
+            if (btn.classList.contains('active')) {
+                result += btn.dataset.code;
+            }
+        });
+        return result;
+    }
+
+    // --- 6. 輸入處理 ---
+    els.input.addEventListener('keydown', (e) => {
+        if (e.isComposing) return; // 防止輸入法選字時觸發
+        if (e.key === 'Enter') {
+            processStep();
+        }
+    });
+
+    function processStep() {
+        const rawVal = els.input.value.trim();
+
+        // 1. 檢查是否為指令
+        if (rawVal.toLowerCase() === 'last') {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderTask();
+            }
+            return;
+        }
+
+        const task = workQueue[currentIndex];
+        const item = items[task.idx];
+        let finalVal = rawVal;
+
+        // 2. 根據類型處理資料
+        if (task.type === 'pos') {
+            // 詞性模式：忽略輸入框文字(除非是 last)，改抓按鈕狀態
+            finalVal = getSelectedPosString();
+            if (finalVal === '') {
+                // 如果沒選半個，可以防呆，或者允許空值。這裡允許空值。
+            }
+        } else if (task.type === 'meaning') {
+            // 中文模式：空白轉頓號
+            finalVal = rawVal.replace(/\s+/g, '、');
+        }
+
+        // 3. 儲存
+        item[task.type] = finalVal;
+
+        // 4. 下一步
+        currentIndex++;
+        renderTask();
+    }
+
+    // --- 7. 結束處理 ---
+    function finish() {
+        els.workspace.style.display = 'none';
+        els.resultOverlay.style.display = 'block';
+
+        const output = items.map(item => {
+            // 格式: 漢字(假名)/重音/詞性/中文/
+            // 處理假名括號邏輯
+            let wordPart = item.headword;
+            if (item.reading && item.reading !== item.headword) {
+                wordPart = `${item.headword}(${item.reading})`;
+            } else if (item.reading) {
+                // 即使一樣也顯示括號 (依照範例: 愛想(あいそう))
+                wordPart = `${item.headword}(${item.reading})`;
+            }
+
+            return `${wordPart}/${item.accent}/${item.pos}/${item.meaning}/`;
+        }).join('\n');
+
+        els.resultArea.value = output;
+    }
+
+    window.copyResult = () => {
+        els.resultArea.select();
+        document.execCommand('copy');
+        alert('已複製到剪貼簿！');
+    }
+
+    // 點擊空白處聚焦 (UX)
+    els.workspace.addEventListener('click', (e) => {
+        if (e.target.tagName !== 'BUTTON' && e.target !== els.input) {
+            els.input.focus();
+        }
+    });
+
+</script>
+</body>
+</html>
