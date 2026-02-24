@@ -176,7 +176,8 @@ function initVocSearch() {
                 for (let k = 0; k < kanji.length; k++) {
                     if (isKana(kanji[k])) continue;
                     if (voc_bank.has(kanji[k])) {
-                        voc_bank.get(kanji[k]).push(problem);
+                        let list = voc_bank.get(kanji[k]);
+                        if (!list.includes(problem)) list.push(problem);
                     } else voc_bank.set(kanji[k], [problem]);
                 }
             }
