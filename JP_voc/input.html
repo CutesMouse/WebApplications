@@ -227,7 +227,7 @@
         // 第一行：動詞類
         [{l:'自動詞', c:'自'}, {l:'他動詞', c:'他'}, {l:'純漢字', c:'漢'}],
         // 第二行：形容詞
-        [{l:'い形容詞', c:'い'}, {l:'な形容詞', c:'な'}, {l:'連體詞', c:'連'}],
+        [{l:'い形容詞', c:'い形'}, {l:'な形容詞', c:'な形'}, {l:'連體詞', c:'連'}],
         // 第三行：副詞/名詞/代詞/數量
         [{l:'副詞', c:'副'}, {l:'名詞', c:'名'}, {l:'代名詞', c:'代'}, {l:'數量詞', c:'數'}, {l:'疑問詞', c:'疑'}],
         // 第四行：接續/接頭尾
@@ -388,6 +388,10 @@
                     // 讓焦點回到 input，方便按 Enter
                     els.input.focus();
                 };
+                btn.oncontextmenu = (e) => {
+                    processStep();
+                    e.preventDefault();
+                }
                 rowDiv.appendChild(btn);
             });
             els.posContainer.appendChild(rowDiv);
