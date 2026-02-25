@@ -184,7 +184,10 @@ function setting() {
         "        <span class=\"label\">重置權重表</span>\n" +
         "        <input type=\"button\" value=\"重置\" onclick=\"resetWeight()\" class=\"button\">\n" +
         "        <span class=\"hint\">如發生設定問題，可點擊此按鈕重置</span>\n" +
-        "    </div>";
+        "    </div>" +
+        "    <div class=\"setting_div\">最大搜尋上限<span class=\"hint\">使用搜尋時，最多可以顯示多少結果</span><input type=\"number\"\n" +
+        "                                                                                                           id=\"max_search_result\">\n" +
+        "    </div>\n";
     document.getElementById('database').value = exportDatabase();
     document.getElementById('weights').value = exportWeight();
     document.getElementById('star_removing').checked = isStarRemoving();
@@ -201,6 +204,8 @@ function setting() {
     document.getElementById('star_display').addEventListener('click', () => setStarDisplay(!isStarDisplay()));
     document.getElementById('chunk').value = getChunk();
     document.getElementById('chunk').addEventListener('input', e => setChunk(parseInt(e.target.value)));
+    document.getElementById('max_search_result').value = getMaxSearchResult();
+    document.getElementById('max_search_result').addEventListener('input', e => setMaxSearchResult(parseInt(e.target.value)));
 }
 
 function isShuffle() {

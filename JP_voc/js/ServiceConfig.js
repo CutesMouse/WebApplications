@@ -45,3 +45,16 @@ function getTotalLevel(level = undefined) {
 function getAllLevels() {
     return ['N3', 'N2', 'N1'];
 }
+
+function getAllVocs(levels = getAllLevels()) {
+    result = [];
+    for (let L of levels) {
+        for (let i = 1; i <= getTotalLevel(L); i++) {
+            let source = get_questions(i, L);
+            if (source === "") continue;
+            let problems = convert_json(i, source, false, L);
+            result.push(...problems);
+        }
+    }
+    return result;
+}

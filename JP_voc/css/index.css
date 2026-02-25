@@ -635,15 +635,24 @@ html, body {
     }
 
     .control-row {
-        flex-direction: column;
+        display: grid; /* 改用 Grid 佈局 */
+        grid-template-columns: repeat(2, 1fr); /* 平分為兩欄 */
         gap: 10px;
     }
 
-    .control-row select,
-    .control-row input[type="button"] {
+    /* 讓下拉選單 (Level) 獨佔一行，視覺上比較平衡 */
+    .control-row select {
+        grid-column: span 2;
         width: 100%;
         font-size: 1.5em;
         text-align: center;
+    }
+
+    .control-row input[type="button"] {
+        width: 100%;
+        font-size: 1.2em; /* 稍微縮小字體，避免在窄螢幕上文字折行 */
+        text-align: center;
+        padding: 8px 4px; /* 增加一點點內距提升觸控感 */
     }
 
     /* 題目 */

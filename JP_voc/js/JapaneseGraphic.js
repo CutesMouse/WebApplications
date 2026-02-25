@@ -108,6 +108,31 @@ function drawTextDetailed(source, accent, ctx, base_x, base_y, canvas, link_enab
     return dx - line_space;
 }
 
+function getHighlightSequence(text, highlight) {
+    let result = new Array(text.length).fill(false);
+
+    // check if highlight is undefined
+    if (highlight === undefined) return result;
+
+    let find_seq = [];
+    let re = new RegExp(highlight, 'g');
+    let m;
+    // find all occurrence
+    do {
+        m = re.exec(text);
+        if (m) {
+            find_seq.push(m.index);
+        }
+    } while (m);
+    // flatten the array
+    for (let index of find_seq) {
+        for (let j = 0; j < highlight.length; j++) {
+            result[index + j] = true;
+        }
+    }
+    return result;
+}
+
 // 在指定位置填入置中文字
 function fillTextCenterWithAccent(text, accent, ctx, base_x, base_y, size, line_width, canvas, link_enable, highlight) {
     if (text === undefined || text.length === 0) return;
@@ -118,8 +143,10 @@ function fillTextCenterWithAccent(text, accent, ctx, base_x, base_y, size, line_
     let start_y = base_y + size * 0.9;
     let dx = width / text.length;
 
+    let highlight_seq = getHighlightSequence(text, highlight);
+
     for (let i = 0; i < text.length; i++) {
-        if (text[i] === highlight) {
+        if (highlight_seq[i]) {
             ctx.fillStyle = highlight_color;
         } else if (link_enable && vocSearch(text[i]).length > 1) {
             ctx.fillStyle = searchable_color;

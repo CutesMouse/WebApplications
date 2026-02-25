@@ -164,23 +164,17 @@ let voc_bank = undefined;
 
 function initVocSearch() {
     voc_bank = new Map();
-    for (let L of getAllLevels()) {
-        for (let i = 1; i <= getTotalLevel(L); i++) {
-            let source = get_questions(i, L);
-            if (source === "") continue;
-            let problems = convert_json(i, source, false, L);
-            for (let j = 0; j < problems.length; j++) {
-                let problem = problems[j];
-                let kanji = problem.kanji;
-                if (kanji === undefined) continue;
-                for (let k = 0; k < kanji.length; k++) {
-                    if (isKana(kanji[k])) continue;
-                    if (voc_bank.has(kanji[k])) {
-                        let list = voc_bank.get(kanji[k]);
-                        if (!list.includes(problem)) list.push(problem);
-                    } else voc_bank.set(kanji[k], [problem]);
-                }
-            }
+    let problems = getAllVocs();
+    for (let j = 0; j < problems.length; j++) {
+        let problem = problems[j];
+        let kanji = problem.kanji;
+        if (kanji === undefined) continue;
+        for (let k = 0; k < kanji.length; k++) {
+            if (isKana(kanji[k])) continue;
+            if (voc_bank.has(kanji[k])) {
+                let list = voc_bank.get(kanji[k]);
+                if (!list.includes(problem)) list.push(problem);
+            } else voc_bank.set(kanji[k], [problem]);
         }
     }
 }
