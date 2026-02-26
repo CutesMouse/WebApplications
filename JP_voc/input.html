@@ -483,6 +483,18 @@
         els.workspace.style.display = 'none';
         els.resultOverlay.style.display = 'block';
 
+        const header = "以下是一段日文單字列表\n" +
+            "請幫我產生兩個例句，並以此格式呈現，並請將例句中使用單字的部分以{}框出來\n" +
+            "中文部分不需要框列任何文字\n" +
+            "(如有動詞變化，請將整段變化都框起來)\n" +
+            "日文單字(讀音)/重音/中文解釋/例句1/中文翻譯1/例句2/中文翻譯2\n" +
+            "請不要改動日文單字、讀音、重音、中文解釋的部分\n" +
+            "例如\n" +
+            "愛情(あいじょう)/0/愛情/彼の言葉には{愛情}がこもっていた。/他的話語中充滿了愛情。/親の{愛情}は子どもの成長にとって大切だ。/父母的愛對孩子的成長非常重要。\n" +
+            "直接產生這樣的格式即可，不需要回應其他內容\n" +
+            "盡量使用N1的文法及單字\n" +
+            "請一次全部產生完，以下總共有40個單字\n\n"
+
         const output = items.map(item => {
             // 格式: 漢字(假名)/重音/詞性/中文/
             // 處理假名括號邏輯
@@ -497,7 +509,7 @@
             return `${wordPart}/${item.accent}/${item.pos}/${item.meaning}/`;
         }).join('\n');
 
-        els.resultArea.value = output;
+        els.resultArea.value = header + output;
     }
 
     window.copyResult = () => {
