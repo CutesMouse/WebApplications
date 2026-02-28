@@ -10,10 +10,10 @@ let NOT_CONFIRM_BG_COLOR = '#C00000';
 let NOT_CONFIRM_FONT_COLOR = '#FFFDFF';
 
 // 請在這裡輸入課程的資訊
-create_course('時序電路設計', '黃錫瑜', '資電-207', 'F2F3F4', REQUIRED_COLOR);
-create_course('桌球初學', '鄭兆光', '桌球場', 'T3T4', PE_COLOR);
-create_course('Python入門', '周百祥', '台達-107', 'T5T6R5', CS_COLOR);
-create_course('積體電路實驗', '黃朝宗', '台達-216', 'R7R8R9Ra', LAB_COLOR);
-create_course('中級日語一', '張嘉芬', '工科-506', 'M6M7M8', LANGUAGE_COLOR);
-create_course('電影藝術', '蕭菊貞', '教育館-311', 'WnW5W6', GENERAL_COLOR);
+create_course('經濟學原理二', '王惠貞', '台積-224', 'R5R6R7', GENERAL_COLOR);
+create_course('數位訊號處理', '劉奕汶', '炯朗-206', 'W5W6R8', MATH_COLOR);
+create_course('數位訊號處理', '林嘉文', '台達-211', 'T3T4R3', LAB_COLOR);
+create_course('積體電路測試', '黃錫瑜', '炯朗-207', 'F2F3F4', REQUIRED_COLOR);
+create_course('中級日語二', '張嘉芬', '人社-C407', 'M6M7M8', LANGUAGE_COLOR);
+create_course('速度反應與敏捷', '張祐華', '田徑場', 'W7W8', PE_COLOR);
 //create_course('', '', '', '', );
