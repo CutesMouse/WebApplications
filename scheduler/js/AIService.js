@@ -142,7 +142,7 @@ function generateTextWithGeminiFlash(prompt, success, failure) {
         }
 
         // 存取 GoogleGenerativeAI
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${localStorage.getItem('gemini_api_key')}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${localStorage.getItem('gemini_api_key')}`;
         const requestBody = {
             contents: [{
                 parts: [{text: prompt}]
