@@ -7,6 +7,7 @@ function search() {
         "        <textarea id=\"search_keyword\"></textarea>\n" +
         "    </div>\n" +
         "<div class=\"setting_div\"><input type=\"checkbox\" id=\"search_defined_level\" checked=\"\">只搜尋當前等級的內容</div>" +
+        "<div class=\"setting_div\"><input type=\"checkbox\" id=\"search_include_chinese\" checked=\"checked\">納入中文搜尋結果</div>" +
         "<div class=\"setting_div\"><input type=\"checkbox\" id=\"search_kanaonly\" checked=\"\">搜尋純假名的內容</div>";
     document.getElementById('search_keyword').value = "";
     document.getElementById('search_keyword').onkeydown = function (e) {
@@ -22,14 +23,15 @@ function search() {
 function submitSearch() {
     let keyword = document.getElementById('search_keyword').value;
     let only_kana = document.getElementById('search_kanaonly').checked;
+    let include_chinese = document.getElementById('search_include_chinese').checked;
     let defined_level = document.getElementById('search_defined_level').checked;
 
-    let matches = searchAllVocs(keyword, only_kana, getMaxSearchResult(), defined_level);
+    let matches = searchAllVocs(keyword, only_kana, include_chinese, getMaxSearchResult(), defined_level);
     let div = document.getElementById('questions');
     generateVocCards(matches, div, true);
 }
 
-function searchAllVocs(keyword, only_kana, max_result = 100, defined_level = false) {
+function searchAllVocs(keyword, only_kana, include_chinese, max_result = 100, defined_level = false) {
     let result = [];
     if (keyword === "") return result;
     let vocs = getAllVocs(defined_level ? [getCurrentLevel()] : getAllLevels());
@@ -39,10 +41,13 @@ function searchAllVocs(keyword, only_kana, max_result = 100, defined_level = fal
         if (result.length === max_result) break;
         let voc = vocs[i];
 
+        /* 去除僅含漢字的結果 */
         if (only_kana && voc.kanji !== undefined) continue;
+
+        /* 個別搜尋 */
         if (voc.kanji !== undefined && re.exec(voc.kanji)) result.push(voc);
         else if (re.exec(voc.voc)) result.push(voc);
-        else if (re.exec(voc.chinese)) result.push(voc);
+        else if (include_chinese && re.exec(voc.chinese)) result.push(voc);
     }
     return result;
 }
