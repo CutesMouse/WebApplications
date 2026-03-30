@@ -183,7 +183,7 @@ const hira = "あいうえおかきくけこさしすせそたちつてとなに
     "っゃゅょがぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽ";
 const kata = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン" +
     "ッャュョガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポー";
-const yoon = "ゃゅょャュョィェ";
+const yoon = "ゃゅょャュョァィェォ";
 
 function isKana(char) {
     return hira.includes(char) || kata.includes(char);
