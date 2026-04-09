@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mouse-n1voc-20260330';
+const CACHE_NAME = 'mouse-n1voc-20260409';
 
 const urlsToCache = [
     './',
