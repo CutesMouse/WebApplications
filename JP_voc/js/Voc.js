@@ -74,7 +74,8 @@ function speech_transform(original) {
         let next_char = original[i + 1];
         switch (char) {
             case "自":
-                if (next_char !== "他") result = result + space + "自動詞"; else {
+                if (next_char !== "他") result = result + space + "自動詞";
+                else {
                     result = result + space + "自他動詞";
                     i++;
                 }
@@ -91,8 +92,18 @@ function speech_transform(original) {
                 i++;
                 break;
             case "連":
-                result = result + space + "連體詞";
-                if (next_char === "體") i++;
+                switch (next_char) {
+                    case "語":
+                        result = result + space + "連語";
+                        i++;
+                        break;
+                    /* Depreciated */
+                    case "體":
+                        i++;
+                    default:
+                        result = result + space + "連體詞";
+                        break;
+                }
                 break;
             case "接":
                 switch (next_char) {
@@ -102,6 +113,14 @@ function speech_transform(original) {
                         break;
                     case "尾":
                         result = result + space + "接尾語";
+                        i++;
+                        break;
+                    case "續":
+                        result = result + space + "接續詞";
+                        i++;
+                        break;
+                    case "助":
+                        result = result + space + "接助詞";
                         i++;
                         break;
                     default:
@@ -114,7 +133,7 @@ function speech_transform(original) {
                 i++;
                 break;
             case "漢":
-                result = result + space + "純漢字";
+                result = result + space + "漢造語";
                 break;
             case "感":
                 result = result + space + "感嘆詞";
@@ -123,6 +142,11 @@ function speech_transform(original) {
                 result = result + space + "代名詞";
                 break;
             case "副":
+                if (next_char === "助") {
+                    result = result + space + "副助詞";
+                    i++;
+                    break;
+                }
                 result = result + space + "副詞";
                 break;
             case "慣":
@@ -137,6 +161,28 @@ function speech_transform(original) {
             case "數":
                 result = result + space + "數量詞";
                 break;
+            case "造":
+                result = result + space + "造語";
+                break;
+            case "提":
+                result = result + space + "提助詞";
+                break;
+            case "格":
+                result = result + space + "格助詞";
+                break;
+            case "並":
+                result = result + space + "並助詞";
+                break;
+            case "補":
+                result = result + space + "補動詞";
+                break;
+            case "終":
+                result = result + space + "終助詞";
+                break;
+            case "敬":
+                result = result + space + "敬語";
+                break;
+            /* Depreciated */
             case "動":
                 result = result + space + "動詞";
                 break;
