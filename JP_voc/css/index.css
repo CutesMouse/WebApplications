@@ -628,6 +628,64 @@ html, body {
     color: #777;
 }
 
+/* 返回按鈕 */
+.back-to-top {
+    /* 固定定位在右下角 */
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 50;
+
+    /* 按鈕尺寸與置中 */
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* 外觀風格 (呼應單字卡卡片) */
+    border-radius: 50%;
+    background-color: #ffffff;
+    color: #3b82f6; /* 採用單字卡漢字的亮藍色 */
+    border: 1px solid #f3f4f6;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+
+    /* 動態過渡效果 */
+    transition: all 0.3s ease;
+
+    /* 預設隱藏狀態 (透明度0、微微縮小、無法點擊) */
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+}
+
+/* SVG 箭頭尺寸 */
+.back-to-top svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* 當符合滾動條件時，由 JS 動態加入此 Class 顯示按鈕 */
+.back-to-top.show {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+/* 滑鼠懸停效果 (微微上浮、加深陰影與藍色) */
+.back-to-top:hover {
+    background-color: #f9fafb;
+    color: #2563eb;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px) scale(1);
+}
+
+/* 點擊按鈕時的輕微縮小反饋 */
+.back-to-top:active {
+    transform: translateY(-2px) scale(0.95);
+}
+
 /* 📱 手機版優化 */
 @media screen and (max-width: 980px) {
     .control {

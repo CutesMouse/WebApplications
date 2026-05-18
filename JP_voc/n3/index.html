@@ -23,7 +23,7 @@
         const LEVEL = "N3";
 
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
+            window.addEventListener('load', function () {
                 navigator.serviceWorker.register('./n3_sw.js')
                     .then(registration => {
                         console.log('ServiceWorker 註冊成功:', registration.scope);
@@ -106,6 +106,20 @@
 </div>
 <div id="questions">
 </div>
-<div class="copyright">所有單字、例句皆出自「40天搞定新日檢N3單字 (瑞蘭國際出版社)」<br>由CutesMouse設計/<span id="progress"></span></div>
+<div class="copyright">所有單字、例句皆出自「40天搞定新日檢N3單字 (瑞蘭國際出版社)」<br>由CutesMouse設計/<span
+        id="progress"></span></div>
+
+
+<button id="backToTopBtn" class="back-to-top" aria-label="回到頂部">
+    <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="3"
+            stroke="currentColor"
+    >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/>
+    </svg>
+</button>
 </body>
 </html>
