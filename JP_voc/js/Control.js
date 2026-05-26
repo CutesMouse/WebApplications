@@ -177,11 +177,45 @@ function fast_voc_test() {
 }
 
 function setting() {
-    document.getElementById('questions').innerHTML = "<div class=\"setting_div\"><input type=\"checkbox\" id=\"shuffle\" checked=\"\">隨機排序</div>\n" + "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"accent_display\" checked=\"\">在單字卡中顯示重音</div>\n" + "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"star_display\" checked=\"\">顯示星號控制項目</div>\n" + "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"star_removing\" checked=\"\">「快速檢驗」點選「學會了」之後，自動移除星號項目</div>\n" + "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"star_adding\" checked=\"\">「快速檢驗」點選「還不會」之後，自動加入星號項目</div>\n" + "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"highlight_link\" checked=\"\">在單字卡中顯示同音漢字超連結</div>\n" + "    <div class=\"export-row setting_div\">\n" + "        <span class=\"label\">導出/導出星號標示</span>\n" + "        <input type=\"button\" value=\"導入\" onclick=\"importDatabase()\" class=\"button\">\n" + "        <span class=\"hint\">可以藉由將別的裝置的文本複製、貼到下方輸入框後按導入按鈕，即可實現跨裝置同步</span>\n" + "        <textarea id=\"database\"></textarea>\n" + "    </div>\n" + "    <div class=\"export-row setting_div\">\n" + "        <span class=\"label\">重置星號標示</span>\n" + "        <input type=\"button\" value=\"重置\" onclick=\"resetDatabase()\" class=\"button\">\n" + "        <span class=\"hint\">如發生設定問題，可點擊此按鈕重置</span>\n" + "    </div>\n" + "    <div class=\"setting_div\">喜好項目顯示單位<span class=\"hint\">分割單元時、要以多少個單字為單位(設定完請重新整理)</span><input type=\"number\"\n" + "                                                                                                           id=\"chunk\">\n" + "    </div>\n" + "    <div class=\"export-row setting_div\">\n" + "        <span class=\"label\">導出/導出權重表 " + getProgress() + "</span>\n" + "        <input type=\"button\" value=\"導入\" onclick=\"importWeight()\" class=\"button\">\n" + "        <span class=\"hint\">權重表是用以在單字檢驗項目中，為使用者篩選出較不擅長的單字</span>\n" + "        <textarea id=\"weights\"></textarea>\n" + "    </div>\n" + "    <div class=\"export-row setting_div\">\n" + "        <span class=\"label\">重置權重表</span>\n" + "        <input type=\"button\" value=\"重置\" onclick=\"resetWeight()\" class=\"button\">\n" + "        <span class=\"hint\">如發生設定問題，可點擊此按鈕重置</span>\n" + "    </div>" + "    <div class=\"setting_div\">最大搜尋上限<span class=\"hint\">使用搜尋時，最多可以顯示多少結果</span><input type=\"number\"\n" + "                                                                                                           id=\"max_search_result\">\n" + "    </div>\n";
+    document.getElementById('questions').innerHTML = "<div class=\"setting_div\"><input type=\"checkbox\" id=\"shuffle\" checked=\"\">隨機排序</div>\n" +
+        "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"hide_problem_info\" checked=\"\">在題目中隱藏題號</div>\n" +
+        "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"accent_display\" checked=\"\">在單字卡中顯示重音</div>\n" +
+        "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"star_display\" checked=\"\">顯示星號控制項目</div>\n" +
+        "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"star_removing\" checked=\"\">「快速檢驗」點選「學會了」之後，自動移除星號項目</div>\n" +
+        "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"star_adding\" checked=\"\">「快速檢驗」點選「還不會」之後，自動加入星號項目</div>\n" +
+        "    <div class=\"setting_div\"><input type=\"checkbox\" id=\"highlight_link\" checked=\"\">在單字卡中顯示同音漢字超連結</div>\n" +
+        "    <div class=\"export-row setting_div\">\n" +
+        "        <span class=\"label\">導出/導出星號標示</span>\n" +
+        "        <input type=\"button\" value=\"導入\" onclick=\"importDatabase()\" class=\"button\">\n" +
+        "        <span class=\"hint\">可以藉由將別的裝置的文本複製、貼到下方輸入框後按導入按鈕，即可實現跨裝置同步</span>\n" +
+        "        <textarea id=\"database\"></textarea>\n" +
+        "    </div>\n" +
+        "    <div class=\"export-row setting_div\">\n" +
+        "        <span class=\"label\">重置星號標示</span>\n" +
+        "        <input type=\"button\" value=\"重置\" onclick=\"resetDatabase()\" class=\"button\">\n" +
+        "        <span class=\"hint\">如發生設定問題，可點擊此按鈕重置</span>\n" +
+        "    </div>\n" +
+        "    <div class=\"setting_div\">喜好項目顯示單位<span class=\"hint\">分割單元時、要以多少個單字為單位(設定完請重新整理)</span><input type=\"number\" id=\"chunk\">\n" +
+        "    </div>\n" +
+        "    <div class=\"export-row setting_div\">\n" +
+        "        <span class=\"label\">導出/導出權重表 " + getProgress() + "</span>\n" +
+        "        <input type=\"button\" value=\"導入\" onclick=\"importWeight()\" class=\"button\">\n" +
+        "        <span class=\"hint\">權重表是用以在單字檢驗項目中，為使用者篩選出較不擅長的單字</span>\n" +
+        "        <textarea id=\"weights\"></textarea>\n" +
+        "    </div>\n" +
+        "    <div class=\"export-row setting_div\">\n" +
+        "        <span class=\"label\">重置權重表</span>\n" +
+        "        <input type=\"button\" value=\"重置\" onclick=\"resetWeight()\" class=\"button\">\n" +
+        "        <span class=\"hint\">如發生設定問題，可點擊此按鈕重置</span>\n" +
+        "    </div>" +
+        "    <div class=\"setting_div\">最大搜尋上限<span class=\"hint\">使用搜尋時，最多可以顯示多少結果</span><input type=\"number\" id=\"max_search_result\">\n" +
+        "    </div>\n";
     document.getElementById('database').value = exportDatabase();
     document.getElementById('weights').value = exportWeight();
     document.getElementById('star_removing').checked = isStarRemoving();
     document.getElementById('star_removing').addEventListener('click', () => setStarRemoving(!isStarRemoving()));
+    document.getElementById('hide_problem_info').checked = isProblemInfoHide();
+    document.getElementById('hide_problem_info').addEventListener('click', () => setProblemInfoHide(!isProblemInfoHide()));
     document.getElementById('star_adding').checked = isStarAdding();
     document.getElementById('star_adding').addEventListener('click', () => setStarAdding(!isStarAdding()));
     document.getElementById('highlight_link').checked = isHighlight();
@@ -226,6 +260,16 @@ function isStarRemoving() {
 
 function setStarRemoving(value) {
     localStorage.setItem("star_removing", value === true ? "true" : "false");
+}
+
+function isProblemInfoHide() {
+    let ph = localStorage.getItem("problem_infoHide");
+    if (!ph) return false;
+    return ph === "true";
+}
+
+function setProblemInfoHide(value) {
+    localStorage.setItem("problem_infoHide", value === true ? "true" : "false");
 }
 
 function isStarAdding() {

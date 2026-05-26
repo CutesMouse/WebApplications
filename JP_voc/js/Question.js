@@ -80,6 +80,8 @@ function show_answer(body, question_line, part1, answer, part2, problem, sentenc
     let ra = createElement('span', 'response_answer', sentence.blank);
     let r2 = createElement('span', 'response', part2.innerHTML);
     body.innerHTML = "";
+    let meta = body.parentElement.querySelector(".question-meta")
+    meta.innerHTML = meta.info;
     question_line.innerHTML = "";
     body.appendChild(question_line);
     question_line.appendChild(correct);
@@ -113,7 +115,9 @@ function generate_header(info, problem) {
     let header = createElement('div', "question-header");
     let meta = createElement('div', "question-meta");
     header.appendChild(meta);
-    meta.innerHTML = info;
+    meta.info = info;
+    if (!isProblemInfoHide()) meta.innerHTML = info;
+    else meta.innerHTML = "Day.*・第 * 題";
     if (isStarDisplay()) header.appendChild(getFavoriteDisplay(problem.level, problem.index));
     return header;
 }
